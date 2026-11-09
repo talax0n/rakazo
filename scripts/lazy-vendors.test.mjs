@@ -32,8 +32,6 @@ const LAZY_NON_VENDORS = [
 ];
 // Known static imports still to make lazy. Remove an entry once its SDK loads on demand.
 const PENDING = [
-  "@chat-adapter/telegram",
-  "@chat-adapter/whatsapp",
   // The wallet factory imports its module dynamically, but the bundle inlines that module,
   // so the SDK is a static import of every emitted server bundle.
   "@stripe/link-sdk",
