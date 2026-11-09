@@ -33,7 +33,7 @@ bot ทำงานต่อเมื่อ backend รันบนเซิร�
 
 ```bash
 bash install-images.sh --prepare-only
-# edit .env: SANDBOX_PROVIDER=boat (or e2b / daytona / createos) with its API key, RAKAZO_HOST=your.domain
+# edit .env: RAKAZO_HOST=your.domain
 bash install-images.sh
 ```
 

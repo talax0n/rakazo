@@ -25,11 +25,6 @@ Computer usage is recorded at several boundaries:
 - `computer.requested`: the first computer use in an attempt, with its reason, tool, and trigger.
 - `computer.provisioned`: completed setup, with `operation=create`, `resume`, or `reuse` and
   `durationMs`. A setup request can reuse an already-running computer without spending a start.
-- `sandbox.start`: Boat's actual `create`, `resume`, and `recover` requests, including starts during
-  preparation or after the provider expires a computer. `outcome=accepted` means the provider
-  accepted the request, not that all later setup succeeded. `rate_limited` and `failed` are
-  separate outcomes. Count accepted creates/resumes for start usage; recoveries are shown separately
-  because their quota treatment depends on the provider.
 - `computer.suspended`: successful idle or active-limit suspension, with the active duration.
 
 These records use fixed metadata, opaque correlation IDs, durations, and booleans. They do not add

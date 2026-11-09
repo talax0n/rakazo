@@ -4,7 +4,7 @@
 
 ## VM เดียว + Caddy
 
-`infra/compose/docker-compose.prod.yml` รัน Postgres, API, worker, web และ HTTPS อัตโนมัติผ่าน Caddy production ค่าเริ่มต้นใช้คอมพิวเตอร์ remote (เช่น E2B) ไม่เปิด Docker supervisor บนสาธารณะ
+`infra/compose/docker-compose.prod.yml` รัน Postgres, API, worker, web และ HTTPS อัตโนมัติผ่าน Caddy production ค่าเริ่มต้นไม่มีคอมพิวเตอร์ของบอท (`SANDBOX_PROVIDER=none`) ไม่เปิด Docker supervisor บนสาธารณะ
 
 ก่อน deploy ครั้งแรก: สร้างบัญชี `deploy` แบบ key-only แล้วรัน hardening
 
@@ -26,7 +26,7 @@ WEB_ORIGIN=https://app.example.com
 API_URL=https://app.example.com
 SIGNUPS_ENABLED=true
 SIGNUP_ALLOWLIST=owner@example.com
-SANDBOX_PROVIDER=e2b
+SANDBOX_PROVIDER=none
 RAKAZO_DEPLOY_DIR=/srv/rakazo
 RAKAZO_IMAGE_TAG=local
 ```

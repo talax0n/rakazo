@@ -19,7 +19,7 @@ SANDBOX_IDLE_MS=600000
 COMPUTER_MAX_ACTIVE_MS=7200000
 ```
 
-`SANDBOX_IDLE_MS=0` ปิดการพักเมื่อ idle (ค่าปกติ 600000 คือ 10 นาที) `COMPUTER_MAX_ACTIVE_MS=0` ใช้เมื่อ self-host ด้วย Docker ที่ idle ไม่เสียค่า เพื่อไม่ตัดแอปและ session ที่รันนาน E2B, CreateOS และ Boat ยังมี timeout ของตัวเอง
+`SANDBOX_IDLE_MS=0` ปิดการพักเมื่อ idle (ค่าปกติ 600000 คือ 10 นาที) `COMPUTER_MAX_ACTIVE_MS=0` ใช้เมื่อ self-host ด้วย Docker ที่ idle ไม่เสียค่า เพื่อไม่ตัดแอปและ session ที่รันนาน
 
 โมเดล: `MODEL_STREAM_TIMEOUT_MS`, `MODEL_STREAM_IDLE_TIMEOUT_MS`, `MODEL_CONNECT_TIMEOUT_MS` (1000–300000 ms)
 

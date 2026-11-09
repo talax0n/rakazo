@@ -113,8 +113,7 @@ bash install-images.sh
 再実行時は既存の `.env` をそのまま残します。
 
 [http://127.0.0.1:5173](http://127.0.0.1:5173) を開き、アカウントを作成してモデルを接続します。
-ローカルの Docker コンピューターはデフォルトで有効です。リモートプロバイダーとして `e2b`、`daytona`、`createos`、`boat`、`railway`
-も、対応する API キーを設定すれば利用できます。
+ローカルの Docker コンピューターはデフォルトで有効です。
 
 デフォルトのイメージタグは `edge`（main ブランチのビルド、`linux/amd64` と `linux/arm64`）です。詳細とタグは
 [セルフホストガイド](./docs/self-host.md#published-images-no-checkout)を参照してください。
@@ -133,7 +132,7 @@ bash install-images.sh
 
 ```bash
 bash install-images.sh --prepare-only
-# edit .env: SANDBOX_PROVIDER=boat (or e2b / daytona / createos) with its API key, RAKAZO_HOST=your.domain
+# edit .env: RAKAZO_HOST=your.domain
 bash install-images.sh
 ```
 
@@ -205,28 +204,6 @@ pnpm dev
 
 デプロイ、プロバイダーの選択、バックアップ、アップグレードについては
 [セルフホストガイド](./docs/self-host.md)を参照してください。
-
-CreateOS を使う場合は、`SANDBOX_PROVIDER=createos` と `CREATEOS_SANDBOX_API_KEY` を設定します。
-任意の `CREATEOS_SANDBOX_BASE_URL`、`CREATEOS_SANDBOX_SHAPE`、
-`CREATEOS_SANDBOX_ROOTFS` のデフォルト値は、それぞれ `https://api.sb.createos.sh`、`s-2vcpu-2gb`、
-`desktop:1` です。
-
-Railway のコンピューターを使う場合は、API と worker に `SANDBOX_PROVIDER=railway`、`RAILWAY_API_TOKEN`、
-`RAILWAY_ENVIRONMENT_ID` を設定します。サンドボックス用の環境は明示的に指定してください。Railway が自動で設定する
-環境 ID は、ホストしているアプリ自身の環境を指します。
-Railway API トークンは、動作する範囲で最も権限の狭いものを使ってください。サンドボックスの操作に十分で、
-クライアントの認証方式が対応していれば、プロジェクトトークンを優先します。このプロバイダーは
-現在 Bearer 認証を使うため、個人アカウントのトークンではなく、チームまたはワークスペースのトークンを使ってください。
-ライブ画面とデスクトップには `PRIVATE` ネットワークが必要です。これにより Railway の公開ドメインから
-画面を配信できます。コンピューターはこのモードで動作し、同じ Railway プロジェクト／環境内の他のサービスや、
-公開インターネットにアクセスできます。サンドボックスには、アプリやデータベースとは別の
-専用 Railway プロジェクト（少なくとも別の環境）を使うことをおすすめします。既存の `ISOLATED` コンピューターは、使う前に作り直してください。
-デスクトップは初回起動時にインストールされます。コンピューターを停止すると、ポータブルな
-ホームディレクトリを保存してサンドボックスを破棄します。次回の起動時には、新しいサンドボックスにそのホームディレクトリを復元します。
-Railway のサンドボックス利用は従量課金です。
-新しいコンピューターは Railway のデフォルトリージョンで起動します。API の近くに置くには `RAILWAY_SANDBOX_REGION`（例：
-`asia-southeast1-eqsg3a`）を設定してください。稼働中のコンピューターは次回の起動時に移動します。
-ワークスペースのエクスポートでは、64 MiB を超えるファイルは切り詰めずに拒否します。この上限は `RAILWAY_MAX_WORKSPACE_FILE_BYTES` で変更できます。
 
 ## デスクトップとモバイル
 
@@ -340,7 +317,7 @@ pnpm test:e2e
 - Better Auth
 - Graphile Worker
 - Pi
-- Docker、E2B、Daytona、CreateOS、Boat
+- Docker
 - Composio、Pipedream Connect、MCP、OpenAPI 連携
 
 ## コントリビュート
