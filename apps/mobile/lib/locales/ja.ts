@@ -12,8 +12,8 @@ export const JA_MESSAGES: Record<string, string> = {
   "Search tools": "ツールを検索",
   "A model approves routine actions and asks you about the rest.":
     "定型的な操作はモデルが承認し、それ以外はあなたに確認します。",
-  "Asks only before purchases and the first use of your computer. Only Block rules apply.":
-    "購入時とコンピューターの初回使用時にのみ確認します。適用されるのはブロックのルールだけです。",
+  "Asks only before the first use of your computer. Only Block rules apply.":
+    "コンピューターの初回使用時にのみ確認します。適用されるのはブロックのルールだけです。",
   "Asks before sending, spending or changing anything in your apps.":
     "アプリでの送信、支払い、変更の前に確認します。",
   Haptics: "触覚フィードバック",

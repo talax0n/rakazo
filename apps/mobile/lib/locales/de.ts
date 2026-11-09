@@ -12,8 +12,8 @@ export const DE_MESSAGES: Record<string, string> = {
   "Search tools": "Tools durchsuchen",
   "A model approves routine actions and asks you about the rest.":
     "Ein Modell genehmigt Routineaktionen und fragt dich beim Rest.",
-  "Asks only before purchases and the first use of your computer. Only Block rules apply.":
-    "Fragt nur vor Käufen und der ersten Nutzung deines Computers. Nur Sperrregeln gelten.",
+  "Asks only before the first use of your computer. Only Block rules apply.":
+    "Fragt nur vor der ersten Nutzung deines Computers. Nur Sperrregeln gelten.",
   "Asks before sending, spending or changing anything in your apps.":
     "Fragt, bevor in deinen Apps etwas gesendet, ausgegeben oder geändert wird.",
   Haptics: "Haptisches Feedback",
