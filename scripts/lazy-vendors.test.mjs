@@ -31,7 +31,7 @@ const LAZY_NON_VENDORS = [
   "@prisma/client",
 ];
 // Known static imports still to make lazy. Remove an entry once its SDK loads on demand.
-  /^(@aws-sdk\/.+|@composio\/core|@chat-adapter\/slack|@axiomhq\/js|@sentry\/node)$/;
+const PENDING = [];
 
 // Vendor SDKs statically imported by each emitted bundle: Map<entry, Set<vendor>>.
 const staticVendors = new Map();
