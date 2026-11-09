@@ -162,7 +162,7 @@ describe("expireTaughtSkillTeaching", () => {
         id: "computer-1",
         homeKey: "bot-1",
         kind: "cloud",
-        providerRef: "boat-1",
+        providerRef: "sandbox-1",
         controlHolder: "user",
         controlBotId: "bot-1",
         controlLeaseId: "lease-1",
@@ -204,7 +204,7 @@ describe("expireTaughtSkillTeaching", () => {
         id: "computer-1",
         homeKey: "bot-1",
         kind: "cloud",
-        providerRef: "boat-1",
+        providerRef: "sandbox-1",
         controlHolder: "user",
         controlBotId: "bot-1",
         controlLeaseId: "manual-lease",
@@ -284,8 +284,8 @@ describe("recordTeachingInputEvent", () => {
     const computer = {
       id: "computer-1",
       homeKey: "bot-1",
-      kind: "e2b",
-      providerRef: "boat-1",
+      kind: "fake",
+      providerRef: "sandbox-1",
       controlHolder: "user",
       controlBotId: "bot-1",
       controlLeaseId: "lease-1",
@@ -320,8 +320,8 @@ describe("recordTeachingInputEvent", () => {
       computer: {
         id: "computer-1",
         homeKey: "bot-1",
-        kind: "e2b",
-        providerRef: "boat-1",
+        kind: "fake",
+        providerRef: "sandbox-1",
         controlHolder: "user",
         controlBotId: "bot-1",
         controlLeaseId: "lease-1",
@@ -351,8 +351,8 @@ describe("recordTeachingInputEvent", () => {
         computer: {
           id: "computer-1",
           homeKey: "bot-1",
-          kind: "e2b",
-          providerRef: "boat-1",
+          kind: "fake",
+          providerRef: "sandbox-1",
           controlHolder: "user",
           controlBotId: "bot-1",
           controlLeaseId: "lease-1",
@@ -389,8 +389,8 @@ describe("recordTeachingInputEvent", () => {
       computer: {
         id: "computer-1",
         homeKey: "bot-1",
-        kind: "e2b",
-        providerRef: "boat-1",
+        kind: "fake",
+        providerRef: "sandbox-1",
         controlHolder: "user",
         controlBotId: "bot-1",
         controlLeaseId: "lease-1",
@@ -415,8 +415,8 @@ describe("recordTeachingInputEvent", () => {
     const computer = {
       id: "computer-1",
       homeKey: "bot-1",
-      kind: "e2b",
-      providerRef: "boat-1",
+      kind: "fake",
+      providerRef: "sandbox-1",
       controlHolder: "user",
       controlBotId: "bot-1",
       controlLeaseId: "lease-1",
@@ -461,8 +461,8 @@ describe("recordTeachingInputEvent", () => {
     const computer = {
       id: "computer-1",
       homeKey: "bot-1",
-      kind: "e2b",
-      providerRef: "boat-1",
+      kind: "fake",
+      providerRef: "sandbox-1",
       controlHolder: "user",
       controlBotId: "bot-1",
       controlLeaseId: "lease-1",
@@ -492,8 +492,8 @@ describe("recordTeachingInputEvent", () => {
     const computer = {
       id: "computer-1",
       homeKey: "bot-1",
-      kind: "e2b",
-      providerRef: "boat-1",
+      kind: "fake",
+      providerRef: "sandbox-1",
       controlHolder: "user",
       controlBotId: "bot-1",
       controlLeaseId: "lease-1",
@@ -568,8 +568,8 @@ describe("recordTeachingInputEvent", () => {
 describe("applyTeachingDesktopInput", () => {
   const computer = {
     homeKey: "bot-1",
-    kind: "e2b",
-    providerRef: "boat-1",
+    kind: "fake",
+    providerRef: "sandbox-1",
     controlLeaseId: "lease-1",
   };
 

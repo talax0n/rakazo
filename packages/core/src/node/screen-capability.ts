@@ -15,7 +15,7 @@ export const SCREEN_RECHECK_MS = 1_000;
  */
 export const SCREEN_UNCONFIRMED_MAX_MS = 6_000;
 /**
- * Remote seals are reused until this much life remains. A public hop (E2B) can
+ * Remote seals are reused until this much life remains. A public hop can
  * still be presenting the capability it started with; minting a new one on
  * every poll aborts that handshake. The reused seal keeps its original expiry.
  */

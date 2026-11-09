@@ -224,7 +224,7 @@ for (const mode of ["development", "preview"] as const) {
         if ("listen" in server) await listen(httpServer);
         origin = `http://127.0.0.1:${(httpServer.address() as AddressInfo).port}`;
         // Exercise the same capability issuer used by the production API, with a configured web origin.
-        // A loopback upstream serving /vnc.html stands in for E2B, Daytona, Boat and Railway.
+        // A loopback upstream serving /vnc.html stands in for a remote screen.
         screenUrl = addScreenProxyCapability(
           `${upstreamOrigin}/vnc.html`,
           secret,

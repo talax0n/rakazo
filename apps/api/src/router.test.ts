@@ -4241,7 +4241,7 @@ describe("computer screen url", () => {
   const computerRow = {
     id: "computer-1",
     screenGeneration: 3,
-    kind: "e2b",
+    kind: "fake",
     scope: "team",
     state: "running",
     providerRef: "sandbox-ref-1",
@@ -4280,7 +4280,7 @@ describe("computer screen url", () => {
         defaultModel: "fake-model",
         webOrigin: "http://127.0.0.1:5173",
         screenProxySecret: "fake-test-secret",
-        sandboxProvider: "e2b",
+        sandboxProvider: "fake",
       },
       dataDir: "/tmp/rakazo-router-test",
     } as unknown as RouterDeps;
@@ -10300,7 +10300,7 @@ describe("quarantined computer stop", () => {
     async (race) => {
       const row = {
         id: "computer",
-        kind: "novita",
+        kind: "fake",
         providerRef: "guest",
         homeKey: "home",
         scope: "dedicated",
@@ -10355,7 +10355,7 @@ describe("quarantined computer stop", () => {
         env: {
           defaultProvider: "fake",
           defaultModel: "fake-model",
-          sandboxProvider: "novita",
+          sandboxProvider: "fake",
           webOrigin: "http://127.0.0.1:5173",
           screenProxySecret: "test-secret",
         },

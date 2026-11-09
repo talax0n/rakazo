@@ -55,7 +55,7 @@ describe("logUnexpectedRpcError", () => {
     const rpc = new RPCHandler(
       {
         boot: os.handler(() => {
-          throw new SandboxUnresponsiveError("Boat API request failed (HTTP 525)");
+          throw new SandboxUnresponsiveError("Provider API request failed (HTTP 525)");
         }),
       },
       { clientInterceptors: [onError((error, { path }) => handleRpcError(error, path))] },
@@ -279,7 +279,7 @@ describe("logUnexpectedRpcError", () => {
   it("returns an unreachable computer provider as a retryable 503 without an error report", () => {
     const sink = createTestSink();
     installLogger(createLogger({ service: "rakazo-api", sinks: [sink] }));
-    const error = new SandboxUnresponsiveError("Boat API request failed (HTTP 502)");
+    const error = new SandboxUnresponsiveError("Provider API request failed (HTTP 502)");
 
     let thrown: unknown;
     try {
@@ -297,7 +297,7 @@ describe("logUnexpectedRpcError", () => {
       expect.objectContaining({
         level: "warn",
         message: "rpc computer/screenUrl computer unavailable",
-        reason: "Boat API request failed (HTTP 502)",
+        reason: "Provider API request failed (HTTP 502)",
       }),
     ]);
   });

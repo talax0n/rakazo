@@ -68,7 +68,7 @@ describe("native computer host capability", () => {
     for (const body of ["null", "{", '{"computerHost":"remote"}'])
       expect((await f.request(body)).status).toBe(400);
     expect((await f.request("x".repeat(1025))).status).toBe(413);
-    expect((await fixture("e2b").request('{"computerHost":"this-mac"}')).status).toBe(403);
+    expect((await fixture("fake").request('{"computerHost":"this-mac"}')).status).toBe(403);
     expect(f.upsert).toHaveBeenCalledTimes(1);
   });
 });

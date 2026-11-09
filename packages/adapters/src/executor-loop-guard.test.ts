@@ -30,7 +30,7 @@ beforeEach(() => {
   provisionComputer.mockResolvedValue({
     id: "sandbox-1",
     botId: "home-1",
-    kind: "e2b",
+    kind: "fake",
     providerRef: "sandbox-1",
   });
 });
@@ -215,7 +215,7 @@ async function runLoop(
         computerId: "computer-1",
         computerSwitching: false,
         memoryScope: null,
-        computer: { id: "computer-1", scope: "dedicated", kind: "e2b", homeKey: "home-1" },
+        computer: { id: "computer-1", scope: "dedicated", kind: "fake", homeKey: "home-1" },
       })),
       findUnique: vi.fn(async () => ({ name: "Assistant" })),
       findMany: vi.fn(async () => []),
@@ -294,7 +294,7 @@ async function runLoop(
     path.endsWith("downloads") ? listing(++listings) : [],
   );
   const sandbox = {
-    describe: () => ({ id: "e2b", capabilities: { graphical: true } }),
+    describe: () => ({ id: "fake", capabilities: { graphical: true } }),
     act,
     listFiles,
     writeFile: vi.fn(async () => undefined),

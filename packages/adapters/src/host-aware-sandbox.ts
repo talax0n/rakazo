@@ -16,7 +16,6 @@ import type {
   WorkspaceExportLimits,
 } from "@rakazo/adapter-kit";
 import type { PrismaClient } from "@rakazo/db";
-import { runAsSystem } from "@rakazo/db";
 import { getLogger } from "@rakazo/logging";
 import { cancelComputerRunWork, providerKeepsHome } from "./computer-idle.js";
 import { computerProviderDescriptor } from "./computer-provider-registry.js";
@@ -79,45 +78,7 @@ async function createBaseRunSandbox(
       hostRoots: [homedir()],
     });
   }
-  const prisma = opts.prisma;
-  const primary = await createSandboxProvider(kind, {
-    ...opts,
-    referenceInUse: prisma
-      ? async (computer) =>
-          (await runAsSystem("check whether another computer shares a provider resource", () =>
-            prisma.computer.count({
-              where: {
-                kind: computer.kind,
-                providerRef: computer.providerRef,
-                homeKey: { not: computer.botId },
-                // One still saving its workspace needs the desktop until it finishes.
-                state: { in: ["booting", "running", "suspending"] },
-              },
-            }),
-          )) > 0
-      : opts.referenceInUse,
-    onUnsafeStop: opts.prisma
-      ? async (providerRef) => {
-          const quarantined = await opts.prisma!.computer.updateMany({
-            where: { kind, providerRef },
-            data: {
-              state: "quarantined",
-              screenUrl: null,
-              screenGeneration: { increment: 1 },
-              controlFence: { increment: 1 },
-              controlHolder: "none",
-              controlLeaseId: null,
-              controlUserId: null,
-              controlLeaseExpiresAt: null,
-              controlBotId: null,
-              controlRunId: null,
-            },
-          });
-          if (quarantined.count === 0)
-            throw new Error("Computer recovery requirement could not be recorded");
-        }
-      : opts.onUnsafeStop,
-  });
+  const primary = await createSandboxProvider(kind, opts);
   if (kind !== "docker" || !opts.prisma) return primary;
   return new HostAwareSandbox(
     primary,

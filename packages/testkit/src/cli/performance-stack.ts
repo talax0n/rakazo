@@ -35,8 +35,6 @@ export function benchmarkEnvironment(options: {
     LOG_LEVEL: "off",
     COMPOSIO_API_KEY: "",
     OPENROUTER_API_KEY: "",
-    E2B_API_KEY: "",
-    DAYTONA_API_KEY: "",
     SENTRY_DSN: "",
     SENTRY_BROWSER_DSN: "",
     BETTER_AUTH_SECRET: "rakazo-benchmark-auth-secret-over-32-characters",

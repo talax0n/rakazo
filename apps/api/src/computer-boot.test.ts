@@ -219,8 +219,8 @@ describe("computer stop", () => {
     const computer = {
       id: "computer-1",
       state: "running",
-      providerRef: "boat-1",
-      kind: "boat",
+      providerRef: "sandbox-1",
+      kind: "fake",
       homeKey: "home-1",
       scope: "dedicated",
       controlLeaseId: null,
@@ -276,7 +276,7 @@ describe("computer stop", () => {
       discardUnsaved: true,
     });
     expect(prisma.computer.updateMany).toHaveBeenCalledWith({
-      where: { id: "computer-1", state: "suspending", providerRef: "boat-1", kind: "boat" },
+      where: { id: "computer-1", state: "suspending", providerRef: "sandbox-1", kind: "fake" },
       data: expect.objectContaining({ state: "stopped" }),
     });
     expect(prisma.computerRun.updateMany).toHaveBeenCalledWith(
@@ -290,7 +290,7 @@ describe("computer stop", () => {
   });
 
   it("marks a damaged computer whose stop fails as errored", async () => {
-    const stop = vi.fn().mockRejectedValue(new Error("Boat refused the stop"));
+    const stop = vi.fn().mockRejectedValue(new Error("The provider refused the stop"));
     const { response, prisma } = await stopDamaged(stop);
 
     expect(response?.status).toBe(500);

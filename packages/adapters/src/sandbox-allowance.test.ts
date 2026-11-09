@@ -69,7 +69,7 @@ describe("computer allowance", () => {
     const { deps } = allowanceDeps({
       billing: true,
       mode: "byok",
-      hours: [{ kind: "daytona", hours: 2.5 }],
+      hours: [{ kind: "fake", hours: 2.5 }],
     });
     expect(await sandboxAllowance(deps, "organization")).toEqual({
       limitMicros: 5_000_000,
@@ -199,11 +199,11 @@ describe("computer allowance", () => {
       billing: true,
       mode: "byok",
       hours: [
-        { kind: "boat", hours: 2 },
+        { kind: "fake", hours: 2 },
         { kind: "docker", hours: 10 },
       ],
       sandbox: {
-        billsWhileRunning: (computer) => computer.kind === "boat",
+        billsWhileRunning: (computer) => computer.kind === "fake",
       },
     });
     expect((await sandboxAllowance(deps, "organization"))?.usedMicros).toBe(400_000);
@@ -215,7 +215,7 @@ describe("computer allowance used up", () => {
     const { deps, prisma } = allowanceDeps({
       billing: true,
       mode: "byok",
-      hours: [{ kind: "e2b", hours }],
+      hours: [{ kind: "fake", hours }],
     });
     Object.assign(prisma, {
       space: {
@@ -224,7 +224,7 @@ describe("computer allowance used up", () => {
     });
     return deps;
   }
-  const paid = { spaceId: "space", kind: "e2b" };
+  const paid = { spaceId: "space", kind: "fake" };
 
   it("stops a billed computer only once the period's allowance is spent", async () => {
     expect(await sandboxAllowanceUsedUp(usedUpDeps(24), paid)).toBe(false);
@@ -242,7 +242,7 @@ describe("computer allowance used up", () => {
 describe("computer hourly cost", () => {
   it("uses the default only for providers that bill while running", () => {
     expect(
-      sandboxHourlyCostMicros({ billsWhileRunning: () => true } as never, { kind: "e2b" }),
+      sandboxHourlyCostMicros({ billsWhileRunning: () => true } as never, { kind: "fake" }),
     ).toBe(SANDBOX_HOURLY_COST_MICROS);
     expect(sandboxHourlyCostMicros({} as SandboxProvider, { kind: "docker" })).toBe(0);
   });

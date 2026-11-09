@@ -6,7 +6,7 @@ describe("toComputerStatus", () => {
   it("shows a quarantined computer as an error without making its screen available", () => {
     expect(
       toComputerStatus("bot", {
-        kind: "novita",
+        kind: "docker",
         state: "quarantined",
         scope: "team",
         controlHolder: "none",
@@ -104,13 +104,28 @@ describe("toComputerStatus", () => {
     ).toBe(false);
     expect(
       toComputerStatus("bot-1", {
-        kind: "e2b",
+        kind: "docker",
         state: "running",
         scope: "team",
         controlHolder: "none",
         homeRevision: "r1",
       }).canUpdate,
     ).toBe(true);
+  });
+
+  it("shows a computer stored under a removed provider as stopped instead of failing validation", () => {
+    const status = toComputerStatus("bot-1", {
+      kind: "retired-provider",
+      state: "running",
+      scope: "team",
+      controlHolder: "none",
+      homeRevision: "r1",
+    });
+    expect(ComputerStatusSchema.parse(status)).toMatchObject({
+      kind: "none",
+      state: "stopped",
+      screenAvailable: false,
+    });
   });
 });
 

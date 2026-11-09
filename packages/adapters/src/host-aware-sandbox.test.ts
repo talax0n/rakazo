@@ -227,7 +227,6 @@ describe("host-aware sandbox", () => {
   it("only switches docker deployments onto this Mac", () => {
     expect(sandboxKindForBot("docker", "this-mac")).toBe("desktop");
     expect(sandboxKindForBot("docker", "docker")).toBe("docker");
-    expect(sandboxKindForBot("e2b", "this-mac")).toBe("e2b");
     expect(sandboxKindForBot("fake", "this-mac")).toBe("fake");
   });
 
@@ -255,12 +254,16 @@ describe("host-aware sandbox", () => {
   });
 });
 
+it("refuses a removed provider at startup", async () => {
+  await expect(createRunSandbox("e2b", {})).rejects.toThrow('Unknown SANDBOX_PROVIDER "e2b"');
+});
+
 it("starts even when the saved computer settings cannot be read", async () => {
   const sandbox = await createRunSandbox("docker", {
     prisma: {
       deploymentSettings: {
         findUnique: vi.fn(async () => ({
-          computerProvider: "wuying",
+          computerProvider: "test-cloud",
           computerProviderCipher: "c",
         })),
       },

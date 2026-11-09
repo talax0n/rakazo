@@ -5,7 +5,6 @@ import {
   captureScreenshot,
   completeOnboarding,
   openBotPanelTab,
-  realSandboxTimeout,
   rpc,
   signup,
 } from "./helpers";
@@ -190,7 +189,7 @@ async function sendMessage(page: Page, text: string) {
 async function waitForIdle(page: Page, botId: string) {
   await expect
     .poll(async () => (await threadSnapshot(page, botId)).run?.status ?? "idle", {
-      timeout: realSandboxTimeout(90_000, 20_000),
+      timeout: 20_000,
     })
     .toBe("idle");
 }

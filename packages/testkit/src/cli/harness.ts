@@ -2,9 +2,7 @@ import { execSync } from "node:child_process";
 import { globSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import type { createApp } from "@rakazo/api/app";
 import { loadRootEnv } from "@rakazo/core/node/load-root-env";
-import type { runAsSystem as RunAsSystem } from "@rakazo/db";
 import { createModelConnectionFixtureFetch } from "../model-connection-fixture.js";
 import { PluginMarketplaceFixture } from "../plugin-marketplace-fixture.js";
 import { startPostgres } from "./postgres.js";
@@ -28,31 +26,10 @@ const agentRuntime = runtimeArg?.slice("--runtime=".length) ?? "scripted";
 if (Number(integration) + Number(e2e) !== 1) {
   throw new Error("Pass exactly one of --integration or --e2e");
 }
-if (!["fake", "e2b", "novita", "daytona", "boat", "boxd"].includes(sandboxProvider)) {
-  throw new Error('Sandbox must be "fake", "e2b", "novita", "daytona", "boat", or "boxd"');
-}
-if (integration && sandboxProvider !== "fake") {
-  throw new Error("Integration tests only support the fake sandbox");
-}
+if (sandboxProvider !== "fake") throw new Error('Sandbox must be "fake"');
 if (agentRuntime !== "pi" && agentRuntime !== "scripted") {
   throw new Error('Runtime must be "pi" or "scripted"');
 }
-if (sandboxProvider === "e2b" && !process.env.E2B_API_KEY) {
-  throw new Error("E2B_API_KEY is required when --sandbox=e2b");
-}
-if (sandboxProvider === "novita" && !process.env.NOVITA_API_KEY) {
-  throw new Error("NOVITA_API_KEY is required when --sandbox=novita");
-}
-if (sandboxProvider === "daytona" && !process.env.DAYTONA_API_KEY) {
-  throw new Error("DAYTONA_API_KEY is required when --sandbox=daytona");
-}
-if (sandboxProvider === "boat" && !process.env.BOAT_API_KEY) {
-  throw new Error("BOAT_API_KEY is required when --sandbox=boat");
-}
-if (sandboxProvider === "boxd" && !process.env.BOXD_API_KEY) {
-  throw new Error("BOXD_API_KEY is required when --sandbox=boxd");
-}
-
 async function main() {
   const mode = integration ? "integration" : "e2e";
   const reportDir = path.resolve("test-report", mode);
@@ -171,7 +148,7 @@ async function main() {
         UserDeviceEmulator,
       },
       { createApp },
-      { drainUnscopedDatabaseAccess, runAsSystem },
+      { drainUnscopedDatabaseAccess },
     ] = await Promise.all([
       import("@rakazo/adapters"),
       import("@rakazo/api/app"),
@@ -284,63 +261,15 @@ async function main() {
         webPort,
       });
     } finally {
-      const cleanupErrors: unknown[] = [];
-      const computers = await managedComputers(handles, runAsSystem).catch((error) => {
-        cleanupErrors.push(error);
-        return [];
-      });
       await new Promise<void>((resolve) => server.close(() => resolve()));
       if (activeRequests > 0) {
         await new Promise<void>((resolve) => requestWaiters.add(resolve));
       }
       await handles.stop().catch(() => undefined);
-      for (let index = 0; index < computers.length; index += 4) {
-        const results = await Promise.allSettled(
-          computers.slice(index, index + 4).map((computer) =>
-            handles.sandbox.destroy(
-              {
-                id: computer.providerRef!,
-                botId: computer.homeKey,
-                kind: computer.kind as "e2b" | "novita" | "daytona" | "boat" | "boxd",
-                providerRef: computer.providerRef!,
-              },
-              {
-                operationId: "e2e-cleanup",
-                traceId: "e2e-cleanup",
-                spaceId: computer.spaceId,
-                userId: computer.userId,
-                signal: new AbortController().signal,
-              },
-            ),
-          ),
-        );
-        for (const result of results) {
-          if (result.status === "rejected") cleanupErrors.push(result.reason);
-        }
-      }
-      if (cleanupErrors.length) {
-        console.error(
-          new AggregateError(cleanupErrors, "Could not destroy every managed test sandbox"),
-        );
-        process.exitCode = 1;
-      }
     }
   } finally {
     await container.stop().catch(() => undefined);
   }
-}
-
-type AppHandles = Awaited<ReturnType<typeof createApp>>;
-
-async function managedComputers(handles: AppHandles, runAsSystem: typeof RunAsSystem) {
-  if (!["e2b", "novita", "daytona", "boat", "boxd"].includes(sandboxProvider)) return [];
-  // Outside a tenant or system context the runtime login reads no rows, and nothing is destroyed.
-  return runAsSystem("e2e cleanup of real test sandboxes", () =>
-    handles.prisma.computer.findMany({
-      where: { providerRef: { not: null } },
-      select: { homeKey: true, kind: true, providerRef: true, userId: true, spaceId: true },
-    }),
-  );
 }
 
 async function writeSummary(reportDir: string, summary: Record<string, unknown>) {

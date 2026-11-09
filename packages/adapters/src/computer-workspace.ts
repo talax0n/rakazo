@@ -74,19 +74,8 @@ export function mountsServerHome(kind: string) {
 }
 
 /** The computer already reads and writes the server's home directory, so there is nothing to copy. */
-async function homeIsMounted(
-  home: AgentHomeStore,
-  sandbox: SandboxProvider,
-  computer: ComputerRef,
-  context: AdapterContext,
-) {
-  if (!(home instanceof LocalAgentHomeStore)) return false;
-  if (mountsServerHome(computer.kind)) return true;
-  // Object-backed homes must hydrate and export even when a claim was configured.
-  if (home.describe().id !== "local-fs") return false;
-  return (
-    computer.kind === "kubernetes" && (await sandbox.hasMountedHome?.(computer, context)) === true
-  );
+function homeIsMounted(home: AgentHomeStore, computer: ComputerRef) {
+  return home instanceof LocalAgentHomeStore && mountsServerHome(computer.kind);
 }
 
 export async function restoreComputerWorkspace(
@@ -96,7 +85,7 @@ export async function restoreComputerWorkspace(
   computer: ComputerRef,
   context: AdapterContext,
 ): Promise<void> {
-  if (await homeIsMounted(home, sandbox, computer, context)) return;
+  if (homeIsMounted(home, computer)) return;
   await sandbox.importWorkspace(computer, home.exportHome(homeKey, context), context);
 }
 
@@ -374,10 +363,7 @@ export async function checkpointComputerWorkspace(
     });
   const before = await lifecycle();
   if (before?.restorePending || before?.state === "booting") return undefined;
-  if (
-    home instanceof LocalAgentHomeStore &&
-    (await homeIsMounted(home, sandbox, computer, context))
-  ) {
+  if (home instanceof LocalAgentHomeStore && homeIsMounted(home, computer)) {
     return home.revise(homeKey);
   }
   // On the data volume, never a container's own disk, and removed later if this process dies.
