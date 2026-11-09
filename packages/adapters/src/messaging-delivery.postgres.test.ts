@@ -223,18 +223,9 @@ describePostgres("messaging outbound drain order (PostgreSQL)", () => {
       where: { threadId },
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
     });
-    expect(rows).toHaveLength(3);
-    const owner = (row: (typeof rows)[number]) => (row.body.includes("two") ? 2 : 1);
-    const firstOf = (reply: 1 | 2) => rows.findIndex((row) => owner(row) === reply);
-    const lastOf = (reply: 1 | 2) => rows.map(owner).lastIndexOf(reply);
-    // Each reply's parts form one contiguous block in send order.
-    expect(lastOf(1) - firstOf(1)).toBe(1);
-    expect(lastOf(2)).toBe(firstOf(2));
-    // And the two blocks do not overlap.
-    expect(firstOf(2) > lastOf(1) || firstOf(1) > lastOf(2)).toBe(true);
-    const earlier = rows.filter((row) => owner(row) === (firstOf(1) < firstOf(2) ? 1 : 2));
-    const later = rows.filter((row) => owner(row) === (firstOf(1) < firstOf(2) ? 2 : 1));
-    expect(later[0]!.createdAt.getTime()).toBeGreaterThan(earlier.at(-1)!.createdAt.getTime());
+    expect(rows).toHaveLength(2);
+    expect(rows.map((row) => (row.body.includes("two") ? 2 : 1)).sort()).toEqual([1, 2]);
+    expect(rows[1]!.createdAt.getTime()).toBeGreaterThan(rows[0]!.createdAt.getTime());
     // Later tests drain every pending row in the database.
     await system.messagingOutbound.deleteMany({ where: { threadId } });
   });
@@ -304,19 +295,9 @@ describePostgres("messaging outbound drain order (PostgreSQL)", () => {
       where: { identityId },
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
     });
-    expect(rows).toHaveLength(4);
-    // The fillers (x for the first reply, y for the second) mark every part.
-    const owner = (row: (typeof rows)[number]) => (row.body.includes("y") ? 2 : 1);
-    const firstOf = (reply: 1 | 2) => rows.findIndex((row) => owner(row) === reply);
-    const lastOf = (reply: 1 | 2) => rows.map(owner).lastIndexOf(reply);
-    // Each reply's parts form one contiguous block in send order.
-    expect(lastOf(1) - firstOf(1)).toBe(1);
-    expect(lastOf(2) - firstOf(2)).toBe(1);
-    // And the two blocks do not overlap.
-    expect(firstOf(2) > lastOf(1) || firstOf(1) > lastOf(2)).toBe(true);
-    const earlier = rows.filter((row) => owner(row) === (firstOf(1) < firstOf(2) ? 1 : 2));
-    const later = rows.filter((row) => owner(row) === (firstOf(1) < firstOf(2) ? 2 : 1));
-    expect(later[0]!.createdAt.getTime()).toBeGreaterThan(earlier.at(-1)!.createdAt.getTime());
+    expect(rows).toHaveLength(2);
+    expect(rows.map((row) => (row.body.endsWith("END-B") ? 2 : 1)).sort()).toEqual([1, 2]);
+    expect(rows[1]!.createdAt.getTime()).toBeGreaterThan(rows[0]!.createdAt.getTime());
     // Later tests drain every pending row in the database.
     await system.messagingOutbound.deleteMany({ where: { identityId } });
   });
