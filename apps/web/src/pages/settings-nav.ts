@@ -12,7 +12,6 @@ import {
   Settings,
   ShieldCheck,
   Volume2,
-  Wallet,
 } from "lucide-react";
 import type { ComponentType } from "react";
 import type { SettingsSection } from "./shell-overlay";
@@ -28,7 +27,6 @@ export type SettingsNavItem = {
 /** The settings sections this deployment offers, in nav order; Space opens from its own menu. */
 export function useSettingsNavItems(available: {
   messaging: boolean;
-  wallet: boolean;
   computer: boolean;
   billing: boolean;
   updates: boolean;
@@ -51,16 +49,6 @@ export function useSettingsNavItems(available: {
       icon: KeyRound,
       description: t`Logins and keys your bots can use.`,
     },
-    ...(available.wallet
-      ? [
-          {
-            id: "wallet" as const,
-            label: t`Wallet`,
-            icon: Wallet,
-            description: t`Where your bots pay from.`,
-          },
-        ]
-      : []),
     {
       id: "memory",
       label: t`Memory`,

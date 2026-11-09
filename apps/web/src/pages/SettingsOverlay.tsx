@@ -29,7 +29,6 @@ import { MemorySettingsOverlay } from "./MemorySettingsOverlay";
 import { MessagingSettingsPanel } from "./MessagingSettingsPanel";
 import { ModelSettingsOverlay } from "./ModelSettingsOverlay";
 import { OrganizationSettingsPanel } from "./OrganizationSettingsPanel";
-import { PaymentWalletSettingsPanel } from "./PaymentWalletSettingsPanel";
 import { SpaceSettingsPanel } from "./SpaceSettingsPanel";
 import { useSettingsNavItems } from "./settings-nav";
 import type { SettingsSpace } from "./shell/dialogs";
@@ -61,7 +60,6 @@ export function SettingsOverlay({
   canConfigureComputers = false,
   computerSettingsEnabled = false,
   messagingEnabled = false,
-  paymentWalletProvider = null,
   memoryConfig,
   onMemoryConfigChange,
   onClose,
@@ -95,8 +93,6 @@ export function SettingsOverlay({
   canConfigureComputers?: boolean;
   computerSettingsEnabled?: boolean;
   messagingEnabled?: boolean;
-  /** The wallet this deployment lets bots spend from; none hides Wallet. */
-  paymentWalletProvider?: { id: string; name: string } | null;
   memoryConfig: SpaceMemoryConfig | null | undefined;
   onMemoryConfigChange: (config: SpaceMemoryConfig | null) => void;
   onClose: () => void;
@@ -128,7 +124,6 @@ export function SettingsOverlay({
     (requestedSection === "computer" && !showComputer) ||
     (requestedSection === "billing" && !billingEnabled) ||
     (requestedSection === "messaging" && !messagingEnabled) ||
-    (requestedSection === "wallet" && !paymentWalletProvider) ||
     (requestedSection === "updates" && !showUpdates)
       ? "general"
       : requestedSection;
@@ -164,7 +159,6 @@ export function SettingsOverlay({
 
   const navItems = useSettingsNavItems({
     messaging: messagingEnabled,
-    wallet: Boolean(paymentWalletProvider),
     computer: showComputer,
     billing: billingEnabled,
     updates: showUpdates,
@@ -197,16 +191,7 @@ export function SettingsOverlay({
       nav.removeEventListener("scroll", measure);
       observer?.disconnect();
     };
-  }, [
-    nav,
-    section,
-    showComputer,
-    billingEnabled,
-    messagingEnabled,
-    paymentWalletProvider,
-    showUpdates,
-    i18n.locale,
-  ]);
+  }, [nav, section, showComputer, billingEnabled, messagingEnabled, showUpdates, i18n.locale]);
 
   function scrollSections(direction: number) {
     if (!nav) return;
@@ -434,9 +419,6 @@ export function SettingsOverlay({
                   {section === "confirmations" ? <ApprovalRulesSettings scope="account" /> : null}
                   {section === "vault" ? <VaultSettings scope="account" /> : null}
                   {section === "messaging" && messagingEnabled ? <MessagingSettingsPanel /> : null}
-                  {section === "wallet" && paymentWalletProvider ? (
-                    <PaymentWalletSettingsPanel provider={paymentWalletProvider} />
-                  ) : null}
                   {section === "usage" ? (
                     <UsageSettingsPanel usage={usage} panelRef={usageRef} />
                   ) : null}

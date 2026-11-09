@@ -857,7 +857,6 @@ function SpaceShell() {
   const paletteActions = usePaletteActions({
     settingsAvailable: {
       messaging: messagingSurfaceEnabled,
-      wallet: Boolean(bootstrapMe?.paymentWalletProvider),
       computer:
         bootstrapMe?.computerSettingsEnabled === true &&
         computersAreUnavailable(bootstrapMe?.sandboxProvider),
