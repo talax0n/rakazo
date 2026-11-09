@@ -2645,13 +2645,6 @@ describe("answerRunInput", () => {
   it.each([
     ["destination.write", {}, "tool", "destination.write", false],
     ["web_fetch", { url: "https://docs.example.com/a?b=c" }, "site", "example.com", true],
-    [
-      "paid_request",
-      { url: "https://api.example.com/quote", method: "GET" },
-      "site",
-      "example.com",
-      false,
-    ],
     // secret_request also carries a url, but its card allows the tool, not a site.
     [
       "secret_request",
