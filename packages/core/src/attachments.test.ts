@@ -294,7 +294,7 @@ describe("peer message history", () => {
       blocksToAgentHistoryText([
         {
           kind: "channel_message",
-          provider: "imessage",
+          provider: "chat",
           channelId: "channel-1",
           fromAddress: "+15550100",
           fromLabel: "Ana",

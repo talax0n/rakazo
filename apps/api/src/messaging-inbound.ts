@@ -122,7 +122,7 @@ async function handleDirectEvent(
   deps: MessagingInboundDeps,
   event: MessagingInboundMessage,
 ): Promise<void> {
-  // Media that only the provider can download (Telegram file_id fetches) rides
+  // Media that only the provider can download (authenticated file fetches) rides
   // along in event.attachments; CDN media keeps riding along as text.
   const attachments = event.attachments ?? [];
   const text = [event.content, event.mediaUrl].filter(Boolean).join("\n");
@@ -134,12 +134,12 @@ async function handleDirectEvent(
   // A deactivated person's chat apps act for nobody: no commands, messages or links.
   if (existing && (await accountDeactivated(deps.prisma, existing.userId))) return;
   if (existing) {
-    // Any reply — even a content-free reaction — ends the consecutive-
-    // outbound streak, but only real text wakes the bot. The conversation
-    // id is refreshed from the webhook so outbound always has a thread.
+    // Any reply — even a content-free reaction — is recorded, but only real
+    // text wakes the bot. The conversation id is refreshed from the webhook
+    // so outbound always has a thread.
     await deps.prisma.messagingIdentity.update({
       where: { id: existing.id },
-      data: { outboundSinceInbound: 0, lastInboundAt: new Date(), dmThreadId: event.threadId },
+      data: { lastInboundAt: new Date(), dmThreadId: event.threadId },
     });
     if (!text && attachments.length === 0) return;
     // Owner commands are only parsed in the verified 1:1 conversation.
@@ -738,7 +738,7 @@ async function handleChannelEvent(
     update: channelName ? { name: channelName } : {},
   });
 
-  // Telegram reports departures one service message at a time; a rosterless
+  // Some platforms report departures one service message at a time; a rosterless
   // platform has no sweep, so this delta is the only removal signal. Our own
   // bot leaving ends every membership: nothing more is delivered there. The
   // event itself carries no conversation — no intro, no run — and it runs before

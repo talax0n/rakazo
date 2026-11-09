@@ -6,7 +6,7 @@ Rakazo อ่านจากตัวแปรสภาพแวดล้อม 
 
 ดูรายการหลักใน `.env.example` (checkout) หรือ `.env.images.example` (published images)
 
-ชื่อที่คุณตั้งเอง เช่น `TELEGRAM_BOT_TOKEN_<NAME>` ต้องใส่ในบล็อก `environment` ของ `api` และ `worker` ใน `docker-compose.override.yml` แล้วชี้ `-f docker-compose.override.yml` หลังไฟล์หลัก updater ต้องรวม override ใน `RAKAZO_COMPOSE_FILE` ด้วย
+ชื่อที่คุณตั้งเอง เช่น `MY_SETTING` ต้องใส่ในบล็อก `environment` ของ `api` และ `worker` ใน `docker-compose.override.yml` แล้วชี้ `-f docker-compose.override.yml` หลังไฟล์หลัก updater ต้องรวม override ใน `RAKAZO_COMPOSE_FILE` ด้วย
 
 ## ค่าหลักที่มักปรับ
 

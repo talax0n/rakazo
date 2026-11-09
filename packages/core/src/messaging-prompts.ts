@@ -3,7 +3,7 @@ import type { MessageBlock } from "@rakazo/contracts";
 /** Instruction-stack note for bots whose owner has a messaging identity. */
 export function messagingDmSurfaceNote(): string {
   return [
-    "Chat surface: the owner also reaches you over a messaging app (iMessage/SMS, Slack, WhatsApp, or similar).",
+    "Chat surface: the owner also reaches you over a messaging app (Slack or similar).",
     "That conversation and this one are the same thread; anything you reply here is mirrored to their chat.",
     "Keep replies concise. They arrive as chat messages.",
   ].join(" ");

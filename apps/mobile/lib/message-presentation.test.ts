@@ -25,7 +25,7 @@ describe("mobile message presentation", () => {
       },
       {
         kind: "channel_message",
-        provider: "sendblue",
+        provider: "chat",
         channelId: "ch-1",
         fromAddress: "+15551234567",
         fromLabel: "Alex",

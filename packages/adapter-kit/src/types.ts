@@ -942,7 +942,7 @@ export interface MessagingCapabilities {
   files?: boolean;
 }
 
-/** One messaging platform behind the chat surface (sendblue, slack, …). */
+/** One messaging platform behind the chat surface (slack, …). */
 export interface MessagingPlatformDescriptor {
   provider: string;
   capabilities: MessagingCapabilities;
@@ -1000,8 +1000,8 @@ export interface MessagingInboundMessage {
    */
   rosterAt?: Date;
   /**
-   * Member departures this event reports one at a time (Telegram service
-   * messages on a platform that sends no roster): addresses that left or were
+   * Member departures this event reports one at a time (service messages
+   * on a platform that sends no roster): addresses that left or were
    * removed, plus our own bot leaving, which ends every membership because
    * nothing more can be delivered to that channel.
    */

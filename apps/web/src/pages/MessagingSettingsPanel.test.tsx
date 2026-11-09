@@ -84,14 +84,14 @@ import { MessagingSettingsPanel } from "./MessagingSettingsPanel";
 
 const identity = {
   id: "mi-1",
-  provider: "telegram",
+  provider: "chat",
   address: "424242",
   botId: "bot-1",
   botName: "Chief",
 };
 
 function statusWith(identities: (typeof identity)[]) {
-  return { enabled: true, providers: ["telegram"], openSignup: false, identities };
+  return { enabled: true, providers: ["chat"], openSignup: false, identities };
 }
 
 function pendingStatus() {
@@ -138,15 +138,13 @@ afterEach(() => {
   messaging.channels.list.mockResolvedValue([]);
 });
 
-function telegramItem() {
-  return [...container.querySelectorAll("button")].find(
-    (button) => button.textContent === "Telegram",
-  );
+function chatItem() {
+  return [...container.querySelectorAll("button")].find((button) => button.textContent === "chat");
 }
 
 async function startLink() {
   await renderOverlay();
-  await act(async () => telegramItem()?.click());
+  await act(async () => chatItem()?.click());
   expect(container.querySelector('[data-testid="messaging-link-code"]')).not.toBeNull();
 }
 
@@ -246,7 +244,7 @@ it("ignores a previous code's pending response after issuing a new code", async 
   const pending = pendingStatus();
   messaging.status.mockReturnValueOnce(pending.promise);
   await act(async () => vi.advanceTimersByTimeAsync(3_000));
-  await act(async () => telegramItem()?.click());
+  await act(async () => chatItem()?.click());
   const calls = messaging.status.mock.calls.length;
   await act(async () => pending.resolve(statusWith([identity])));
 
@@ -298,12 +296,12 @@ it("connects Slack to the default bot through workspace authorization", async ()
 });
 
 it("shows Slack as its own row, apart from apps linked with a code", async () => {
-  messaging.status.mockResolvedValue({ ...statusWith([]), providers: ["slack", "telegram"] });
+  messaging.status.mockResolvedValue({ ...statusWith([]), providers: ["slack", "chat"] });
   messaging.installations.list.mockResolvedValue({ available: true, installations: [] });
   await renderOverlay();
   const items = [...container.querySelectorAll("button")].map((button) => button.textContent);
   expect(items).toContain("Connect");
-  expect(items).toContain("Telegram");
+  expect(items).toContain("chat");
   expect(items).not.toContain("Slack");
 });
 
@@ -322,7 +320,7 @@ it("keeps code linking for legacy Slack deployments", async () => {
 it("links DMs to the bot that answers in the workspace", async () => {
   messaging.status.mockResolvedValue({
     ...statusWith([identity]),
-    providers: ["slack", "telegram"],
+    providers: ["slack", "chat"],
   });
   messaging.installations.list.mockResolvedValue({
     available: true,
@@ -439,12 +437,12 @@ it("keeps a removed Slack workspace gone when an older read lands after it", asy
 it("says which line to send the code to when the app has one", async () => {
   messaging.status.mockResolvedValue({
     ...statusWith([]),
-    providers: ["sendblue"],
-    addresses: { sendblue: "+15550001111" },
+    providers: ["chat"],
+    addresses: { chat: "+15550001111" },
   });
   await renderOverlay();
   const item = [...container.querySelectorAll("button")].find(
-    (button) => button.textContent === "iMessage",
+    (button) => button.textContent === "chat",
   );
   await act(async () => item?.click());
   expect(container.querySelector('[data-testid="messaging-link-code"]')?.textContent).toContain(
@@ -488,7 +486,7 @@ it("lets members link personal DMs without owning the workspace connection", asy
 });
 
 it("keeps other apps usable and withholds Slack when its setup method cannot load", async () => {
-  messaging.status.mockResolvedValue({ ...statusWith([]), providers: ["slack", "telegram"] });
+  messaging.status.mockResolvedValue({ ...statusWith([]), providers: ["slack", "chat"] });
   messaging.installations.list.mockRejectedValue(new Error("unavailable"));
   await renderOverlay();
   const buttons = [...container.querySelectorAll("button")];
@@ -496,7 +494,7 @@ it("keeps other apps usable and withholds Slack when its setup method cannot loa
     false,
   );
   expect(buttons.some((button) => button.textContent === "Slack")).toBe(false);
-  await act(async () => telegramItem()!.click());
+  await act(async () => chatItem()!.click());
   expect(messaging.link.start).toHaveBeenCalledWith({ botId: "bot-1" });
 });
 

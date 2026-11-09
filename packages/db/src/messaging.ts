@@ -8,7 +8,7 @@ import { isUniqueViolation } from "./prisma-errors.js";
 import { createRepos } from "./repos.js";
 
 export interface MessagingIdentityRequest {
-  /** Messaging platform hosting the conversation (sendblue, slack, …). */
+  /** Messaging platform hosting the conversation (slack, …). */
   provider: string;
   /** Sender address within the provider: E.164 number, Slack user id, …. */
   address: string;

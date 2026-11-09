@@ -11,7 +11,7 @@ const describePostgres =
   process.env.VERIFY_DATABASE && databaseUrl ? describe.sequential : describe.skip;
 
 describePostgres("bot fleetManagement (PostgreSQL)", () => {
-  const provider = "sendblue";
+  const provider = "chat";
   const address = "+15550004444";
   let prisma: PrismaClient;
   let close: () => Promise<void>;

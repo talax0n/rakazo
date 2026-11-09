@@ -8,6 +8,7 @@ import type {
   MessagingSendRequest,
   MessagingSurface,
 } from "@rakazo/adapter-kit";
+import { MessagingSendError } from "./chat-sdk-surface.js";
 import { credentialDigest } from "./credential-digest.js";
 
 type CachedSurface = {
@@ -97,7 +98,7 @@ export class InstalledMessagingSurface implements MessagingSurface {
   async sendToThread(request: MessagingSendRequest, context: AdapterContext) {
     const scoped = await this.resolve(request.threadId, context);
     if (!scoped) {
-      if (!this.fallback) throw new Error("Messaging provider unavailable");
+      if (!this.fallback) throw providerUnavailable();
       return this.fallback.sendToThread(request, context);
     }
     return this.withSurface(scoped.installation, (surface) =>
@@ -107,7 +108,7 @@ export class InstalledMessagingSurface implements MessagingSurface {
 
   async openDirectThread(provider: string, address: string, context: AdapterContext) {
     if (provider !== this.provider.provider) {
-      if (!this.fallback) throw new Error("Messaging provider unavailable");
+      if (!this.fallback) throw providerUnavailable();
       return this.fallback.openDirectThread(provider, address, context);
     }
     const separator = address.indexOf(":");
@@ -264,4 +265,12 @@ function scopeMessage(
     ),
     threadId: scopeThread(installation, event.threadId),
   };
+}
+
+/** No surface hosts the provider (removed or unconfigured), so retrying cannot help. */
+function providerUnavailable(): MessagingSendError {
+  return new MessagingSendError(new Error("Messaging provider unavailable"), {
+    permanent: true,
+    retryAfterMs: null,
+  });
 }

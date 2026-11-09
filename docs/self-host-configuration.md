@@ -11,21 +11,19 @@ common ones with short notes.
 
 Do not commit `.env`. Never put `COMPOSIO_API_KEY`, OpenRouter keys, or provider tokens in git, logs, or chat.
 
-## Settings with names you choose
+## Settings the Compose files do not list
 
-The Compose files pass the API and worker only the settings each one reads, listed by name, rather than the whole `.env`. A setting whose name you choose, such as `TELEGRAM_BOT_TOKEN_<NAME>` or `PHOTON_PROJECT_ID_<NAME>`, therefore needs its own line: add it under `api` and `worker` `environment` in an override file layered after the base file (and in `RAKAZO_COMPOSE_FILE` when the updater is enabled), with no value so Compose fills it from `.env`. `install-images.sh` names any `.env` setting that no container receives.
+The Compose files pass the API and worker only the settings each one reads, listed by name, rather than the whole `.env`. Any other setting, such as one your own image or sidecar reads, therefore needs its own line: add it under `api` and `worker` `environment` in an override file layered after the base file (and in `RAKAZO_COMPOSE_FILE` when the updater is enabled), with no value so Compose fills it from `.env`. `install-images.sh` names any `.env` setting that no container receives.
 
 ```yaml
 # docker-compose.override.yml
 services:
   api:
     environment:
-      TELEGRAM_BOT_TOKEN_SUPPORT:
-      TELEGRAM_WEBHOOK_SECRET_TOKEN_SUPPORT:
+      MY_SETTING:
   worker:
     environment:
-      TELEGRAM_BOT_TOKEN_SUPPORT:
-      TELEGRAM_WEBHOOK_SECRET_TOKEN_SUPPORT:
+      MY_SETTING:
 ```
 
 `install-images.sh` layers a `docker-compose.override.yml` next to it automatically. In your own

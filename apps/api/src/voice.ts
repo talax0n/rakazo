@@ -570,7 +570,7 @@ export async function transcribeVoice(
 }
 
 /**
- * Transcribes inbound messaging audio (for example a Telegram voice note) with
+ * Transcribes inbound messaging audio (for example a voice note) with
  * the bot owner's default voice connection, as the app's dictation does. Null
  * when no provider can transcribe or the audio is too large; the caller treats
  * a throw the same way, so the file is delivered without a transcript.

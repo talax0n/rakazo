@@ -203,7 +203,6 @@ jobs:
           targets=("${packages[@]}" \
             infra/updater/src/compose-env.test.ts \
             packages/adapters/src/builtin-skills.test.ts \
-            packages/adapters/src/lark-lazy-loading.test.ts \
             packages/page-kit/src/kit/labels.test.tsx \
             packages/testkit/src/ios-screenshot-catalog.test.ts)
           # Vitest rejects more shards than test files, so a small set runs whole on the first shard.

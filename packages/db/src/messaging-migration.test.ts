@@ -36,7 +36,7 @@ describe("messaging_surface outbound close-out", () => {
     const after = closeOutPending([
       { status: "pending", identityId: "ident-1", threadId: null },
       { status: "pending", identityId: null, threadId: null },
-      { status: "pending", identityId: null, threadId: "sendblue:group:1" },
+      { status: "pending", identityId: null, threadId: "chat:group:1" },
       { status: "sent", identityId: null, threadId: null },
     ]);
     expect(after.map((row) => row.status)).toEqual(["pending", "failed", "pending", "sent"]);

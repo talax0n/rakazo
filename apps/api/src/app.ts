@@ -390,8 +390,7 @@ async function buildApp(overrides: CreateAppOverrides): Promise<AppHandles> {
   void home.removeStaleStaging().catch((error) => getLogger().error("home staging cleanup", error));
   const artifacts = createArtifactStore(env.dataDir, prisma);
   const memory = new MarkdownMemoryStore(prisma);
-  // This process registers the inbound sink, so it must hold Telegram's getUpdates connection.
-  const messagingPlatforms = messagingPlatformsFromEnv(env, { pollInboundMessages: true }).filter(
+  const messagingPlatforms = messagingPlatformsFromEnv(env).filter(
     (platform) => platform.provider !== "slack" || !env.slackClientId,
   );
   const legacyMessaging =

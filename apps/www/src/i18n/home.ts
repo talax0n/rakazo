@@ -7,9 +7,6 @@ export const HOME_MODEL_PROVIDERS = ["Claude", "ChatGPT", "OpenRouter", "Grok", 
 
 export const HOME_CHANNELS = [
   { id: "slack", name: "Slack", selfHosted: false },
-  { id: "imessage", name: "iMessage & SMS", selfHosted: true },
-  { id: "whatsapp", name: "WhatsApp", selfHosted: true },
-  { id: "telegram", name: "Telegram", selfHosted: true },
 ] as const;
 
 export const HOME_FEATURE_KINDS = ["apps", "teach", "memory", "triggers", "team", "call"] as const;
@@ -999,7 +996,7 @@ const HOME_COPY: Record<Locale, HomeCopy> = {
     },
     channels: {
       heading: "Pisz do nich z dowolnego miejsca",
-      copy: "Wspomnij bota na Slacku lub napisz do niego z telefonu.",
+      copy: "Wspomnij bota na Slacku.",
       mock: {
         ask: "do kogo trzeba się dziś odezwać?",
         reply: "Trzech potencjalnych klientów nie odpowiedziało w tym tygodniu. Szkice są w wątku.",
@@ -1162,7 +1159,7 @@ const HOME_COPY: Record<Locale, HomeCopy> = {
     },
     channels: {
       heading: "Message them anywhere",
-      copy: "Mention a bot in Slack or text it from your phone.",
+      copy: "Mention a bot in Slack.",
       mock: { ask: "who needs a follow-up today?", reply: "Three leads went quiet this week. Drafts are in the thread." },
     },
     features: {
@@ -1319,7 +1316,7 @@ const HOME_COPY: Record<Locale, HomeCopy> = {
     },
     channels: {
       heading: "Schreib ihnen überall",
-      copy: "Erwähne einen Bot in Slack oder schreib ihm vom Handy.",
+      copy: "Erwähne einen Bot in Slack.",
       mock: { ask: "wer braucht heute ein Follow-up?", reply: "Drei Leads sind diese Woche still geworden. Die Entwürfe sind im Thread." },
     },
     features: {
@@ -1479,7 +1476,7 @@ const HOME_COPY: Record<Locale, HomeCopy> = {
     },
     channels: {
       heading: "어디서든 메시지하세요",
-      copy: "Slack에서 봇을 멘션하거나 휴대폰으로 문자를 보내세요.",
+      copy: "Slack에서 봇을 멘션하세요.",
       mock: { ask: "오늘 팔로업할 사람이 누구야?", reply: "이번 주에 연락이 끊긴 리드가 세 명 있어요. 초안은 스레드에 있어요." },
     },
     features: {
@@ -1639,7 +1636,7 @@ const HOME_COPY: Record<Locale, HomeCopy> = {
     },
     channels: {
       heading: "随时随地发消息",
-      copy: "在 Slack 里 @ 一个机器人，或用手机给它发短信。",
+      copy: "在 Slack 里 @ 一个机器人。",
       mock: { ask: "今天该跟进谁？", reply: "本周有三个潜在客户没回音了。草稿已放在线程里。" },
     },
     features: {
@@ -1800,7 +1797,7 @@ const HOME_COPY: Record<Locale, HomeCopy> = {
     },
     channels: {
       heading: "どこからでもメッセージ",
-      copy: "Slack でボットをメンション。スマホからテキストも送れます。",
+      copy: "Slack でボットをメンション。",
       mock: { ask: "今日フォローすべき相手は？", reply: "今週返信が止まったリードが3件あります。下書きはスレッドにあります。" },
     },
     features: {
@@ -1961,7 +1958,7 @@ const HOME_COPY: Record<Locale, HomeCopy> = {
     },
     channels: {
       heading: "Escríbeles desde cualquier lugar",
-      copy: "Menciona a un bot en Slack o escríbele desde tu teléfono.",
+      copy: "Menciona a un bot en Slack.",
       mock: { ask: "¿quién necesita un seguimiento hoy?", reply: "Tres leads dejaron de responder esta semana. Los borradores están en el hilo." },
     },
     features: {
@@ -2122,7 +2119,7 @@ const HOME_COPY: Record<Locale, HomeCopy> = {
     },
     channels: {
       heading: "Écrivez-leur partout",
-      copy: "Mentionnez un bot dans Slack ou envoyez-lui un SMS depuis votre téléphone.",
+      copy: "Mentionnez un bot dans Slack.",
       mock: { ask: "qui a besoin d’une relance aujourd’hui ?", reply: "Trois prospects ne répondent plus cette semaine. Les brouillons sont dans le fil." },
     },
     features: {
@@ -2283,7 +2280,7 @@ const HOME_COPY: Record<Locale, HomeCopy> = {
     },
     channels: {
       heading: "Fale com eles em qualquer lugar",
-      copy: "Mencione um bot no Slack ou mande uma mensagem pelo celular.",
+      copy: "Mencione um bot no Slack.",
       mock: { ask: "quem precisa de um follow-up hoje?", reply: "Três leads sumiram esta semana. Os rascunhos estão na conversa." },
     },
     features: {
@@ -2444,7 +2441,7 @@ const HOME_COPY: Record<Locale, HomeCopy> = {
     },
     channels: {
       heading: "Stuur ze overal een bericht",
-      copy: "Noem een bot in Slack of stuur hem een bericht vanaf je telefoon.",
+      copy: "Noem een bot in Slack.",
       mock: { ask: "wie heeft vandaag een follow-up nodig?", reply: "Drie leads zijn deze week stil geworden. De concepten staan in de thread." },
     },
     features: {
@@ -2605,7 +2602,7 @@ const HOME_COPY: Record<Locale, HomeCopy> = {
     },
     channels: {
       heading: "Пишите им где угодно",
-      copy: "Упомяните бота в Slack или напишите ему с телефона.",
+      copy: "Упомяните бота в Slack.",
       mock: { ask: "кому сегодня нужно напомнить о себе?", reply: "Три лида замолчали на этой неделе. Черновики в треде." },
     },
     features: {
@@ -2766,7 +2763,7 @@ const HOME_COPY: Record<Locale, HomeCopy> = {
     },
     channels: {
       heading: "Onlara her yerden yazın",
-      copy: "Slack'te bir botu etiketleyin veya telefonunuzdan mesaj atın.",
+      copy: "Slack'te bir botu etiketleyin.",
       mock: { ask: "bugün kimin takibe ihtiyacı var?", reply: "Bu hafta üç potansiyel müşteriden ses çıkmadı. Taslaklar başlıkta." },
     },
     features: {
@@ -2927,7 +2924,7 @@ const HOME_COPY: Record<Locale, HomeCopy> = {
     },
     channels: {
       heading: "שולחים להם הודעה מכל מקום",
-      copy: "מתייגים בוט ב-Slack או שולחים לו הודעה מהטלפון.",
+      copy: "מתייגים בוט ב-Slack.",
       mock: { ask: "למי צריך לחזור היום?", reply: "שלושה לידים השתתקו השבוע. הטיוטות בשרשור." },
     },
     features: {
@@ -3088,7 +3085,7 @@ const HOME_COPY: Record<Locale, HomeCopy> = {
     },
     channels: {
       heading: "कहीं से भी मैसेज करें",
-      copy: "Slack में किसी बॉट को मेंशन करें या अपने फ़ोन से उसे मैसेज भेजें।",
+      copy: "Slack में किसी बॉट को मेंशन करें।",
       mock: { ask: "आज किसे फ़ॉलो-अप चाहिए?", reply: "इस हफ़्ते तीन लीड्स ने जवाब देना बंद कर दिया। ड्राफ़्ट थ्रेड में हैं।" },
     },
     features: {
@@ -3248,7 +3245,7 @@ const HOME_COPY: Record<Locale, HomeCopy> = {
     },
     channels: {
       heading: "隨處傳訊息",
-      copy: "在 Slack 中提及機器人，或用手機傳訊息給它。",
+      copy: "在 Slack 中提及機器人。",
       mock: { ask: "今天該跟進誰？", reply: "這週有三個潛在客戶沒有回音。草稿已放在討論串裡。" },
     },
     features: {

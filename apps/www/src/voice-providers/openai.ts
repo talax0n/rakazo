@@ -172,7 +172,7 @@ export const openai: VoiceProvider = {
         "Call a bot. Choose **Call** at the top of a chat to talk in real time. You can cut in while the bot is speaking, and the transcript stays in the chat.",
         "Get called. Ask \"call me when the drafts are ready\" and the bot rings you. A bot may also call if you've missed the same reminder several times.",
         "Give each bot its own voice. Pick from OpenAI's 13 voices per bot, so different bots are easy to tell apart.",
-        "Send voice notes from chat apps. A voice note sent to a bot through Telegram, for example, is transcribed before the bot reads it. See [messaging apps](/docs/messaging-apps/).",
+        "Send voice notes from chat apps. A voice note sent to a bot through a chat app is transcribed before the bot reads it. See [messaging apps](/docs/messaging-apps/).",
       ],
     },
     {

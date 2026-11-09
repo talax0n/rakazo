@@ -55,7 +55,7 @@ function trackMessageReads(pool: Pool): MessageRead[] {
 }
 
 describePostgres("listBots sidebar previews (PostgreSQL)", () => {
-  const provider = "sendblue";
+  const provider = "chat";
   const stamp = String(Date.now()).slice(-7);
   const ownerAddress = `+1555${stamp}`;
   const signup = { signupsEnabled: undefined, signupAllowlist: undefined };

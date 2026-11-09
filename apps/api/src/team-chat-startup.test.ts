@@ -34,7 +34,7 @@ describe("team chat startup helpers", () => {
     expect(prefersTeamChatSurface(message({ isDirect: false }), "bot-1")).toBe(true);
     expect(prefersTeamChatSurface(message(), "bot-1")).toBe(false);
     expect(
-      prefersTeamChatSurface(message({ provider: "sendblue", workspaceId: undefined }), "bot-1"),
+      prefersTeamChatSurface(message({ provider: "chat", workspaceId: undefined }), "bot-1"),
     ).toBe(false);
     expect(prefersTeamChatSurface(message(), undefined)).toBe(false);
   });

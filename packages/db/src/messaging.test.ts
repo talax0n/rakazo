@@ -6,7 +6,7 @@ describe("provisionMessagingIdentity", () => {
   it("returns the existing identity without creating anything when already provisioned", async () => {
     const existing = {
       id: "mi-1",
-      provider: "sendblue",
+      provider: "chat",
       address: "+15551234567",
       dmThreadId: null,
       userId: "user-1",
@@ -14,7 +14,6 @@ describe("provisionMessagingIdentity", () => {
       botId: "bot-1",
       verifiedAt: null,
       lastInboundAt: null,
-      outboundSinceInbound: 0,
       createdAt: new Date("2026-08-28T00:00:00.000Z"),
       updatedAt: new Date("2026-08-28T00:00:00.000Z"),
     };
@@ -25,12 +24,12 @@ describe("provisionMessagingIdentity", () => {
     };
     const result = await provisionMessagingIdentity(
       prisma as unknown as PrismaClient,
-      { provider: "sendblue", address: "+15551234567" },
+      { provider: "chat", address: "+15551234567" },
       { signupsEnabled: undefined, signupAllowlist: undefined },
     );
 
     expect(result).toEqual({
-      provider: "sendblue",
+      provider: "chat",
       address: "+15551234567",
       userId: "user-1",
       spaceId: "ws-1",
@@ -39,7 +38,7 @@ describe("provisionMessagingIdentity", () => {
       created: false,
     });
     expect(prisma.messagingIdentity.findUnique).toHaveBeenCalledWith({
-      where: { provider_address: { provider: "sendblue", address: "+15551234567" } },
+      where: { provider_address: { provider: "chat", address: "+15551234567" } },
     });
     expect(prisma.user.create).not.toHaveBeenCalled();
   });
@@ -50,7 +49,7 @@ describe("provisionMessagingIdentity", () => {
       await expect(
         provisionMessagingIdentity(
           prisma as unknown as PrismaClient,
-          { provider: "sendblue", address: bad },
+          { provider: "chat", address: bad },
           { signupsEnabled: undefined, signupAllowlist: undefined },
         ),
       ).rejects.toThrow(/Invalid messaging address/);
@@ -61,7 +60,7 @@ describe("provisionMessagingIdentity", () => {
   it("throws instead of returning an empty thread id when the thread is missing", async () => {
     const existing = {
       id: "mi-1",
-      provider: "sendblue",
+      provider: "chat",
       address: "+15551234567",
       dmThreadId: null,
       userId: "user-1",
@@ -69,7 +68,6 @@ describe("provisionMessagingIdentity", () => {
       botId: "bot-1",
       verifiedAt: null,
       lastInboundAt: null,
-      outboundSinceInbound: 0,
       createdAt: new Date("2026-08-28T00:00:00.000Z"),
       updatedAt: new Date("2026-08-28T00:00:00.000Z"),
     };
@@ -80,7 +78,7 @@ describe("provisionMessagingIdentity", () => {
     await expect(
       provisionMessagingIdentity(
         prisma as unknown as PrismaClient,
-        { provider: "sendblue", address: "+15551234567" },
+        { provider: "chat", address: "+15551234567" },
         { signupsEnabled: undefined, signupAllowlist: undefined },
       ),
     ).rejects.toThrow(/thread/i);
@@ -91,7 +89,7 @@ describe("provisionMessagingIdentity create race", () => {
   it("resolves the thread for the winning identity's bot, not the loser's", async () => {
     const winner = {
       id: "mi-winner",
-      provider: "sendblue",
+      provider: "chat",
       address: "+15551234567",
       userId: "user-1",
       spaceId: "ws-1",
@@ -110,7 +108,7 @@ describe("provisionMessagingIdentity create race", () => {
       user: {
         findUnique: vi.fn(async () => ({
           id: "user-1",
-          email: "msg-sendbluex@messaging.invalid",
+          email: "msg-chatx@messaging.invalid",
         })),
       },
       spaceMember: { findFirst: vi.fn(async () => ({ spaceId: "ws-1" })) },
@@ -123,12 +121,12 @@ describe("provisionMessagingIdentity create race", () => {
     };
     const result = await provisionMessagingIdentity(
       prisma as unknown as PrismaClient,
-      { provider: "sendblue", address: "+15551234567" },
+      { provider: "chat", address: "+15551234567" },
       { signupsEnabled: undefined, signupAllowlist: undefined },
     );
 
     expect(result).toEqual({
-      provider: "sendblue",
+      provider: "chat",
       address: "+15551234567",
       userId: "user-1",
       spaceId: "ws-1",
@@ -159,7 +157,7 @@ describe("messaging link codes", () => {
 
 describe("messaging identity isolation", () => {
   function fixture() {
-    const users = [{ id: "attacker", email: "msg-sendblue15550001111@messaging.invalid" }];
+    const users = [{ id: "attacker", email: "msg-chat15550001111@messaging.invalid" }];
     const identities: {
       provider: string;
       address: string;
@@ -224,13 +222,13 @@ describe("messaging identity isolation", () => {
 
   it("never attaches a new sender to a preclaimed synthetic email", async () => {
     const f = fixture();
-    const result = await f.provision("sendblue", "+15550001111");
+    const result = await f.provision("chat", "+15550001111");
     expect(result.userId).not.toBe("attacker");
     expect(result.spaceId).not.toBe("space-attacker");
     expect(f.users).toHaveLength(2);
     expect(f.users[1]!.email).not.toBe(f.users[0]!.email);
     expect(f.prisma.user.findUnique).toHaveBeenCalledWith({ where: { id: result.userId } });
-    expect(await f.provision("sendblue", "+15550001111")).toMatchObject({
+    expect(await f.provision("chat", "+15550001111")).toMatchObject({
       userId: result.userId,
       created: false,
     });
@@ -255,16 +253,16 @@ describe("messaging identity isolation", () => {
   it("resumes a crash after user creation by its internal key", async () => {
     const f = fixture();
     f.prisma.bot.findFirst.mockRejectedValueOnce(new Error("simulated crash"));
-    await expect(f.provision("sendblue", "+15550001111")).rejects.toThrow("simulated crash");
+    await expect(f.provision("chat", "+15550001111")).rejects.toThrow("simulated crash");
     const orphan = f.users[1]!;
-    expect(await f.provision("sendblue", "+15550001111")).toMatchObject({ userId: orphan.id });
+    expect(await f.provision("chat", "+15550001111")).toMatchObject({ userId: orphan.id });
     expect(f.prisma.user.create).toHaveBeenCalledTimes(1);
   });
 
   it("propagates database failures instead of treating them as identity races", async () => {
     const f = fixture();
     f.prisma.user.create.mockRejectedValueOnce(new Error("database unavailable"));
-    await expect(f.provision("sendblue", "+15550001111")).rejects.toThrow("database unavailable");
+    await expect(f.provision("chat", "+15550001111")).rejects.toThrow("database unavailable");
     expect(f.prisma.messagingIdentity.create).not.toHaveBeenCalled();
   });
 });

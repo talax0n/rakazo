@@ -9,8 +9,8 @@ const SLACK_HANDLE = "1700000000.000100";
 function fakeMessaging() {
   const platforms: MessagingPlatformDescriptor[] = [
     { provider: "slack", capabilities: { direct: true, groups: true, receipt: "reaction" } },
-    { provider: "sendblue", capabilities: { direct: true, groups: true, receipt: "typing" } },
-    { provider: "telegram", capabilities: { direct: true, groups: true, receipt: null } },
+    { provider: "chat", capabilities: { direct: true, groups: true, receipt: "typing" } },
+    { provider: "quiet", capabilities: { direct: true, groups: true, receipt: null } },
   ];
   return {
     platforms: () => platforms,
@@ -33,11 +33,11 @@ describe("createMessagingReceipts", () => {
 
   it("sends typing bubbles immediately", () => {
     const messaging = fakeMessaging();
-    createMessagingReceipts(messaging).acknowledge("sendblue:dm-1", "h-1", unhandled);
+    createMessagingReceipts(messaging).acknowledge("chat:dm-1", "h-1", unhandled);
 
     expect(
       messaging.acknowledge.mock.calls.map(([threadId, handle]) => [threadId, handle]),
-    ).toEqual([["sendblue:dm-1", "h-1"]]);
+    ).toEqual([["chat:dm-1", "h-1"]]);
   });
 
   it("reacts only once the reply is a minute late", async () => {
@@ -88,7 +88,7 @@ describe("createMessagingReceipts", () => {
     receipts.acknowledge("slack:C1:1700000000.000300", "1700000000.000300", unhandled);
     receipts.stop();
     releaseCheck();
-    receipts.acknowledge("sendblue:dm-1", "h-1", unhandled);
+    receipts.acknowledge("chat:dm-1", "h-1", unhandled);
 
     await vi.advanceTimersByTimeAsync(60_000);
     expect(messaging.acknowledge).not.toHaveBeenCalled();
@@ -99,7 +99,7 @@ describe("createMessagingReceipts", () => {
     const messaging = fakeMessaging();
     messaging.acknowledge.mockRejectedValue(new Error("missing_scope"));
     const receipts = createMessagingReceipts(messaging);
-    receipts.acknowledge("sendblue:dm-1", "h-1", unhandled);
+    receipts.acknowledge("chat:dm-1", "h-1", unhandled);
     receipts.acknowledge(SLACK_THREAD, SLACK_HANDLE, unhandled);
     receipts.acknowledge("slack:C1:1700000000.000200", "1700000000.000200", async () => {
       throw new Error("database unavailable");
@@ -116,14 +116,12 @@ describe("createMessagingReceipts", () => {
   it("sends nothing for platforms without a receipt", async () => {
     const messaging = fakeMessaging();
     const receipts = createMessagingReceipts(messaging);
-    receipts.acknowledge("telegram:42", "7", unhandled);
+    receipts.acknowledge("quiet:42", "7", unhandled);
     receipts.acknowledge("mystery:1", "1", unhandled);
-    receipts.acknowledge("sendblue:dm-1", "h-1", unhandled);
+    receipts.acknowledge("chat:dm-1", "h-1", unhandled);
 
     await vi.advanceTimersByTimeAsync(60_000);
-    expect(messaging.acknowledge.mock.calls.map(([threadId]) => threadId)).toEqual([
-      "sendblue:dm-1",
-    ]);
+    expect(messaging.acknowledge.mock.calls.map(([threadId]) => threadId)).toEqual(["chat:dm-1"]);
   });
 
   it("starts the send timeout when the delayed reaction goes out", async () => {

@@ -23,7 +23,7 @@ const context: AdapterContext = {
 
 /**
  * A mock Chat SDK adapter whose webhook drives the real Chat instance. Like
- * the real Sendblue/Telegram/WhatsApp adapters, handleWebhook fires
+ * the real platform adapters, handleWebhook fires
  * processMessage without awaiting it and registers the work via waitUntil.
  * Mock thread ids are DMs when the channel segment starts with "D".
  */
@@ -673,39 +673,15 @@ describe("ChatSdkMessagingSurface webhook plumbing", () => {
 });
 
 describe("ChatSdkMessagingSurface outbound", () => {
-  it("posts Telegram replies as Markdown", async () => {
-    const { surface, adapter } = createSurface({ provider: "telegram" });
-    const body = "# Heading\n\n**bold** and [link](https://example.test)";
+  it("posts under the adapter's own thread ids when it mounts as another provider", async () => {
+    const { surface, adapter } = createSurface({ provider: "mock-work", adapterName: "mock" });
 
-    await surface.sendToThread({ threadId: "telegram:123", body }, context);
+    await surface.sendToThread({ threadId: "mock-work:C1:9", body: "hi" }, context);
 
-    expect(adapter.postMessage).toHaveBeenCalledExactlyOnceWith("telegram:123", {
-      markdown: body,
-    });
+    expect(adapter.postMessage).toHaveBeenCalledExactlyOnceWith("mock:C1:9", "hi");
   });
 
-  it.each(["whatsapp", "lark"])("posts %s replies as Markdown", async (provider) => {
-    const { surface, adapter } = createSurface({ provider });
-    const body = "**bold** and [link](https://example.test)";
-    const threadId = `${provider}:C1:9`;
-
-    await surface.sendToThread({ threadId, body }, context);
-
-    expect(adapter.postMessage).toHaveBeenCalledExactlyOnceWith(threadId, { markdown: body });
-  });
-
-  it("posts Photon iMessage replies as Markdown under the adapter's own thread ids", async () => {
-    const { surface, adapter } = createSurface({ provider: "photon", adapterName: "imessage" });
-    const body = "**bold** and [link](https://example.test)";
-
-    await surface.sendToThread({ threadId: "photon:any;-;+15550001111", body }, context);
-
-    expect(adapter.postMessage).toHaveBeenCalledExactlyOnceWith("imessage:any;-;+15550001111", {
-      markdown: body,
-    });
-  });
-
-  it.each(["slack", "sendblue"])("keeps %s replies as strings", async (provider) => {
+  it.each(["slack", "mock"])("keeps %s replies as strings", async (provider) => {
     const { surface, adapter } = createSurface({ provider });
     const body = "**bold** and [link](https://example.test)";
     const threadId = `${provider}:C1:9`;
@@ -715,61 +691,25 @@ describe("ChatSdkMessagingSurface outbound", () => {
     expect(adapter.postMessage).toHaveBeenCalledExactlyOnceWith(threadId, body);
   });
 
-  it("posts a Telegram image attachment as a photo", async () => {
-    const { surface, adapter } = createSurface({ provider: "telegram" });
-    const data = new Uint8Array([1, 2, 3]);
-
-    await surface.sendToThread(
-      {
-        threadId: "telegram:123",
-        body: "",
-        attachment: { name: "chart.png", mimeType: "image/png", data },
-      },
-      context,
-    );
-
-    expect(adapter.postMessage).toHaveBeenCalledExactlyOnceWith("telegram:123", {
-      markdown: "",
-      attachments: [
-        { type: "image", data: Buffer.from(data), name: "chart.png", mimeType: "image/png" },
-      ],
-    });
-  });
-
   it.each([
     ["a PDF", "report.pdf", "application/pdf", 3],
     ["an SVG", "logo.svg", "image/svg+xml", 3],
-    ["an image over the photo limit", "scan.png", "image/png", 10_000_001],
-  ])("uploads %s to Telegram as a document", async (_label, name, mimeType, size) => {
-    const { surface, adapter } = createSurface({ provider: "telegram" });
+    ["an image", "chart.png", "image/png", 3],
+  ])("uploads %s as a document", async (_label, name, mimeType, size) => {
+    const { surface, adapter } = createSurface();
     const data = new Uint8Array(size);
 
     await surface.sendToThread(
-      { threadId: "telegram:123", body: "", attachment: { name, mimeType, data } },
+      { threadId: "mock:C1:9", body: "", attachment: { name, mimeType, data } },
       context,
     );
 
-    // Compare the bytes by size: deep-equality on a 10 MB buffer is slow.
-    expect(adapter.postMessage).toHaveBeenCalledExactlyOnceWith("telegram:123", {
+    expect(adapter.postMessage).toHaveBeenCalledExactlyOnceWith("mock:C1:9", {
       markdown: "",
       files: [{ data: expect.any(Buffer), filename: name, mimeType }],
     });
     const [, message] = (adapter.postMessage as ReturnType<typeof vi.fn>).mock.calls[0]!;
     expect(message.files[0].data.byteLength).toBe(size);
-  });
-
-  it("fails a file over Telegram's upload limit without retrying it", async () => {
-    const { surface, adapter } = createSurface({ provider: "telegram" });
-    const attachment = {
-      name: "video.mp4",
-      mimeType: "video/mp4",
-      data: new Uint8Array(50_000_001),
-    };
-
-    await expect(
-      surface.sendToThread({ threadId: "telegram:123", body: "", attachment }, context),
-    ).rejects.toMatchObject({ name: "MessagingSendError", permanent: true });
-    expect(adapter.postMessage).not.toHaveBeenCalled();
   });
 
   it("posts to a thread through the platform adapter and returns the handle", async () => {
@@ -846,9 +786,18 @@ describe("ChatSdkMessagingSurface outbound", () => {
 
   it("throws for an unknown provider", async () => {
     const { surface } = createSurface();
-    await expect(surface.openDirectThread("nope", "+15551234567", context)).rejects.toThrow(
-      /Unknown messaging provider/,
-    );
+    await expect(surface.openDirectThread("nope", "+15551234567", context)).rejects.toMatchObject({
+      name: "MessagingSendError",
+      permanent: true,
+      message: expect.stringMatching(/Unknown messaging provider/),
+    });
+  });
+
+  it("fails a send to a thread on an unmounted provider permanently", async () => {
+    const { surface } = createSurface();
+    await expect(
+      surface.sendToThread({ threadId: "removed:42", body: "hi" }, context),
+    ).rejects.toMatchObject({ name: "MessagingSendError", permanent: true });
   });
 });
 
@@ -945,7 +894,7 @@ describe("ChatSdkMessagingSurface shape", () => {
     expect(surface.describe().capabilities).toEqual({ providers: ["mock"] });
     expect(providerOfThreadId("mock:C1:9")).toBe("mock");
     expect(providerOfThreadId("slack~installation-a:C1:9")).toBe("slack");
-    expect(providerOfThreadId("telegram-work:42")).toBe("telegram-work");
+    expect(providerOfThreadId("mock-work:42")).toBe("mock-work");
   });
 
   it("retries initialize after a failure and stops polling on shutdown", async () => {
@@ -954,13 +903,13 @@ describe("ChatSdkMessagingSurface shape", () => {
     const { surface, adapter } = createSurface({}, {
       initialize: vi.fn(async () => {
         attempts += 1;
-        if (attempts === 1) throw new Error("telegram unavailable");
+        if (attempts === 1) throw new Error("adapter unavailable");
       }),
       stopPolling,
     } as Partial<Adapter>);
 
-    await expect(surface.initialize()).rejects.toThrow(/telegram unavailable/);
-    // Partial multi-adapter init can leave Telegram polling; clear it on failure.
+    await expect(surface.initialize()).rejects.toThrow(/adapter unavailable/);
+    // Partial multi-adapter init can leave an adapter polling; clear it on failure.
     expect(stopPolling).toHaveBeenCalledTimes(1);
     await expect(surface.initialize()).resolves.toBeUndefined();
     expect(adapter.initialize).toHaveBeenCalledTimes(2);

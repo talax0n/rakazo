@@ -29,7 +29,7 @@ describe.skipIf(!enabled)("working bot visibility (PostgreSQL)", () => {
       provisionMessagingIdentity(
         prisma,
         {
-          provider: "sendblue",
+          provider: "chat",
           address: `working-fixture-${crypto.randomUUID()}`,
         },
         { signupsEnabled: undefined, signupAllowlist: undefined },
@@ -180,7 +180,7 @@ describe.skipIf(!enabled)("working bot visibility (PostgreSQL)", () => {
     const identity = await runAsSystem("test fixture", () =>
       provisionMessagingIdentity(
         prisma,
-        { provider: "sendblue", address: `routine-fixture-${crypto.randomUUID()}` },
+        { provider: "chat", address: `routine-fixture-${crypto.randomUUID()}` },
         { signupsEnabled: undefined, signupAllowlist: undefined },
       ),
     );

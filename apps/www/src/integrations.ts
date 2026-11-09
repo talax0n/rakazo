@@ -248,14 +248,6 @@ export function relatedIntegrations(integration: Integration, limit = 6): Integr
     .slice(0, limit);
 }
 
-export const CHAT_CHANNELS = [
-  { name: "Slack", slug: "slack" },
-  { name: "WhatsApp", slug: "whatsapp" },
-  { name: "Telegram", slug: "telegram" },
-  { name: "iMessage", slug: null },
-  { name: "Feishu / Lark", slug: null },
-] as const;
-
 export function integrationBreadcrumbs(integration: Integration) {
   return {
     "@context": "https://schema.org",

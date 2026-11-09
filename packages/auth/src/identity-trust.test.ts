@@ -520,10 +520,7 @@ describe("identity trust through auth endpoints", () => {
 
   it("reserves internal messaging emails across registration, recovery and email changes", async () => {
     const f = fixture();
-    for (const email of [
-      "msg-sendblue15550001111@messaging.invalid",
-      "MSG-Test@MESSAGING.INVALID",
-    ]) {
+    for (const email of ["msg-chat15550001111@messaging.invalid", "MSG-Test@MESSAGING.INVALID"]) {
       expect((await f.signup(email)).status).toBe(400);
       expect((await f.signin(email)).status).toBe(400);
       expect((await f.request("/request-password-reset", { email })).status).toBe(400);

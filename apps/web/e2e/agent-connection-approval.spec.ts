@@ -12,7 +12,7 @@ for (const decision of ["approve", "decline"] as const) {
         { exact: true },
       ),
     ).toBeVisible();
-    await expect(page.getByText("iMessage: +15551234567", { exact: true })).toBeVisible();
+    await expect(page.getByText("chat: +15551234567", { exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "Allow once", exact: true })).toBeVisible();
     await expect(
       page.getByRole("button", { name: "Always allow this tool", exact: true }),

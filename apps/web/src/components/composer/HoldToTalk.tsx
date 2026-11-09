@@ -15,7 +15,7 @@ const HINT_MS = 2_500;
 type Recording = { locked: boolean; startedAt: number } | null;
 
 /**
- * Telegram-style dictation: hold to talk and release to send the text; slide up
+ * Hold-to-talk dictation: hold to talk and release to send the text; slide up
  * while holding to lock, then send or discard by hand. Keyboard activation starts
  * locked, since a key cannot be held and slid.
  */

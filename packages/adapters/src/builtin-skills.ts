@@ -11,7 +11,7 @@ const RAKAZO_DOCS: ReadonlyArray<readonly [topics: string, url: string]> = [
     "Connecting apps and integrations (Gmail, GitHub, MCP tools)",
     "https://rakazo.com/docs/integrations.md",
   ],
-  ["Slack, Telegram, WhatsApp and other chat apps", "https://rakazo.com/docs/messaging-apps.md"],
+  ["Slack", "https://rakazo.com/docs/messaging-apps.md"],
   ["Routines, schedules and triggers", "https://rakazo.com/docs/routines.md"],
   ["The bot's computer, files, using your own computer", "https://rakazo.com/docs/computer.md"],
   ["Memory", "https://rakazo.com/docs/memory.md"],

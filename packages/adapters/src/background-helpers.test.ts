@@ -86,7 +86,7 @@ describe("starting a background helper", () => {
 
   it.each([
     ["a group or connected team chat", { threadBotId: null }],
-    ["a linked Telegram or SMS chat", { trigger: "messaging" }],
+    ["a linked chat app", { trigger: "messaging" }],
     ["a routine", { trigger: "routine" }],
     ["another bot's request", { trigger: "bot_message" }],
     ["a helper's result coming back", { trigger: "helper_result" }],

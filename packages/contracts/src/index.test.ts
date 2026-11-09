@@ -237,7 +237,7 @@ describe("contracts", () => {
         blocks: [
           {
             kind: "channel_message",
-            provider: "sendblue",
+            provider: "chat",
             channelId: "channel-1",
             fromAddress: "+15555550100",
             fromLabel: "Pat",

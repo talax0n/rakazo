@@ -88,7 +88,7 @@ From `.env.images.example` (images installer). Leave blank if unused:
 | `E2B_API_KEY` / `DAYTONA_API_KEY` / `BOAT_API_KEY` | Remote computers when `SANDBOX_PROVIDER` is not `docker` |
 | `EMAIL_PROVIDER` / `EMAIL_API_KEY` / `SMTP_URL` / `EMAIL_FROM` | Optional account email via Resend API or SMTP |
 | `EXPO_ACCESS_TOKEN` | Mobile push when the Expo project enables enhanced push security |
-| Messaging tokens (Slack, Telegram, …) | Only if you enable those surfaces |
+| Slack tokens | Only if you enable Slack |
 
 Optional `APNS_VOIP_KEY_ID`, `APNS_VOIP_TEAM_ID`, and `APNS_VOIP_PRIVATE_KEY` enable
 [iOS VoIP ringing](./self-host-clients.md#mobile-incoming-calls). Keep the `.p8` contents in the secret manager.

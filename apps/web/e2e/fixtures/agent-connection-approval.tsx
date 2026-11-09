@@ -14,7 +14,7 @@ const block = buildApprovalAskBlock(
     connection_version: 1,
     requester_name: "Helper",
     requester_address: "+15551234567",
-    requester_provider: "sendblue",
+    requester_provider: "chat",
   },
   [],
 );

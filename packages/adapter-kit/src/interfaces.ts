@@ -565,8 +565,8 @@ export interface VoiceProvider {
 
 /**
  * Deployment-wide external chat surface: one bot presence across messaging
- * platforms (iMessage/SMS, Slack, WhatsApp, …). Conversations are addressed
- * by opaque provider-prefixed thread ids ("sendblue:…", "slack:C1:…"), so
+ * platforms (Slack, …). Conversations are addressed
+ * by opaque provider-prefixed thread ids ("slack:C1:…"), so
  * orchestration never sees platform wire formats. Webhook verification and
  * payload translation live behind handleWebhook, per platform.
  */
@@ -603,12 +603,12 @@ export interface MessagingSurface {
     context: AdapterContext,
   ): Promise<MessagingInboundMessage[]>;
   /**
-   * Start eagerly. Adapters that pull updates themselves (Telegram polling when no public
+   * Start eagerly. Adapters that pull updates themselves (polling when no public
    * webhook URL is reachable) otherwise never start until a webhook or send touches them.
    */
   initialize?(): Promise<void>;
   /**
-   * Release long-lived inbound resources (Telegram getUpdates polling) so a
+   * Release long-lived inbound resources (update polling) so a
    * replacement process can claim them. No-op when the surface never started.
    */
   shutdown?(): Promise<void>;

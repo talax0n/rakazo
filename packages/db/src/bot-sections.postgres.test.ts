@@ -12,7 +12,7 @@ const describePostgres =
   process.env.VERIFY_DATABASE && databaseUrl ? describe.sequential : describe.skip;
 
 describePostgres("deleteBotSection (PostgreSQL)", () => {
-  const provider = "sendblue";
+  const provider = "chat";
   const stamp = String(Date.now()).slice(-7);
   const ownerAddress = `+1555${stamp}`;
   const strangerAddress = `+1556${stamp}`;

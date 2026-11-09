@@ -31,9 +31,6 @@ vi.mock("@daytona/sdk", () => {
 vi.mock("@chat-adapter/slack", () => {
   throw new Error("Slack adapter loaded before use");
 });
-vi.mock("chat-adapter-sendblue", () => {
-  throw new Error("Sendblue adapter loaded before use");
-});
 
 import { createRunSandbox, messagingPlatformsFromEnv } from "./index.js";
 import { createSandboxProvider } from "./sandbox-factory.js";
@@ -59,17 +56,12 @@ describe("optional provider loading", () => {
     }
   });
 
-  it("mounts Slack and Sendblue without loading their adapters until first use", () => {
-    const [sendblue, slack] = messagingPlatformsFromEnv({
-      sendblueApiKeyId: "fake-key",
-      sendblueApiSecret: "fake-secret",
-      sendblueSigningSecret: "fake-signing-secret",
-      sendbluePhoneNumber: "+15550000000",
+  it("mounts Slack without loading its adapter until first use", () => {
+    const [slack] = messagingPlatformsFromEnv({
       slackBotToken: "xoxb-fake",
       slackSigningSecret: "fake-signing-secret",
     });
-    expect([sendblue?.provider, slack?.provider]).toEqual(["sendblue", "slack"]);
-    expect(sendblue!.adapter.isDM?.(sendblue!.directThreadId!("+15551234567"))).toBe(true);
+    expect(slack?.provider).toBe("slack");
     expect(slack!.adapter.name).toBe("slack");
   });
 });

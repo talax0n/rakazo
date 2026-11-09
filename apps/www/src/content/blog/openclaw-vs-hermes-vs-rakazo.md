@@ -38,8 +38,8 @@ faq:
     answer: "No. The Hermes desktop guide says first-run onboarding can reach a first message in seconds, and that Choose provider later skips provider setup. Rakazo's published images still need Docker to pull and start, then an account and a model. Pick the install that matches the app you want to live in."
   - question: "Do any of these charge for the software?"
     answer: "Rakazo is free to self-host. Hosted Rakazo Cloud is in beta. OpenClaw's docs say there is no paid tier and no hosted service. Hermes Agent is MIT-licensed and also documents optional Nous Portal credits and cloud hosting. You still pay for models, machines, and any optional computer provider."
-  - question: "Can I message all three from Telegram or Slack?"
-    answer: "OpenClaw's main surface is chat apps, through its Gateway. Hermes uses a messaging gateway that the desktop guide describes as a separate process from the app's local backend. Rakazo's optional connectors can attach Slack, WhatsApp, Telegram, iMessage via Sendblue, and Feishu/Lark. Those connectors are extras. The Rakazo apps do not require them."
+  - question: "Can I message all three from Slack?"
+    answer: "OpenClaw's main surface is chat apps, through its Gateway. Hermes uses a messaging gateway that the desktop guide describes as a separate process from the app's local backend. Rakazo's optional Slack connector can attach the bot to your workspace. That connector is an extra. The Rakazo apps do not require it."
   - question: "Where do the details on this page come from?"
     answer: "OpenClaw details follow docs.openclaw.ai as read on October 7, 2026. Hermes details follow the Hermes Agent site, quickstart, and desktop guide. Rakazo details follow this project's self-hosting guide. Check those pages before you rely on a command."
 comparison:
@@ -104,7 +104,7 @@ The published-image installer is one script in an empty directory. It writes `.e
 
 Models include OpenAI, Anthropic, Google, OpenRouter, Vercel AI Gateway, an OpenAI-compatible endpoint, and a local server such as Ollama, LM Studio, llama.cpp, or MLX. Each bot can use a different model. The default computer is local Docker. E2B, Daytona, CreateOS, and Boat are optional. An explicit desktop provider can run on the host, and it is not the default.
 
-Optional connectors exist for Slack, WhatsApp, Telegram, iMessage via Sendblue, and Feishu/Lark. They are not how you talk to the bot. The web, Electron, and Expo apps are.
+An optional Slack connector exists. It is not how you talk to the bot. The web, Electron, and Expo apps are.
 
 There is no seat fee for the software. You pay for models, machines, and any remote computer you enable. Image pull time is not a fixed number. The [self-host guide](/self-hosted-ai-agent/) is the command list, and the [longer install note](/blog/self-host-an-ai-agent/) says what the ten-minute title does and does not mean.
 

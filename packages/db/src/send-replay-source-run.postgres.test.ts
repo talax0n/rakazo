@@ -55,7 +55,7 @@ function trackSourceRunReads(pool: Pool): SqlRead[] {
 }
 
 describePostgres("replaying a sent message reads its first run (PostgreSQL)", () => {
-  const provider = "sendblue";
+  const provider = "chat";
   const address = `+1559${String(Date.now()).slice(-7)}`;
   const signup = { signupsEnabled: undefined, signupAllowlist: undefined };
   let prisma: PrismaClient;

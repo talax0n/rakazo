@@ -31,7 +31,7 @@ describePostgres("messaging outbound drain order (PostgreSQL)", () => {
     const provisioned = await runAsSystem("messaging order fixture", () =>
       provisionMessagingIdentity(
         db.prisma,
-        { provider: "telegram", address },
+        { provider: "chat", address },
         { signupsEnabled: undefined, signupAllowlist: undefined },
       ),
     );
@@ -94,12 +94,12 @@ describePostgres("messaging outbound drain order (PostgreSQL)", () => {
   /** A channel with two mirrored bot replies: A is long (two parts), B short. */
   async function channelWithReplies(threadId: string) {
     const channel = await system.messagingChannel.create({
-      data: { provider: "telegram", threadId, name: "Order" },
+      data: { provider: "chat", threadId, name: "Order" },
     });
     const block = [
       {
         kind: "channel_message",
-        provider: "telegram",
+        provider: "chat",
         channelId: channel.id,
         fromAddress: "111",
         fromLabel: "Alice",
@@ -379,7 +379,7 @@ describePostgres("messaging outbound drain order (PostgreSQL)", () => {
     const threadId = `messaging-delivery-${randomUUID()}`;
     threadIds.push(threadId);
     await system.messagingChannel.create({
-      data: { provider: "telegram", threadId, name: "Order" },
+      data: { provider: "chat", threadId, name: "Order" },
     });
     await system.messagingOutbound.createMany({
       data: [

@@ -1,18 +1,16 @@
 import type { AdapterContext, MessagingSurface } from "@rakazo/adapter-kit";
 import type { PrismaClient } from "@rakazo/db";
 import { SpaceDeletionInProgressError } from "@rakazo/db";
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { ChatSdkMessagingSurface, MessagingSendError } from "./chat-sdk-surface.js";
+import { describe, expect, it, vi } from "vitest";
+import { MessagingSendError } from "./chat-sdk-surface.js";
 import type { MessagingDeliveryDeps } from "./messaging-delivery.js";
 import {
   applyMessagingOutboundStatus,
   deliverMessagingOutbound,
-  MESSAGING_DM_OUTBOUND_CAP,
   MESSAGING_OUTBOUND_MAX_ATTEMPTS,
   mirrorMessagingOutbound,
   mirrorMessagingProgress,
 } from "./messaging-delivery.js";
-import { messagingPlatformsFromEnv } from "./messaging-platforms.js";
 import { userProgressClientNonce } from "./user-progress.js";
 
 const context: AdapterContext = {
@@ -25,13 +23,12 @@ const context: AdapterContext = {
 
 const identity = {
   id: "mi-1",
-  provider: "sendblue",
+  provider: "chat",
   address: "+15551234567",
-  dmThreadId: "sendblue:dm-1",
+  dmThreadId: "chat:dm-1",
   userId: "user-1",
   spaceId: "ws-1",
   botId: "bot-1",
-  outboundSinceInbound: 0,
 };
 
 const messagingRun = {
@@ -96,19 +93,19 @@ function createFakeSurface(sendError?: Error) {
   const sendToThread = vi.fn(async () => ({ handle: "handle-out-1" }));
   if (sendError) sendToThread.mockRejectedValue(sendError);
   const openDirectThread = vi.fn(
-    async (_provider: string, address: string) => `sendblue:opened:${address}`,
+    async (_provider: string, address: string) => `chat:opened:${address}`,
   );
   const messaging: MessagingSurface = {
     describe: () => ({
       id: "chat-sdk",
       contractVersion: "1",
       adapterVersion: "0.1.0",
-      capabilities: { providers: ["sendblue"] },
+      capabilities: { providers: ["chat"] },
     }),
     platforms: () => [
-      { provider: "sendblue", capabilities: { direct: true, groups: true, receipt: "typing" } },
+      { provider: "chat", capabilities: { direct: true, groups: true, receipt: "typing" } },
       {
-        provider: "telegram",
+        provider: "filechat",
         capabilities: { direct: true, groups: false, receipt: null, files: true },
       },
     ],
@@ -307,7 +304,7 @@ describe("deliverMessagingOutbound", () => {
     await deliverMessagingOutbound(deps, { runId: "run-1" }, context);
 
     expect(deps.sendToThread).toHaveBeenCalledWith(
-      { threadId: "sendblue:dm-1", body: "Hello from your bot" },
+      { threadId: "chat:dm-1", body: "Hello from your bot" },
       context,
     );
     expect(deps.rows).toEqual([
@@ -320,9 +317,6 @@ describe("deliverMessagingOutbound", () => {
         sourceMessageId: "m-1",
       }),
     ]);
-    expect(deps.prisma.messagingIdentity.update).toHaveBeenCalledWith(
-      expect.objectContaining({ data: { outboundSinceInbound: { increment: 1 } } }),
-    );
     expect(deps.prisma.run.updateMany).toHaveBeenCalledWith({
       where: { id: "run-1", trigger: "messaging" },
       data: { messagingMirroredAt: expect.any(Date) },
@@ -344,7 +338,7 @@ describe("deliverMessagingOutbound", () => {
     await deliverMessagingOutbound(deps, { runId: "run-1" }, context);
 
     expect(deps.sendToThread).toHaveBeenCalledWith(
-      { threadId: "sendblue:dm-1", body: "I made a Test dashboard for you." },
+      { threadId: "chat:dm-1", body: "I made a Test dashboard for you." },
       context,
     );
   });
@@ -409,19 +403,19 @@ describe("deliverMessagingOutbound", () => {
     await deliverMessagingOutbound(deps, { runId: "run-1" }, context);
 
     expect(deps.openDirectThread).toHaveBeenCalledTimes(1);
-    expect(deps.openDirectThread).toHaveBeenCalledWith("sendblue", "+15551234567", context);
+    expect(deps.openDirectThread).toHaveBeenCalledWith("chat", "+15551234567", context);
     expect(deps.prisma.messagingIdentity.update).toHaveBeenCalledWith({
       where: { id: "mi-1" },
-      data: { dmThreadId: "sendblue:opened:+15551234567" },
+      data: { dmThreadId: "chat:opened:+15551234567" },
     });
     expect(deps.sendToThread).toHaveBeenNthCalledWith(
       1,
-      { threadId: "sendblue:opened:+15551234567", body: "first" },
+      { threadId: "chat:opened:+15551234567", body: "first" },
       context,
     );
     expect(deps.sendToThread).toHaveBeenNthCalledWith(
       2,
-      { threadId: "sendblue:opened:+15551234567", body: "second" },
+      { threadId: "chat:opened:+15551234567", body: "second" },
       context,
     );
   });
@@ -462,7 +456,7 @@ describe("deliverMessagingOutbound", () => {
       { id: "m-4", blocks: [{ kind: "file", artifactId: "art-1", name: "budget.csv" }] },
       interim("m-5", "Sent the budget too."),
     ];
-    const deps = createDeps({ identity: { provider: "telegram" }, messages });
+    const deps = createDeps({ identity: { provider: "filechat" }, messages });
     await mirrorMessagingProgress(deps, "run-1");
     expect(deps.rows.map((row) => row.idempotencyKey)).toEqual(["msg:m-1"]);
 
@@ -480,19 +474,6 @@ describe("deliverMessagingOutbound", () => {
       ["msg:m-5", "Sent the budget too."],
       ["msg:m-6", "Your Trip plan is ready."],
     ]);
-  });
-
-  it("sends a long interim message's parts once when the run's reply follows", async () => {
-    const messages: unknown[] = [interim("m-1", `${"x".repeat(4_200)} TAIL-MARK`)];
-    const deps = createDeps({ identity: { provider: "telegram" }, messages });
-    await mirrorMessagingProgress(deps, "run-1");
-    expect(deps.rows.map((row) => row.idempotencyKey)).toEqual(["msg:m-1", "msg:m-1:2"]);
-
-    messages.push({ id: "m-2", blocks: [{ kind: "text", text: "Done." }] });
-    await mirrorMessagingProgress(deps, "run-1");
-    await mirrorMessagingOutbound(deps, "run-1");
-    expect(deps.rows.map((row) => row.idempotencyKey)).toEqual(["msg:m-1", "msg:m-1:2", "msg:m-2"]);
-    expect(deps.rows.map((row) => row.body).join("")).toContain("TAIL-MARK");
   });
 
   it("leaves group and in-app runs to the end-of-run mirror", async () => {
@@ -525,7 +506,7 @@ describe("deliverMessagingOutbound", () => {
     const deps = createDeps({ run: { ...messagingRun, trigger: "bot_message" } });
     await deliverMessagingOutbound(deps, { runId: "run-1" }, context);
     expect(deps.sendToThread).toHaveBeenCalledWith(
-      { threadId: "sendblue:dm-1", body: "Hello from your bot" },
+      { threadId: "chat:dm-1", body: "Hello from your bot" },
       context,
     );
   });
@@ -537,35 +518,6 @@ describe("deliverMessagingOutbound", () => {
     await deliverMessagingOutbound(deps, { runId: "run-1" }, context);
     expect(deps.rows).toHaveLength(0);
     expect(deps.sendToThread).not.toHaveBeenCalled();
-  });
-
-  it("holds sendblue DM sends at the consecutive-outbound cap", async () => {
-    const deps = createDeps({
-      identity: {
-        provider: "sendblue",
-        outboundSinceInbound: MESSAGING_DM_OUTBOUND_CAP,
-      },
-    });
-    await deliverMessagingOutbound(deps, { runId: "run-1" }, context);
-
-    expect(deps.sendToThread).not.toHaveBeenCalled();
-    expect(deps.rows).toEqual([expect.objectContaining({ kind: "dm", status: "pending" })]);
-  });
-
-  it("does not apply the sendblue outbound cap to other providers", async () => {
-    const deps = createDeps({
-      identity: {
-        provider: "slack",
-        address: "U123",
-        outboundSinceInbound: MESSAGING_DM_OUTBOUND_CAP,
-      },
-    });
-    await deliverMessagingOutbound(deps, { runId: "run-1" }, context);
-
-    expect(deps.sendToThread).toHaveBeenCalled();
-    expect(deps.rows).toEqual([
-      expect.objectContaining({ kind: "dm", status: "sent", providerHandle: "handle-out-1" }),
-    ]);
   });
 
   it("returns a transient send failure to pending and schedules a delayed retry", async () => {
@@ -627,7 +579,7 @@ describe("deliverMessagingOutbound", () => {
     await deliverMessagingOutbound(deps, {}, context);
 
     expect(deps.sendToThread).toHaveBeenCalledWith(
-      { threadId: "sendblue:dm-1", body: "pending earlier" },
+      { threadId: "chat:dm-1", body: "pending earlier" },
       context,
     );
     expect(deps.rows[0]).toEqual(expect.objectContaining({ status: "sent" }));
@@ -793,16 +745,12 @@ describe("deliverMessagingOutbound", () => {
 
     expect(deps.sendToThread).toHaveBeenCalledWith(
       {
-        threadId: "sendblue:dm-1",
+        threadId: "chat:dm-1",
         body: "wants to connect. Reply YES to allow, NO to decline.",
       },
       context,
     );
     expect(deps.rows[0]).toEqual(expect.objectContaining({ status: "sent" }));
-    expect(deps.prisma.messagingIdentity.update).toHaveBeenCalledWith({
-      where: { id: "mi-1" },
-      data: { outboundSinceInbound: { increment: 1 } },
-    });
   });
 
   it("does not send a connect invite queued by a person who has since been deactivated", async () => {
@@ -896,7 +844,7 @@ describe("applyMessagingOutboundStatus", () => {
     const deps = createDeps({});
     await applyMessagingOutboundStatus(deps.prisma, {
       type: "status",
-      provider: "sendblue",
+      provider: "chat",
       handle: "h-1",
       status: "ERROR",
     });
@@ -907,7 +855,7 @@ describe("applyMessagingOutboundStatus", () => {
 
     await applyMessagingOutboundStatus(deps.prisma, {
       type: "status",
-      provider: "sendblue",
+      provider: "chat",
       handle: "h-2",
       status: "DELIVERED",
     });
@@ -918,7 +866,7 @@ describe("applyMessagingOutboundStatus", () => {
 
     await applyMessagingOutboundStatus(deps.prisma, {
       type: "status",
-      provider: "sendblue",
+      provider: "chat",
       handle: "h-3",
       status: "QUEUED",
     });
@@ -949,7 +897,7 @@ function createChannelDeps(
       blocks: [
         {
           kind: "channel_message",
-          provider: "sendblue",
+          provider: "chat",
           ...(overrides.transport ? { transport: overrides.transport } : {}),
           channelId: "ch-1",
           fromAddress: "+15551111111",
@@ -962,23 +910,21 @@ function createChannelDeps(
   };
   const posterIdentity = {
     id: "mi-1",
-    provider: overrides.posterProvider ?? "sendblue",
+    provider: overrides.posterProvider ?? "chat",
     address: "+15551111111",
-    dmThreadId: "sendblue:dm-1",
+    dmThreadId: "chat:dm-1",
     userId: "user-1",
     spaceId: "ws-1",
     botId: "bot-1",
-    outboundSinceInbound: 0,
   };
   const peerIdentity = {
     id: "mi-2",
-    provider: "sendblue",
+    provider: "chat",
     address: "+15553333333",
-    dmThreadId: "sendblue:dm-2",
+    dmThreadId: "chat:dm-2",
     userId: "user-2",
     spaceId: "ws-2",
     botId: "bot-2",
-    outboundSinceInbound: 0,
   };
   const rows: Array<Record<string, unknown>> = [];
   const contextMessages: Array<Record<string, unknown>> = [];
@@ -1033,8 +979,8 @@ function createChannelDeps(
     messagingChannel: {
       findUnique: vi.fn(async () => ({
         id: "ch-1",
-        provider: "sendblue",
-        threadId: "sendblue:grp-1",
+        provider: "chat",
+        threadId: "chat:grp-1",
         name: "Family",
         introPostedAt: null,
       })),
@@ -1179,7 +1125,7 @@ describe("deliverMessagingOutbound channel runs", () => {
     });
     await deliverMessagingOutbound(deps, { runId: "run-1" }, context);
     expect(deps.sendToThread).toHaveBeenCalledWith(
-      { threadId: "sendblue:grp-1", body: "Alice's agent: Public update" },
+      { threadId: "chat:grp-1", body: "Alice's agent: Public update" },
       context,
     );
   });
@@ -1189,14 +1135,14 @@ describe("deliverMessagingOutbound channel runs", () => {
     await deliverMessagingOutbound(deps, { runId: "run-1" }, context);
 
     expect(deps.sendToThread).toHaveBeenCalledWith(
-      { threadId: "sendblue:grp-1", body: "Alice's agent: found it" },
+      { threadId: "chat:grp-1", body: "Alice's agent: found it" },
       context,
     );
     expect(deps.rows).toEqual([
       expect.objectContaining({
         idempotencyKey: "msg:m-1",
         kind: "group",
-        threadId: "sendblue:grp-1",
+        threadId: "chat:grp-1",
         status: "sent",
       }),
     ]);
@@ -1209,7 +1155,7 @@ describe("deliverMessagingOutbound channel runs", () => {
         blocks: [
           {
             kind: "channel_message",
-            provider: "sendblue",
+            provider: "chat",
             channelId: "ch-1",
             fromAddress: "+15551111111",
             fromLabel: "Alice's agent",
@@ -1221,24 +1167,6 @@ describe("deliverMessagingOutbound channel runs", () => {
     ]);
     expect(deps.sendUserMessage).not.toHaveBeenCalled();
     expect(deps.enqueue).not.toHaveBeenCalled();
-  });
-
-  it("splits a long group reply into platform-sized parts that keep the tail", async () => {
-    const text = `${"x".repeat(4_200)} TAIL-MARK`;
-    const deps = createChannelDeps({
-      posterProvider: "telegram",
-      messages: [{ id: "m-1", blocks: [{ kind: "text", text }] }],
-    });
-    await deliverMessagingOutbound(deps, { runId: "run-1" }, context);
-
-    expect(deps.rows.map((row) => row.idempotencyKey)).toEqual(["msg:m-1", "msg:m-1:2"]);
-    expect(deps.rows.every((row) => (row.body as string).length <= 4_096)).toBe(true);
-    expect((deps.rows[0]!.body as string).startsWith("Alice's agent: ")).toBe(true);
-    expect(deps.rows.map((row) => row.body).join("")).toContain("TAIL-MARK");
-    expect(deps.rows.map((row) => row.status)).toEqual(["sent", "sent"]);
-    expect(deps.sendToThread.mock.calls.map((call) => (call as unknown[])[0])).toEqual(
-      deps.rows.map((row) => ({ threadId: "sendblue:grp-1", body: row.body })),
-    );
   });
 
   it("gives group rows a strictly ordered createdAt across messages", async () => {
@@ -1266,7 +1194,7 @@ describe("deliverMessagingOutbound channel runs", () => {
     try {
       const reply = (marker: string) => `${marker}${marker.repeat(4_100)}`;
       const deps = createChannelDeps({
-        posterProvider: "telegram",
+        posterProvider: "filechat",
         runs: [
           { id: "run-1", messages: [{ id: "m-1", blocks: [{ kind: "text", text: reply("1") }] }] },
           { id: "run-2", messages: [{ id: "m-2", blocks: [{ kind: "text", text: reply("2") }] }] },
@@ -1306,7 +1234,7 @@ describe("deliverMessagingOutbound channel runs", () => {
         blocks: [
           expect.objectContaining({
             kind: "channel_message",
-            provider: "sendblue",
+            provider: "chat",
             transport: "SMS",
             text: "found it",
             hop: 1,
@@ -1497,54 +1425,7 @@ describe("deliverMessagingOutbound send failure classification", () => {
 });
 
 describe("deliverMessagingOutbound conversation order", () => {
-  const whatsapp = { provider: "whatsapp", address: "15551234567", dmThreadId: "whatsapp:p:1" };
-  const part = (letter: string) => letter.repeat(3000);
-  const longReply = [part("a"), part("b"), part("c")].join("\n\n");
-
-  it.each([
-    whatsapp,
-    { provider: "telegram", address: "123", dmThreadId: "telegram:123" },
-    { provider: "telegram-work", address: "123", dmThreadId: "telegram-work:123" },
-  ])("queues a long $provider reply as one row per message-sized part", async (identity) => {
-    const deps = createDeps({
-      identity,
-      messages: [{ id: "m-1", blocks: [{ kind: "text", text: longReply }] }],
-    });
-    await deliverMessagingOutbound(deps, { runId: "run-1" }, context);
-
-    expect(deps.rows.map((row) => [row.idempotencyKey, row.body, row.status])).toEqual([
-      ["msg:m-1", part("a"), "sent"],
-      ["msg:m-1:2", part("b"), "sent"],
-      ["msg:m-1:3", part("c"), "sent"],
-    ]);
-    expect(deps.rows.every((row) => row.sourceMessageId === "m-1")).toBe(true);
-  });
-
-  it("re-sends only the parts that failed, in order", async () => {
-    const deps = createDeps({
-      identity: whatsapp,
-      messages: [{ id: "m-1", blocks: [{ kind: "text", text: longReply }] }],
-    });
-    deps.sendToThread
-      .mockResolvedValueOnce({ handle: "wamid.1" })
-      .mockRejectedValueOnce(new Error("WhatsApp API error"));
-    await deliverMessagingOutbound(deps, { runId: "run-1" }, context);
-
-    // The third part waits behind the failed second one.
-    expect(deps.rows.map((row) => row.status)).toEqual(["sent", "pending", "pending"]);
-    expect(deps.rows[2]!.attempts ?? 0).toBe(0);
-
-    deps.rows[1]!.nextAttemptAt = new Date(Date.now() - 1);
-    await deliverMessagingOutbound(deps, { runId: "run-1" }, context);
-
-    expect(deps.sendToThread.mock.calls.map((call) => (call as unknown[])[0])).toEqual(
-      [part("a"), part("b"), part("b"), part("c")].map((body) => ({
-        threadId: "whatsapp:p:1",
-        body,
-      })),
-    );
-    expect(deps.rows.map((row) => row.status)).toEqual(["sent", "sent", "sent"]);
-  });
+  const direct = { provider: "chat", address: "15551234567", dmThreadId: "chat:p:1" };
 
   it.each([
     ["in flight in another drain", "sent", new Date(), false],
@@ -1568,7 +1449,7 @@ describe("deliverMessagingOutbound conversation order", () => {
       });
       const deps = createDeps({
         run: null,
-        identity: whatsapp,
+        identity: direct,
         outboundRows: [
           part("p-1", "msg:m-1", 0, { status, updatedAt }),
           part("p-2", "msg:m-1:2", 1, { status: "pending" }),
@@ -1602,100 +1483,22 @@ describe("deliverMessagingOutbound conversation order", () => {
           ...pendingRow("out-3", "elsewhere", null),
           identityId: null,
           kind: "group",
-          threadId: "sendblue:grp",
+          threadId: "chat:grp",
         },
       ],
     });
     await deliverMessagingOutbound(deps, {}, context);
 
     expect(deps.sendToThread).toHaveBeenCalledExactlyOnceWith(
-      { threadId: "sendblue:grp", body: "elsewhere" },
+      { threadId: "chat:grp", body: "elsewhere" },
       context,
     );
     expect(deps.rows.map((row) => row.status)).toEqual(["pending", "pending", "sent"]);
   });
 });
 
-describe("WhatsApp rendered outbound delivery", () => {
-  afterEach(() => vi.unstubAllGlobals());
-
-  const deliver = async (body: string, failSend?: number) => {
-    const sends: string[] = [];
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (_input: string, init: RequestInit) => {
-        const payload = JSON.parse(String(init.body)) as { text: { body: string } };
-        sends.push(payload.text.body);
-        if (sends.length === failSend) {
-          return Response.json({ error: { message: "temporary error", code: 1 } }, { status: 500 });
-        }
-        return Response.json({ messages: [{ id: `wamid.${sends.length}` }] });
-      }),
-    );
-    const messaging = new ChatSdkMessagingSurface(
-      messagingPlatformsFromEnv({
-        whatsappAccessToken: "test-token",
-        whatsappPhoneNumberId: "123",
-        whatsappAppSecret: "test-secret",
-        whatsappVerifyToken: "test-verify",
-      }),
-    );
-    const deps = createDeps({
-      identity: {
-        provider: "whatsapp",
-        address: "15551234567",
-        dmThreadId: "whatsapp:123:15551234567",
-      },
-      messages: [{ id: "m-1", blocks: [{ kind: "text", text: body }] }],
-    });
-    const run = () => deliverMessagingOutbound({ ...deps, messaging }, { runId: "run-1" }, context);
-    await run();
-    return { deps, sends, run };
-  };
-  const intact = (text: string) => text.length <= 4096 && !/\p{Cs}/u.test(text);
-
-  it("splits before Markdown rendering pushes an emoji across the limit", async () => {
-    // Rendering expands this auto-link so the emoji would begin at UTF-16 offset 4095.
-    const link = `www.${"a".repeat(2000)}.test`;
-    const body = `${link} ${"x".repeat(65)}😀zzz`;
-    expect(body.length).toBeLessThan(4096);
-
-    const { deps, sends, run } = await deliver(body, 2);
-
-    expect(deps.rows).toHaveLength(2);
-    expect(sends).toHaveLength(2);
-    expect(sends.every(intact)).toBe(true);
-    expect(sends.join(" ")).toContain("😀zzz");
-    expect(deps.rows.map((row) => row.status)).toEqual(["sent", "pending"]);
-
-    deps.rows[1]!.nextAttemptAt = new Date(Date.now() - 1);
-    await run();
-
-    expect(sends.slice(2)).toEqual([sends[1]]);
-    expect(deps.rows.map((row) => row.status)).toEqual(["sent", "sent"]);
-  });
-
-  it("sends a table that renders past the limit as one request per queued part", async () => {
-    const rows = Array.from({ length: 200 }, (_, i) => `| ${i} | x | 😀 |`);
-    const body = [
-      "| n | text | mood |",
-      "| - | - | - |",
-      `| - | ${"w".repeat(40)} | - |`,
-      ...rows,
-    ].join("\n");
-    expect(body.length).toBeLessThan(4096);
-
-    const { deps, sends } = await deliver(body);
-
-    expect(deps.rows.length).toBeGreaterThan(1);
-    expect(sends).toHaveLength(deps.rows.length);
-    expect(sends.every(intact)).toBe(true);
-    expect(deps.rows.every((row) => row.status === "sent")).toBe(true);
-  });
-});
-
 describe("deliverMessagingOutbound attachments", () => {
-  const telegram = { provider: "telegram", address: "123", dmThreadId: "telegram:123" };
+  const filechat = { provider: "filechat", address: "123", dmThreadId: "filechat:123" };
   const artifacts = [
     {
       id: "art-1",
@@ -1736,18 +1539,18 @@ describe("deliverMessagingOutbound attachments", () => {
     });
 
   it("sends a reply's image and file after its text, one row each", async () => {
-    const deps = createDeps({ identity: telegram, messages: [reply], artifacts });
+    const deps = createDeps({ identity: filechat, messages: [reply], artifacts });
     await deliverMessagingOutbound(deps, { runId: "run-1" }, context);
 
     expect(deps.sendToThread.mock.calls.map((call) => (call as unknown[])[0])).toEqual([
-      { threadId: "telegram:123", body: "Here you go" },
+      { threadId: "filechat:123", body: "Here you go" },
       {
-        threadId: "telegram:123",
+        threadId: "filechat:123",
         body: "",
         attachment: { name: "chart.png", mimeType: "image/png", data: bytes("key-1") },
       },
       {
-        threadId: "telegram:123",
+        threadId: "filechat:123",
         body: "",
         attachment: { name: "report.pdf", mimeType: "application/pdf", data: bytes("key-2") },
       },
@@ -1766,7 +1569,7 @@ describe("deliverMessagingOutbound attachments", () => {
 
   it("sends a reply that is only a file", async () => {
     const deps = createDeps({
-      identity: telegram,
+      identity: filechat,
       messages: [{ id: "m-1", blocks: [reply.blocks[1]] }],
       artifacts,
     });
@@ -1780,7 +1583,7 @@ describe("deliverMessagingOutbound attachments", () => {
     await deliverMessagingOutbound(deps, { runId: "run-1" }, context);
 
     expect(deps.sendToThread).toHaveBeenCalledExactlyOnceWith(
-      { threadId: "sendblue:dm-1", body: "Here you go" },
+      { threadId: "chat:dm-1", body: "Here you go" },
       context,
     );
     expect(deps.rows).toHaveLength(1);
@@ -1788,10 +1591,10 @@ describe("deliverMessagingOutbound attachments", () => {
   });
 
   it("retries a failed file without sending the text again", async () => {
-    const deps = createDeps({ identity: telegram, messages: [reply], artifacts });
+    const deps = createDeps({ identity: filechat, messages: [reply], artifacts });
     deps.sendToThread
       .mockResolvedValueOnce({ handle: "text-1" })
-      .mockRejectedValueOnce(new Error("Telegram 500"));
+      .mockRejectedValueOnce(new Error("Provider 500"));
     await deliverMessagingOutbound(deps, { runId: "run-1" }, context);
 
     // The second file waits behind the failed first one.
@@ -1825,7 +1628,7 @@ describe("deliverMessagingOutbound attachments", () => {
     };
     const deps = createDeps({
       run: null,
-      identity: telegram,
+      identity: filechat,
       artifacts,
       outboundRows: [
         {
@@ -1840,7 +1643,7 @@ describe("deliverMessagingOutbound attachments", () => {
         fileRow,
       ],
     });
-    deps.sendToThread.mockRejectedValueOnce(new Error("Telegram 500"));
+    deps.sendToThread.mockRejectedValueOnce(new Error("Provider 500"));
     await deliverMessagingOutbound(deps, {}, context);
 
     expect(deps.rows.map((row) => [row.idempotencyKey, row.status])).toEqual([
@@ -1863,7 +1666,7 @@ describe("deliverMessagingOutbound attachments", () => {
   it("sends the notice in the file's place, before a later reply already queued", async () => {
     const deps = createDeps({
       run: null,
-      identity: telegram,
+      identity: filechat,
       artifacts,
       outboundRows: [
         {
@@ -1894,7 +1697,7 @@ describe("deliverMessagingOutbound attachments", () => {
         },
       ],
     });
-    deps.sendToThread.mockRejectedValueOnce(new Error("Telegram 500"));
+    deps.sendToThread.mockRejectedValueOnce(new Error("Provider 500"));
     await deliverMessagingOutbound(deps, {}, context);
     // One transaction claims the row for sending; the failure and its notice
     // are then saved together in a second one.
@@ -1910,7 +1713,7 @@ describe("deliverMessagingOutbound attachments", () => {
 
   it("drops a file whose artifact is gone or belongs to another Space", async () => {
     const deps = createDeps({
-      identity: telegram,
+      identity: filechat,
       messages: [reply],
       artifacts: [{ ...artifacts[0]!, spaceId: "ws-2" }],
     });
@@ -1959,16 +1762,13 @@ describe("accepted outbound bookkeeping failures", () => {
   const cases = [
     ["group", "handle"],
     ["intro", "handle"],
-    ["invite", "counter"],
     ["text", "handle"],
-    ["text", "counter"],
     ["attachment", "handle"],
-    ["attachment", "counter"],
   ] as const;
 
   function pending(kind: string) {
     return createDeps({
-      identity: { provider: "telegram", dmThreadId: "telegram:123" },
+      identity: { provider: "filechat", dmThreadId: "filechat:123" },
       outboundRows: [
         {
           id: "out-accepted",
@@ -1981,7 +1781,7 @@ describe("accepted outbound bookkeeping failures", () => {
           sourceMessageId: "m-1",
           kind: kind === "group" || kind === "intro" ? kind : "dm",
           identityId: kind === "group" || kind === "intro" ? null : "mi-1",
-          threadId: kind === "group" || kind === "intro" ? "telegram:group" : null,
+          threadId: kind === "group" || kind === "intro" ? "filechat:group" : null,
           body: kind === "attachment" ? "" : "Hello",
           status: "pending",
           attempts: 0,
@@ -2003,12 +1803,10 @@ describe("accepted outbound bookkeeping failures", () => {
     });
   }
 
-  it.each(cases)("does not resend accepted %s after a %s save failure", async (kind, failure) => {
+  it.each(cases)("does not resend accepted %s after a %s save failure", async (kind) => {
     const deps = pending(kind);
     const error = new Error("bookkeeping unavailable");
-    if (failure === "counter") {
-      deps.prisma.messagingIdentity.update.mockRejectedValueOnce(error);
-    } else if (kind === "group" || kind === "intro") {
+    if (kind === "group" || kind === "intro") {
       deps.prisma.messagingOutbound.update.mockRejectedValueOnce(error);
     } else {
       const update = deps.prisma.messagingOutbound.updateMany.getMockImplementation()!;
@@ -2024,7 +1822,7 @@ describe("accepted outbound bookkeeping failures", () => {
     expect(deps.sendToThread).toHaveBeenCalledTimes(1);
     expect(deps.rows[0]!.status).toBe("sent");
     expect(deps.rows[0]!.attempts).toBe(0);
-    expect(deps.rows[0]!.providerHandle).toBe(failure === "counter" ? "handle-out-1" : null);
+    expect(deps.rows[0]!.providerHandle).toBeNull();
     expect(deps.jobs.enqueue).not.toHaveBeenCalled();
     expect(deps.rows).toHaveLength(1);
   });

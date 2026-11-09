@@ -477,7 +477,7 @@ export const ALTERNATIVES: readonly Alternative[] = [
       {
         heading: "Day-to-day management",
         paragraphs: [
-          "Day to day, you manage Rakazo from the same chat. Schedules, memory, and approval boundaries stay with that bot. Optional connectors can attach Slack, WhatsApp, Telegram, iMessage via Sendblue, and Feishu/Lark. They are not required to use the product.",
+          "Day to day, you manage Rakazo from the same chat. Schedules, memory, and approval boundaries stay with that bot. An optional Slack connector can attach the bot to your workspace. It is not required to use the product.",
           "Hermes Desktop manages providers, models, tools, credentials, and sessions in Settings. The CLI quickstart sends a broken setup through `hermes doctor`, `hermes model`, `hermes setup`, `hermes sessions list`, and `hermes gateway status`. Tool access is `hermes tools`. Cron, skills, and MCP servers are further configuration. Messaging platforms still need that separately running gateway.",
         ],
       },
@@ -532,7 +532,7 @@ export const ALTERNATIVES: readonly Alternative[] = [
       {
         topic: "Where you talk to it",
         rakazo:
-          "The Rakazo web, desktop, and mobile apps are the main surface. Optional connectors can attach Slack, WhatsApp, Telegram, iMessage via Sendblue, and Feishu/Lark.",
+          "The Rakazo web, desktop, and mobile apps are the main surface. An optional Slack connector can attach the bot to your workspace.",
         other:
           "Hermes Desktop is a chat window that shares sessions with the CLI and TUI. The gateway adds Telegram, Discord, Slack, WhatsApp, Signal, Email, and other platforms, and the desktop guide says that gateway is a separate process.",
       },
@@ -736,7 +736,7 @@ export const ALTERNATIVES: readonly Alternative[] = [
       {
         topic: "Where you use it",
         rakazo:
-          "The Rakazo web, desktop, and mobile apps. Optional connectors can attach Slack, WhatsApp, Telegram, iMessage via Sendblue, and Feishu/Lark.",
+          "The Rakazo web, desktop, and mobile apps. An optional Slack connector can attach the bot to your workspace.",
         other:
           "The web app, iOS, and Android. The privacy policy says you work through one ongoing conversation, and that inputs can include chat, voice, and file uploads. You must be 18 or older.",
       },
