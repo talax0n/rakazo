@@ -22,7 +22,6 @@ import { memoryTools } from "./run-tools-memory.js";
 import { messagingTools } from "./run-tools-messaging.js";
 import { pageTools } from "./run-tools-pages.js";
 import { preferenceTools } from "./run-tools-preferences.js";
-import { purchaseTools } from "./run-tools-purchases.js";
 import { secretTools } from "./run-tools-secrets.js";
 import { taskTools } from "./run-tools-tasks.js";
 import {
@@ -49,7 +48,6 @@ const TOOL_HANDLERS = new Map<string, ToolHandler>([
   [USER_COMPUTER_SHELL_TOOL, userComputerShell],
   [USER_COMPUTER_OBSERVE_TOOL, userComputerObserve],
   [USER_COMPUTER_ACT_TOOL, userComputerAct],
-  ...Object.entries(purchaseTools),
   ...Object.entries(preferenceTools),
   ...Object.entries(feedbackTools),
   ...Object.entries(emailTools),

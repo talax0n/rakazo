@@ -51,7 +51,6 @@ function handlers(): BackgroundJobHandlers {
     "messaging.progress": vi.fn(async () => undefined),
     "messaging.credential-cleanup": vi.fn(async () => undefined),
     "cloud_agent.poll": vi.fn(async () => undefined),
-    "purchase.poll": vi.fn(async () => undefined),
     "media.poll": vi.fn(async () => undefined),
     "push.receipt": vi.fn(async () => undefined),
   };

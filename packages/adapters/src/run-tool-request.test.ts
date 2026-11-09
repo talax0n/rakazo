@@ -44,8 +44,6 @@ function ownBotUpdateCall() {
     replayEffectToolName: "update_bot",
     fleetSummary: undefined,
     heldForApproval: false,
-    purchase: undefined,
-    cardUse: undefined,
   };
   return { ctx, request: () => structuredClone(request) };
 }

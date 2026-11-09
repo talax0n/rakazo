@@ -11,8 +11,6 @@ import type {
   MediaGenerationProvider,
   MemoryStore,
   NotificationProvider,
-  PaidServiceProvider,
-  PaymentWalletProvider,
   SandboxProvider,
   SecretStore,
   TransactionalEmailProvider,
@@ -69,7 +67,6 @@ export interface ExecutorDeps {
   /** Builtin web_search / web_fetch. Defaults to keyless HTTP when omitted. */
   web?: WebProvider;
   mediaGeneration?: MediaGenerationProvider;
-  paidServices?: PaidServiceProvider;
   /** Page browser (DOM refs) on the bot computer. Defaults to the sandbox live browser when supported. */
   browser?: BrowserProvider;
   secretHttp?: RemoteTransportDependencies;
@@ -77,8 +74,6 @@ export interface ExecutorDeps {
   mcpAllowPrivateEndpoint?: boolean;
   /** Remote cloud coding agents. Null/omit means tools stay uninjected. */
   cloudAgent?: CloudAgentConnection | null;
-  /** The deployment's payment wallet. Null/omit means purchase tools stay uninjected. */
-  paymentWallet?: PaymentWalletProvider | null;
   /** Optional Auto Review verifier. When omitted, the factory selects from env (llm | jev | scripted). */
   autoReview?: AutoReviewProvider;
   /**

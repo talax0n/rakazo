@@ -115,10 +115,7 @@ import {
 } from "./model-selection.js";
 import { modelAcceptsImageInput } from "./model-vision.js";
 import { usesNativeShell } from "./native-shell.js";
-import { createPaidServiceProvider } from "./paid-services-factory.js";
-import { paymentWalletConnected } from "./payment-wallets.js";
 import { restoreComputerModels } from "./pi-runtime-computer-mode.js";
-import { loadPurchaseRedactions } from "./purchase-service.js";
 import { loadReplyContext, messageToAgentHistoryText } from "./reply-context.js";
 import { backOffRoutineAfterAccountError } from "./routine-backoff.js";
 import { lateRoutineRunDueAt, lateRoutineRunInstruction } from "./routine-lateness.js";
@@ -249,7 +246,6 @@ export function createRunExecutor(executorDeps: ExecutorDeps) {
   const contextStrategy = executorDeps.contextStrategy ?? DEFAULT_CONTEXT_STRATEGY;
   const web = executorDeps.web ?? createWebProvider();
   const mediaGeneration = executorDeps.mediaGeneration ?? createMediaGenerationProvider();
-  const paidServices = executorDeps.paidServices ?? createPaidServiceProvider();
   const browser =
     executorDeps.browser ?? createBrowserProvider(undefined, { sandbox: executorDeps.sandbox });
   const cloudAgent = executorDeps.cloudAgent;
@@ -563,7 +559,6 @@ export function createRunExecutor(executorDeps: ExecutorDeps) {
           agentSkills,
           initialBotCommandEnvironment,
           savedLoginPasswordRedactions,
-          purchaseRedactions,
           runLoginRedactions,
           runCodeRedactions,
         ] = await Promise.all([
@@ -607,7 +602,6 @@ export function createRunExecutor(executorDeps: ExecutorDeps) {
           }),
           loadBotCommandEnvironment(deps.prisma, deps.secretStore, run),
           loadLoginPasswordRedactions(deps.prisma, deps.secretStore, run),
-          deps.paymentWallet ? loadPurchaseRedactions(deps, run) : [],
           loadRunLoginRedactions(deps.prisma, deps.secretStore, run, run.id),
           loadRunCodeRedactions(deps.prisma, deps.secretStore, run, run.id),
         ]);
@@ -639,7 +633,6 @@ export function createRunExecutor(executorDeps: ExecutorDeps) {
         // or is given may contain it, so every run hides its saved passwords before the model runs.
         runSecrets.push(
           ...savedLoginPasswordRedactions,
-          ...purchaseRedactions,
           ...runLoginRedactions,
           ...runCodeRedactions,
         );
@@ -1135,13 +1128,6 @@ export function createRunExecutor(executorDeps: ExecutorDeps) {
         const hasMessagingIdentity = deps.messaging
           ? await deps.messaging.hasIdentity(bot.id)
           : false;
-        const paymentWallet = deps.paymentWallet;
-        const paymentWalletEnabled = paymentWallet
-          ? await paymentWalletConnected(
-              { prisma: deps.prisma, secretStore: deps.secretStore, paymentWallet },
-              run.userId,
-            )
-          : false;
         const messagingContext =
           [
             hasMessagingIdentity ? messagingDmSurfaceNote() : null,
@@ -1271,9 +1257,7 @@ export function createRunExecutor(executorDeps: ExecutorDeps) {
             semanticMemoryForgets: Boolean(semanticMemory?.forget),
             mediaImagesEnabled: Boolean(deps.artifacts && mediaGeneration?.capabilities.images),
             mediaVideoEnabled: Boolean(deps.artifacts && mediaGeneration?.capabilities.video),
-            paidServicesEnabled: Boolean(paidServices),
             cloudAgentEnabled: cloudAgentsEnabled(cloudAgent, run.spaceId),
-            paymentWalletEnabled,
             messagingChannelRun: nonOwnerChatRun,
             voiceCall,
             // Every member already got a message that names nobody, so a handoff only repeats it.
@@ -1421,7 +1405,6 @@ export function createRunExecutor(executorDeps: ExecutorDeps) {
           // A resumed turn replaces this with the baseline its saved prompt was built from.
           ownInstructionsBaseline: bot.instructions ?? "",
           earlierAttempt: undefined,
-          walletHosts: new Set(),
           handedOff: false,
           terminalCheckpointComplete: false,
         };
@@ -1438,7 +1421,7 @@ export function createRunExecutor(executorDeps: ExecutorDeps) {
 
         const ctx: RunContext = {
           deps,
-          providers: { web, mediaGeneration, paidServices, browser, cloudAgent },
+          providers: { web, mediaGeneration, browser, cloudAgent },
           run,
           runId,
           workerId,

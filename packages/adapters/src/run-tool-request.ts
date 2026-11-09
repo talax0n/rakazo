@@ -1,5 +1,5 @@
 import type { ConnectorCall, ConnectorTool } from "@rakazo/adapter-kit";
-import { BOT_INSTRUCTIONS_MAX_LENGTH, BotSecretAuth } from "@rakazo/contracts";
+import { BOT_INSTRUCTIONS_MAX_LENGTH } from "@rakazo/contracts";
 import { redactSecrets } from "@rakazo/core";
 import { prepareAgentConnectionResponse } from "./agent-connections.js";
 import type { FleetCardSummary } from "./approval-ask.js";
@@ -17,19 +17,10 @@ import {
   catalogApprovalMatchesLiveRoute,
   catalogApprovalRequest,
 } from "./approval-effect.js";
-import { listVaultItems } from "./bot-secrets.js";
 import { validCloudAgentArgs } from "./cloud-agent-tools.js";
 import { sanitizeConnectorError } from "./connector-safety.js";
 import { isFleetApprovalTool, modelLabel, prepareFleetRequest } from "./fleet-tools.js";
 import { assertConnectorToolArgs, CATALOG_EXECUTE } from "./lazy-tool-catalog.js";
-import { paidRequestEffect, restorePaidRequest } from "./paid-request.js";
-import type { PurchaseApproval } from "./purchase-gate.js";
-import {
-  detectPurchase,
-  PURCHASE_CHECKED_TOOLS,
-  purchaseApprovalOf,
-  purchaseCardSummary,
-} from "./purchase-gate.js";
 import type { RunContext } from "./run-context.js";
 import {
   isRunTainted,
@@ -50,8 +41,6 @@ import { USER_COMPUTER_TOOLS } from "./run-tools-user-computer.js";
 import { SCHEDULE_TOOL_NAMES } from "./schedule-tools.js";
 import { SKILL_TOOL_NAMES } from "./skill-tools.js";
 import { argumentGiven, dropUnchangedOwnBotArgs } from "./update-bot-patch.js";
-import type { VaultCardUse } from "./vault-card-use.js";
-import { cardUseSummary, requestedCardUse, vaultCardUseOf } from "./vault-card-use.js";
 
 /** A tool call resolved to the tool it runs and the exact request an approval covers. */
 export interface ToolRequest {
@@ -71,10 +60,6 @@ export interface ToolRequest {
   fleetSummary: FleetCardSummary | undefined;
   /** Gated like a consequential action, even when the tool alone is not. */
   heldForApproval: boolean;
-  /** This page tool call completes a purchase, which a person approves each time. */
-  purchase: PurchaseApproval | undefined;
-  /** This page tool call types a saved card into a checkout, which a person approves each time. */
-  cardUse: VaultCardUse | undefined;
 }
 
 type ToolError = { error: string };
@@ -120,7 +105,7 @@ export async function resolveToolRequest(
       error: "Invalid cloud agent arguments. Raw environment variables are not supported.",
     };
   }
-  let effectRequest: unknown = name === "paid_request" ? paidRequestEffect(args) : args;
+  let effectRequest: unknown = args;
   if (connectorCall.route && deps.connector?.resolveCall) {
     try {
       const resolved = await deps.connector.resolveCall(connectorCall, context);
@@ -252,14 +237,7 @@ export async function resolveToolRequest(
     } else {
       // Catalog wrappers keep resolveCall's parsed args so Zod stripping/coercion
       // still matches the first-approval effect key and execute payload.
-      const live = args;
       args = approvedReplayArgs(approvedRequest, args, CATALOG_APPROVAL_TOOL);
-      if (name === "paid_request") {
-        const restored = restorePaidRequest(args, live);
-        if ("error" in restored && typeof restored.error === "string")
-          return { error: restored.error };
-        args = restored;
-      }
     }
     // Bound / shrink-direct approvals may skip catalog parse — reject before execute
     // if they no longer match the live schema.
@@ -290,8 +268,6 @@ export async function resolveToolRequest(
     replayEffectToolName,
     fleetSummary: undefined,
     heldForApproval: false,
-    purchase: undefined,
-    cardUse: undefined,
   };
 }
 
@@ -394,79 +370,6 @@ export async function prepareToolRequest(
     ) {
       return { error: "connection request is no longer pending" };
     }
-  }
-  if (PURCHASE_CHECKED_TOOLS.has(name)) {
-    // The approval is written here from what the page says; a model-supplied one is dropped, and an
-    // approved replay keeps the one the user saw.
-    const { purchaseApproval: given, cardApproval: givenCard, ...rest } = args;
-    const approved = nextApprovedTool === name ? purchaseApprovalOf(given) : undefined;
-    args = approved ? { ...rest, purchaseApproval: given } : rest;
-    // A saved card is typed only into the checkout a person approved: the approval names the card
-    // and the site, and a replay keeps the one the user saw.
-    const wantedCard = name === "browser_act" ? requestedCardUse(rest.actions) : undefined;
-    if (wantedCard && "error" in wantedCard) return wantedCard;
-    if (wantedCard) {
-      const approvedCard = nextApprovedTool === name ? vaultCardUseOf(givenCard) : undefined;
-      if (
-        approvedCard &&
-        (approvedCard.card !== wantedCard.card || approvedCard.site !== wantedCard.site)
-      )
-        return {
-          error:
-            "This types a saved card the user has not approved, so nothing was typed. Call the tool again with only that card; that asks the user.",
-        };
-      let cardUse = approvedCard;
-      if (!cardUse) {
-        const [item] = await listVaultItems(deps.prisma, deps.secretStore, run, wantedCard.card);
-        if (BotSecretAuth.safeParse(item?.auth).data?.type !== "card")
-          return { error: "No card is saved under this name. Check list_secrets." };
-        cardUse = { ...wantedCard, title: item!.title, savedAt: item!.updatedAt.toISOString() };
-      }
-      args = { ...args, cardApproval: cardUse };
-      request.cardUse = cardUse;
-      request.fleetSummary = cardUseSummary(cardUse);
-    }
-    // A desktop press has no check on the page right before it, as a browser_act click does: one the user
-    // approved goes ahead only while the page still shows what the card did. A card that named nothing
-    // (the check failed) has nothing to compare.
-    if (
-      name === "computer_act" &&
-      approved &&
-      (approved.site || approved.label || approved.amount)
-    ) {
-      const now = await detectPurchase(ctx, name, rest);
-      if (
-        !now ||
-        now.site !== approved.site ||
-        now.label !== approved.label ||
-        now.amount !== approved.amount ||
-        (now.total ?? "") !== (approved.total ?? "")
-      )
-        return {
-          error:
-            "The page changed since the user approved this purchase, so nothing was pressed. Look at the screen and try again.",
-        };
-    }
-    const purchase = approved ?? (await detectPurchase(ctx, name, rest));
-    // An approval given for something else never covers a purchase: the call is made again and asks.
-    if (purchase && !approved && nextApprovedTool === name)
-      return {
-        error:
-          "This would complete a purchase, which the user has not approved, so nothing was pressed. Call the tool again with only that step; that asks the user.",
-      };
-    if (purchase) {
-      args = { ...args, purchaseApproval: purchase };
-      // The person approved paying at a site this run typed the approved card or pay token into: the
-      // click still carries the approval to the page, with no card. Spent on the first purchase click there.
-      if (approved || request.cardUse || !ctx.state.walletHosts.delete(purchase.site)) {
-        request.purchase = purchase;
-        request.fleetSummary = request.cardUse
-          ? cardUseSummary(request.cardUse, purchase)
-          : purchaseCardSummary(purchase);
-      }
-    }
-    if (purchase || request.cardUse || given !== undefined || givenCard !== undefined)
-      request.effectRequest = args;
   }
   request.args = args;
   if (name === "respond_agent_connection" || name === "update_bot" || isFleetApprovalTool(name))

@@ -826,9 +826,8 @@ describe("tickRoutineWatch on a computer", () => {
     expect(saved).not.toContain(secret);
   });
 
-  it("hides saved logins' hidden fields and recent card numbers in command output, as runs do", async () => {
+  it("hides saved logins' hidden fields in command output, as runs do", async () => {
     const password = "fake-watch-password-1";
-    const card = "4242 4242 4242 4242";
     const vault = fakeDatabase();
     await vault.prisma.vaultCredential.create({
       data: {
@@ -842,7 +841,6 @@ describe("tickRoutineWatch on a computer", () => {
     });
     const secretStore = {
       async load(ciphertext: string) {
-        if (ciphertext === "cipher-card") return card;
         if (ciphertext !== "cipher-login") throw new Error("unreadable");
         return encodeLoginSecret({
           fields: [
@@ -852,20 +850,7 @@ describe("tickRoutineWatch on a computer", () => {
         });
       },
     };
-    const withPurchases = (deps: RoutineWatchTickDeps) => {
-      Object.assign(deps, { paymentWallet: {} });
-      Object.assign(deps.prisma, {
-        purchase: {
-          // Only this bot's own purchases, as for its runs.
-          findMany: vi.fn(async ({ where }: { where: Record<string, unknown> }) =>
-            where.spaceId === "space-1" && where.userId === "user-1" && where.botId === "bot-1"
-              ? [{ id: "purchase-1", cardCiphertext: "cipher-card", tokenCiphertext: null }]
-              : [],
-          ),
-        },
-      });
-    };
-    const output = `Signed in as watcher@example.test with ${password}, paid with ${card.replaceAll(" ", "")} and ${card.replaceAll(" ", "-")}`;
+    const output = `Signed in as watcher@example.test with ${password}`;
 
     vi.mocked(provisionComputer).mockResolvedValueOnce({
       id: "computer-1",
@@ -879,15 +864,10 @@ describe("tickRoutineWatch on a computer", () => {
       undefined,
       { vault, secretStore },
     );
-    withPurchases(changed.deps);
     const tick = await tickRoutineWatch(changed.deps, changed.routine, target, scheduledAt);
     if (!tick.run) throw new Error("expected a run");
-    expect(tick.note).toContain(
-      "Signed in as watcher@example.test with [redacted], paid with [redacted] and [redacted]",
-    );
+    expect(tick.note).toContain("Signed in as watcher@example.test with [redacted]");
     expect(tick.note).not.toContain(password);
-    expect(tick.note).not.toContain("4242424242424242");
-    expect(tick.note).not.toContain("4242-4242-4242-4242");
 
     vi.mocked(provisionComputer).mockResolvedValueOnce({
       id: "computer-1",
@@ -901,15 +881,10 @@ describe("tickRoutineWatch on a computer", () => {
       undefined,
       { vault, secretStore },
     );
-    withPurchases(failed.deps);
     await tickRoutineWatch(failed.deps, failed.routine, target, scheduledAt);
     const posted = JSON.stringify(failed.messages);
-    expect(posted).toContain(
-      "Signed in as watcher@example.test with [redacted], paid with [redacted] and [redacted]",
-    );
+    expect(posted).toContain("Signed in as watcher@example.test with [redacted]");
     expect(posted).not.toContain(password);
-    expect(posted).not.toContain("4242424242424242");
-    expect(posted).not.toContain("4242-4242-4242-4242");
 
     // An item saved before its value was hidden is named from the last reading when it goes.
     vi.mocked(provisionComputer).mockResolvedValueOnce({
@@ -924,7 +899,6 @@ describe("tickRoutineWatch on a computer", () => {
       undefined,
       { vault, secretStore },
     );
-    withPurchases(tracked.deps);
     tracked.routine.watchState = {
       checkedAt: "x",
       outcome: "unchanged",
