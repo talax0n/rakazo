@@ -127,7 +127,7 @@
     "id": "billing",
     "title": "Billing",
     "flow": "flows/billing.yaml",
-    "screens": ["billing", "wallet", "spending-limit"]
+    "screens": ["billing"]
   },
   {
     "id": "new-account",

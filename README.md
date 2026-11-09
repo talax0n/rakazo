@@ -171,12 +171,6 @@ Connect. Users can add an HTTPS MCP server or OpenAPI JSON document from **Integ
 enabling either managed catalog. Connector credentials are encrypted on the server and are never
 returned by the API.
 
-Paid data services (map places, search results, work emails, profiles, SEO data) are optional too.
-Set `PAID_SERVICES_PROVIDER=treg` and `PAID_SERVICES_API_KEY` to an org-scoped
-[Treg](https://treg.to) token, and bots can find and call them on the deployment's account. When
-model credits are on, each call is charged to the organization's credits at the provider's cost
-plus 20%.
-
 ```bash
 pnpm install
 pnpm sandbox:build

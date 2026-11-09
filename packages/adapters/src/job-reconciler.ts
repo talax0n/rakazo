@@ -117,7 +117,6 @@ export function createJobReconciler(
     leadership?: ReconciliationLeadership;
     reconcileComputerUpdates?: () => Promise<void>;
     reconcileCloudAgents?: () => Promise<void>;
-    reconcilePurchases?: () => Promise<void>;
     reconcileMediaVideos?: () => Promise<void>;
     reconcileModelCredits?: () => Promise<void>;
     reconcileRoutineRetryNotices?: () => Promise<void>;
@@ -150,7 +149,6 @@ export function createJobReconciler(
   // them, so a hung call cannot hold back recovery. Each skips a tick while its last pass runs.
   const housekeeping = [
     deps.reconcileCloudAgents,
-    deps.reconcilePurchases,
     deps.reconcileMediaVideos,
     deps.reconcileModelCredits,
     deps.reconcileComputerUpdates,

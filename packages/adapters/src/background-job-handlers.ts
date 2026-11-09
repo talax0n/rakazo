@@ -7,7 +7,6 @@ import type {
   JobPublisher,
   MediaGenerationProvider,
   MessagingSurface,
-  PaymentWalletProvider,
   SandboxProvider,
   SecretStore,
 } from "@rakazo/adapter-kit";
@@ -36,13 +35,12 @@ import {
   mirrorMessagingOutbound,
   mirrorMessagingProgress,
 } from "./messaging-delivery.js";
-import { pollPurchase } from "./purchase-poll.js";
 import { expireTaughtSkillTeaching } from "./teaching-session.js";
 
 type Tenant = { spaceId: string; userId: string };
 
 /**
- * A job that acts for one run, routine, computer, skill, thread, cloud agent or purchase runs
+ * A job that acts for one run, routine, computer, skill, thread or cloud agent runs
  * as that row's tenant, so row-level security keeps it, and every tool it runs, in
  * the owner's Space even where a query forgets to filter. The owner comes from one
  * narrow system read; when the row is gone there is nothing left to act on.
@@ -78,7 +76,6 @@ export function createBackgroundJobHandlers(deps: {
   deploymentModelConfigured?: boolean;
   messaging?: MessagingSurface;
   cloudAgent?: CloudAgentConnection | null;
-  paymentWallet?: PaymentWalletProvider | null;
   notifications?: ExpoPushProvider;
   mediaGeneration?: MediaGenerationProvider;
   maxUploadSizeBytes?: number;
@@ -121,8 +118,6 @@ export function createBackgroundJobHandlers(deps: {
     deps.prisma.taughtSkill.findUnique({ where: { id: skillId }, select: OWNER });
   const cloudAgent = ({ agentId }: { agentId: string }) =>
     deps.prisma.cloudAgent.findUnique({ where: { id: agentId }, select: OWNER });
-  const purchase = ({ purchaseId }: { purchaseId: string }) =>
-    deps.prisma.purchase.findUnique({ where: { id: purchaseId }, select: OWNER });
   const mediaJob = async ({ jobId }: { jobId: string }) =>
     (
       await deps.prisma.externalEffect.findUnique({
@@ -220,17 +215,6 @@ export function createBackgroundJobHandlers(deps: {
     "cloud_agent.poll": asOwner(cloudAgent, async (payload) => {
       await pollCloudAgent(
         { prisma: deps.prisma, jobs: deps.jobs, events: deps.events, cloudAgent: deps.cloudAgent },
-        payload,
-      );
-    }),
-    "purchase.poll": asOwner(purchase, async (payload) => {
-      await pollPurchase(
-        {
-          prisma: deps.prisma,
-          secretStore: deps.secretStore,
-          jobs: deps.jobs,
-          paymentWallet: deps.paymentWallet,
-        },
         payload,
       );
     }),

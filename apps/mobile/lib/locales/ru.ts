@@ -12,8 +12,8 @@ export const RU_MESSAGES: Record<string, string> = {
   "Search tools": "Поиск инструментов",
   "A model approves routine actions and asks you about the rest.":
     "Модель одобряет рутинные действия, а об остальном спрашивает вас.",
-  "Asks only before purchases and the first use of your computer. Only Block rules apply.":
-    "Спрашивает только перед покупками и первым использованием вашего компьютера. Действуют только правила блокировки.",
+  "Asks only before the first use of your computer. Only Block rules apply.":
+    "Спрашивает только перед первым использованием вашего компьютера. Действуют только правила блокировки.",
   "Asks before sending, spending or changing anything in your apps.":
     "Спрашивает перед отправкой, тратой денег или изменением чего-либо в ваших приложениях.",
   Haptics: "Тактильный отклик",

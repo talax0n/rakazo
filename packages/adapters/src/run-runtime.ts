@@ -36,7 +36,6 @@ import {
   PipedreamConnector,
   pipedreamConfigFromEnv,
 } from "./pipedream-connector.js";
-import { reconcilePurchases } from "./purchase-poll.js";
 import { createStrategicInitiativeReconciler } from "./strategic-initiative.js";
 import { createWebProvider } from "./web-provider-factory.js";
 
@@ -226,7 +225,6 @@ export function createRunRuntime(
     deploymentModelConfigured: env.deploymentModelConfigured,
     messaging,
     cloudAgent: deps.cloudAgent,
-    paymentWallet: deps.paymentWallet,
     mediaGeneration: deps.mediaGeneration,
     maxUploadSizeBytes: env.maxUploadSizeBytes,
   });
@@ -242,14 +240,13 @@ export function createRunReconciler(
     "prisma" | "jobs" | "events" | "notifications" | "billingEnabled" | "mediaGeneration"
   > & {
     cloudAgent: NonNullable<ExecutorDeps["cloudAgent"]> | null;
-    paymentWallet: NonNullable<ExecutorDeps["paymentWallet"]> | null;
   },
   workerOnly: Pick<
     JobReconcilerDeps,
     "leadership" | "reconcileRoutineRetryNotices" | "reconcileHomeStorage" | "reconcileDeadJobs"
   > = {},
 ) {
-  const { prisma, jobs, cloudAgent, paymentWallet, mediaGeneration } = deps;
+  const { prisma, jobs, cloudAgent, mediaGeneration } = deps;
   return createJobReconciler({
     prisma,
     jobs,
@@ -266,7 +263,6 @@ export function createRunReconciler(
       billingEnabled: deps.billingEnabled,
     }),
     reconcileCloudAgents: () => reconcileCloudAgents({ prisma, jobs, cloudAgent }),
-    reconcilePurchases: () => reconcilePurchases({ prisma, jobs, paymentWallet }),
     reconcileMediaVideos: () => reconcileMediaVideos({ prisma, jobs, mediaGeneration }),
     reconcileComputerUpdates: () => reconcileComputerUpdates({ prisma, jobs }),
     reconcileSecurityEventRetention: createSecurityEventPruner(

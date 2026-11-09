@@ -4,7 +4,6 @@ import type {
   JobPublisher,
   MemoryStore,
   NotificationProvider,
-  PaymentWalletProvider,
   ProductAnalytics,
   SandboxProvider,
   SecretStore,
@@ -52,10 +51,8 @@ import { modelsRoutes } from "./routes/models.js";
 import { onboardingRoutes } from "./routes/onboarding.js";
 import { organizationsRoutes } from "./routes/organizations.js";
 import { pagesRoutes } from "./routes/pages.js";
-import { paymentWalletRoutes } from "./routes/payment-wallet.js";
 import { routinesRoutes } from "./routes/routines.js";
 import { spacesRoutes } from "./routes/spaces.js";
-import { spendingLimitRoutes } from "./routes/spending-limit.js";
 import { threadsRoutes } from "./routes/threads.js";
 import type { VoiceDeps } from "./voice.js";
 
@@ -72,8 +69,6 @@ export interface RouterDeps {
   notifications?: NotificationProvider;
   analytics?: ProductAnalytics;
   cloudAgent?: CloudAgentConnection | null;
-  /** The deployment's wallet provider; absent hides purchases. */
-  paymentWallet?: PaymentWalletProvider | null;
   prisma: PrismaClient;
   events: ThreadEvents;
   boardEvents: BoardEvents;
@@ -179,7 +174,5 @@ export function createRouter(deps: RouterDeps) {
     ...messagingRoutes(ctx),
     ...contentRoutes(ctx),
     ...pagesRoutes(ctx),
-    ...paymentWalletRoutes(ctx),
-    ...spendingLimitRoutes(ctx),
   });
 }

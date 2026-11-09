@@ -16,8 +16,7 @@ export const PARTNER_SITE = "https://127.0.0.1:8444";
 type Target = { name: string; role?: string };
 type ActSpec =
   | { kind: "click"; target: Target }
-  | { kind: "fill" | "type"; target: Target; text: string; field?: "username" | "password" }
-  | { kind: "card"; cardField: "number" | "expiry" | "cvc" | "postal_code"; text: string };
+  | { kind: "fill" | "type"; target: Target; text: string; field?: "username" | "password" };
 
 export type ScriptStep =
   | { navigate: string }
@@ -210,26 +209,6 @@ export const TASKS: BenchTask[] = [
     ],
     expect: { submitted: { username: "ada", password: "fake-password-1" } },
   },
-  {
-    id: "card",
-    covers: "card fill by card field, without refs",
-    steps: [
-      { navigate: "/card.html" },
-      {
-        act: [
-          { kind: "card", cardField: "number", text: "4242424242424242" },
-          { kind: "card", cardField: "expiry", text: "12/34" },
-          { kind: "card", cardField: "cvc", text: "123" },
-          { kind: "card", cardField: "postal_code", text: "94110" },
-          { kind: "click", target: { name: "Pay now" } },
-        ],
-      },
-    ],
-    expect: {
-      // The driver types an expiry's digits only and leaves the formatting to the field.
-      submitted: { number: "4242424242424242", expiry: "1234", cvc: "123", postal: "94110" },
-    },
-  },
 ];
 
 /** Opt-in public pages, measured for snapshot size and latency only. */
@@ -306,16 +285,6 @@ function actSteps(
 ): BrowserActStep[] | string {
   const steps: BrowserActStep[] = [];
   for (const spec of specs) {
-    if (spec.kind === "card") {
-      steps.push({
-        kind: "fill",
-        text: spec.text,
-        origin: SITE,
-        field: "card",
-        cardField: spec.cardField,
-      });
-      continue;
-    }
     const ref = findRef(page, spec.target);
     if (!ref)
       return `"${spec.target.name}" was not among ${JSON.stringify(page?.elements?.slice(0, 8).map((e) => `${e.role} ${e.name}`))}`;

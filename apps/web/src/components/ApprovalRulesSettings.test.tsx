@@ -9,7 +9,6 @@ import { beforeEach, expect, it, vi } from "vitest";
 const rpcMock = vi.hoisted(() => ({
   approvalRules: { list: vi.fn(), set: vi.fn(), remove: vi.fn() },
   autoReview: { get: vi.fn(), set: vi.fn() },
-  spendingLimit: { get: vi.fn(), set: vi.fn(), payments: vi.fn() },
 }));
 vi.mock("../lib/rpc", () => ({
   rpc: rpcMock,
@@ -107,8 +106,6 @@ const settings = { mode: "ask", enabled: false, skipApprovals: false, checkerAva
 
 beforeEach(() => {
   vi.resetAllMocks();
-  // Nothing to pay with yet, so the spending limit stays out of the way.
-  rpcMock.spendingLimit.get.mockResolvedValue({ limit: null, spent: 0, shown: false });
 });
 
 async function render(scope: "account" | "space" = "account") {
@@ -155,7 +152,7 @@ it("sets the mode, says what it does, and lists Auto only when an approval model
       expect(button(container, "Never ask")?.getAttribute("aria-pressed")).toBe("true"),
     );
     expect(container.textContent).toContain(
-      "Asks only before purchases and the first use of your computer. Only Block rules apply.",
+      "Asks only before the first use of your computer. Only Block rules apply.",
     );
     // No rules yet, so no rule groups.
     expect(container.querySelector('[data-testid^="approval-rules-"]')).toBeNull();

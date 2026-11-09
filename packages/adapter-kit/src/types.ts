@@ -4,7 +4,6 @@ import type {
   CacheCapabilities as ConnectionCacheCapabilities,
   ConnectionCatalogItem,
   ModelApiProtocol,
-  PurchaseCardField,
   SandboxKind,
 } from "@rakazo/contracts";
 
@@ -835,7 +834,6 @@ export interface BackgroundJobPayloads {
   "messaging.credential-cleanup": { installationId: string; ref: string };
   /** Reconcile durable remote-agent intent; scope is loaded from the database. */
   "cloud_agent.poll": { agentId: string };
-  "purchase.poll": { purchaseId: string };
   /** Check a submitted video and post it when ready; the ID is the bot-visible job ID. */
   "media.poll": { jobId: string };
   /** Read an Expo push receipt; the token is identified by its digest, never stored. */
@@ -1208,20 +1206,7 @@ export type BrowserActKind = "click" | "fill" | "type" | "upload";
 export const MAX_BROWSER_UPLOAD_FILES = 10;
 
 export type BrowserActStep =
-  /**
-   * `approved`, `site`, `label`, `amount`: the user approved this click, which completes a purchase, on
-   * that site, as the card showed the button and total. The click is refused if either has changed.
-   */
-  | {
-      kind: "click";
-      ref: string;
-      approved?: boolean;
-      site?: string;
-      label?: string;
-      amount?: string;
-      /** The page's total the card showed beside the button, or empty when it showed none. */
-      total?: string;
-    }
+  | { kind: "click"; ref: string }
   /** Attaches computer files to a file input without opening a native file chooser. */
   | { kind: "upload"; ref: string; paths: string[]; roots?: string[] }
   | {
@@ -1232,25 +1217,9 @@ export type BrowserActStep =
       origin?: string;
       /**
        * What `text` is: a saved login's hidden field ("password", typed only into a password
-       * field) or visible field ("username"), or an approved purchase's card detail. A card fill
-       * always carries `origin`.
+       * field) or visible field ("username").
        */
-      field?: "username" | "password" | "card" | "code";
-    }
-  | {
-      kind: "fill";
-      ref?: undefined;
-      text: string;
-      origin: string;
-      field: "card";
-      cardField: PurchaseCardField;
-    }
-  | {
-      kind: "pay_token";
-      ref?: undefined;
-      text: string;
-      origin: string;
-      merchantAccountId: string;
+      field?: "username" | "password" | "code";
     };
 
 export interface BrowserActRequest {
@@ -1281,65 +1250,14 @@ export interface BrowserActResult {
   dialog?: string;
 }
 
-/** A purchase step as the page shows it: the label and amount are page text. */
-export interface BrowserPurchase {
-  /** The page's host. An approval holds for this site only. */
-  site: string;
-  label: string;
-  amount: string;
-  /** Whether the amount is the one the button names or the total the page shows. */
-  amountSource?: "button" | "page";
-  /** The total the page shows beside a button that names its own amount; older computers omit it. */
-  total?: string;
-  /** The order lines the page lists above its total, as page text; none when it lists none or is older. */
-  items?: BrowserPurchaseItem[];
-}
-
-/** An order line as the checkout page shows it, such as an item with its quantity, or delivery. */
-export interface BrowserPurchaseItem {
-  name: string;
-  amount: string;
-}
-
-export interface BrowserPurchaseCheckRequest {
-  /** The steps of a browser_act call; only clicks are looked at. */
-  actions?: Array<{ kind: string; ref?: string }>;
-  /**
-   * Ask about clicks or a key on the screen, which name no element. `points` are the clicks' spots in screen
-   * pixels; `enter` is a key that submits or presses the focused control.
-   */
-  desktop?: boolean;
-  enter?: boolean;
-  points?: Array<{ x: number; y: number }>;
-  /** A click whose spot cannot be told (the page may have changed under it): the page decides. */
-  unplaced?: boolean;
-  signal?: AbortSignal;
-}
-
-/** `steps`: the indexes of the clicks that would complete the purchase. */
-export interface BrowserPurchaseCheckResult {
-  purchase: (BrowserPurchase & { steps: number[] }) | null;
-}
-
 /** A sandbox must route these commands through its owned screen, never generic host execution. */
 export type PageBrowserCommand =
   | { command: "navigate"; url: string; downloads?: string }
   | { command: "snapshot"; query?: string; downloads?: string }
-  | { command: "act"; actions: BrowserActStep[]; downloads?: string }
-  | {
-      command: "purchase_check";
-      actions?: BrowserPurchaseCheckRequest["actions"];
-      desktop?: boolean;
-      enter?: boolean;
-      points?: BrowserPurchaseCheckRequest["points"];
-      unplaced?: boolean;
-    };
+  | { command: "act"; actions: BrowserActStep[]; downloads?: string };
 
 export type PageBrowserResult = Partial<BrowserSnapshotResult & BrowserActResult> & {
   ok: boolean;
-  /** A purchase check: the page's host, and what the purchase is as the page shows it. */
-  site?: string;
-  purchase?: unknown;
 };
 
 export type CloudAgentStatus = "running" | "finished" | "failed" | "cancelled" | "expired";
