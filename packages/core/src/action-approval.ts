@@ -28,14 +28,11 @@ const APPROVAL_EXEMPT_TOOLS = new Set([
   "schedule_cancel",
   "list_fleet",
   "organize_bot",
-  // The wallet owner approves every purchase in the wallet itself; a card here would ask twice.
-  "request_purchase",
 ]);
 
 const APPROVAL_REQUIRED_BUILTIN_TOOLS = new Set([
   "generate_image",
   "generate_video",
-  "service_call",
   "archive_bot",
   "secret_request",
   "forget_secret",
@@ -70,7 +67,6 @@ const UNATTENDED_SAFE_BUILTIN_TOOLS = new Set([
   "list_files",
   "list_fleet",
   "list_secrets",
-  "purchase_status",
   "read_email",
   "read_file",
   "recall_memory",
@@ -82,7 +78,6 @@ const UNATTENDED_SAFE_BUILTIN_TOOLS = new Set([
   "skill_read",
   "web_fetch",
   "web_search",
-  "service_search",
 ]);
 
 const READ_ONLY_CONNECTOR_PATTERN = /(^|[_-])(get|list|search|find|read)([_-]|$)/i;
@@ -319,7 +314,7 @@ export function newSiteOutcome(input: {
  * These send data to the site their url names, so a site the run was not given is gated, and
  * "Always allow" on a card naming that site allows the site, never the tool.
  */
-export const SITE_SENDING_TOOLS: ReadonlySet<string> = new Set(["web_fetch", "paid_request"]);
+export const SITE_SENDING_TOOLS: ReadonlySet<string> = new Set(["web_fetch"]);
 
 export function siteAlwaysAllowed(rules: ActionApprovalRule[], site: string): boolean {
   return rules.some(
@@ -573,8 +568,7 @@ export function approvalPreferenceFromMode(mode: ApprovalMode): {
 export type AutoReviewJudgeDecision = "pass" | "ask" | "error";
 
 /**
- * The gate after rule resolution. A block refuses in every mode. A purchase asks in every mode, Never
- * ask included, and no allow rule or review passes it. An approval a person must give
+ * The gate after rule resolution. A block refuses in every mode. An approval a person must give
  * asks, except in Never ask, which never waits: there it runs, unless `steerable` says outside
  * text could have asked for it. Otherwise Never ask runs it, an ask rule asks, and anything that
  * would ask goes to the approval model in Auto, falling back to asking when no model is set up.
@@ -595,11 +589,8 @@ export function planActionGate(input: {
   checkerConfigured: boolean;
   /** A fetch to a site the run was not given (see outboundSiteGate). */
   newDestination?: boolean;
-  /** A click that completes a purchase: a person approves it each time, in every mode. */
-  purchase?: boolean;
 }): "ask" | "allow" | "judge" | "deny" {
   if (input.resolved.decision === "deny") return "deny";
-  if (input.purchase) return "ask";
   if (input.mandatory) {
     if (input.mode !== "never") return "ask";
     return input.steerable ? "deny" : "allow";
@@ -653,24 +644,6 @@ export function isApprovalAskBlock(block: {
     actionIds.has("deny") &&
     [...actionIds].every((id) => id === "allow" || id === "always" || id === "deny")
   );
-}
-
-/**
- * A payment receipt's page lines, leaving out any the page named like one of the card's own rows
- * (`labels`, as the app words them), so merchant text never reads as the card's.
- */
-export function receiptItems<Item extends { name: string }>(
-  items: readonly Item[],
-  labels: readonly string[],
-): Item[] {
-  const own = labels.map((label) => label.trim().toLocaleLowerCase()).filter(Boolean);
-  return items.filter((item) => {
-    const name = item.name.trim().toLocaleLowerCase();
-    // "Total" and "Total due" pose as the card's row; "Totally Oats" doesn't.
-    return !own.some(
-      (label) => name.startsWith(label) && !/^[\p{L}\p{N}]/u.test(name.slice(label.length)),
-    );
-  });
 }
 
 /** The order rule lists group by: what goes through, what asks, what is refused. */

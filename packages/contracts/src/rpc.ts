@@ -189,12 +189,6 @@ import {
   PageTitleSchema,
   PageVisibilitySchema,
 } from "./pages.js";
-import {
-  PaymentWalletStatusSchema,
-  SpendingLimitSchema,
-  SpendingPaymentSchema,
-  SpendingStatusSchema,
-} from "./payments.js";
 import { MessageReactionSchema } from "./reactions.js";
 import { RoutineWatchSchema } from "./routine-watch.js";
 import {
@@ -1518,23 +1512,6 @@ export const appContract = {
   },
   runs: {
     list: oc.input(z.object({ filter: z.enum(["active", "recent"]) })).output(RunsListOutputSchema),
-  },
-  /** The account's spending limit for payments its bots make. */
-  spendingLimit: {
-    get: oc.output(SpendingStatusSchema),
-    /** `null` removes the limit. */
-    set: oc
-      .input(z.object({ limit: SpendingLimitSchema.nullable() }).strict())
-      .output(SpendingStatusSchema),
-    /** The latest payments that count, newest first. */
-    payments: oc.output(z.array(SpendingPaymentSchema)),
-  },
-  /** The signed-in user's wallet; absent when the deployment offers none. */
-  paymentWallet: {
-    status: oc.output(PaymentWalletStatusSchema),
-    /** Starts a sign-in the user finishes with the provider; `status` then reports it. */
-    connect: oc.output(PaymentWalletStatusSchema),
-    disconnect: oc.output(PaymentWalletStatusSchema),
   },
   voice: {
     catalog: oc.output(z.array(VoiceCatalogEntrySchema)),
