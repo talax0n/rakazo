@@ -22,15 +22,7 @@ import {
 } from "@rakazo/db";
 import { getLogger } from "@rakazo/logging";
 import { MessagingSendError } from "./chat-sdk-surface.js";
-import { splitOutboundBody } from "./messaging-platforms.js";
 import { isUserProgressClientNonce } from "./user-progress.js";
-
-/**
- * Margin under vendor consecutive-outbound caps (sendblue enforces one hard):
- * past this many DMs without a reply from the owner, mirror rows stay pending
- * until the next inbound resets the counter.
- */
-export const MESSAGING_DM_OUTBOUND_CAP = 140;
 
 /** Provider-send attempts before a mirrored row is declared lost. */
 export const MESSAGING_OUTBOUND_MAX_ATTEMPTS = 5;
@@ -73,7 +65,6 @@ type IdentityRow = {
   provider: string;
   address: string;
   dmThreadId: string | null;
-  outboundSinceInbound: number;
 };
 
 /**
@@ -162,22 +153,25 @@ async function mirrorRun(
   const sendsFiles = deps.messaging
     .platforms()
     .some((platform) => platform.provider === identity.provider && platform.capabilities.files);
-  // One row per platform-sized part, then one per image or file, so a retry
-  // re-sends only the parts that failed and never repeats delivered text.
-  // The whole reply takes one explicit, non-overlapping range, like a group
-  // reply, so a concurrent DM mirror cannot interleave its parts.
+  // One row for the text, then one per image or file, so a retry re-sends
+  // only the parts that failed and never repeats delivered text. The whole
+  // reply takes one explicit, non-overlapping range, like a group reply, so a
+  // concurrent DM mirror cannot interleave its parts.
   const linkedPages = linkedPageIds(messages);
   const rowsByMessage = messages.map((message) => {
     const body = extractText(message.blocks, linkedPages);
-    const parts = body ? splitOutboundBody(identity.provider, body) : [];
     return [
-      ...parts.map((part, index) => ({
-        idempotencyKey: index === 0 ? `msg:${message.id}` : `msg:${message.id}:${index + 1}`,
-        kind: "dm",
-        identityId: identity.id,
-        body: part,
-        sourceMessageId: message.id,
-      })),
+      ...(body
+        ? [
+            {
+              idempotencyKey: `msg:${message.id}`,
+              kind: "dm",
+              identityId: identity.id,
+              body,
+              sourceMessageId: message.id,
+            },
+          ]
+        : []),
       ...(sendsFiles ? extractArtifactIds(message.blocks) : []).map((artifactId) => ({
         idempotencyKey: `msg:${message.id}:file:${artifactId}`,
         kind: "dm",
@@ -277,21 +271,17 @@ async function mirrorChannelRun(
     .filter((entry) => entry.text);
   if (messages.length === 0) return;
 
-  // One row per platform-sized part, like the DM path: the adapter truncates
-  // an oversized body instead of failing, which would drop the reply's tail.
   // The whole reply takes one explicit, non-overlapping range.
   await insertOutboundRows(
     deps.prisma,
     { identityId: null, threadId: channel.threadId },
-    messages.flatMap(({ message, text }) =>
-      splitOutboundBody(identity.provider, `${fromLabel}: ${text}`).map((part, index) => ({
-        idempotencyKey: index === 0 ? `msg:${message.id}` : `msg:${message.id}:${index + 1}`,
-        kind: "group",
-        threadId: channel.threadId,
-        body: part,
-        sourceMessageId: message.id,
-      })),
-    ),
+    messages.flatMap(({ message, text }) => ({
+      idempotencyKey: `msg:${message.id}`,
+      kind: "group",
+      threadId: channel.threadId,
+      body: `${fromLabel}: ${text}`,
+      sourceMessageId: message.id,
+    })),
   );
 
   const hop = nextBotMessageHop(channelBlock.hop);
@@ -650,19 +640,6 @@ async function deliverRow(
       });
       return true;
     }
-    // Sendblue's consecutive-outbound vendor cap; other providers have no
-    // equivalent limit, so do not hold Slack/WhatsApp/Telegram DMs.
-    if (
-      identity.provider === "sendblue" &&
-      identity.outboundSinceInbound >= MESSAGING_DM_OUTBOUND_CAP
-    ) {
-      // Cap holds are not failures: release the claim back to pending.
-      await deps.prisma.messagingOutbound.update({
-        where: { id: row.id },
-        data: { status: "pending" },
-      });
-      return false;
-    }
     const threadId = await resolveDirectThread(deps, identity, context);
     const invitePair = connectInvitePair(row.idempotencyKey);
     if (invitePair) {
@@ -673,13 +650,7 @@ async function deliverRow(
         invitePair,
         context,
       );
-      if (result === "delivered") {
-        accepted = true;
-        await deps.prisma.messagingIdentity.update({
-          where: { id: identity.id },
-          data: { outboundSinceInbound: { increment: 1 } },
-        });
-      }
+      if (result === "delivered") accepted = true;
       return true;
     }
     let attachment: MessagingOutboundAttachment | undefined;
@@ -715,14 +686,10 @@ async function deliverRow(
       where: { id: row.id },
       data: { providerHandle: sent.handle },
     });
-    await deps.prisma.messagingIdentity.update({
-      where: { id: identity.id },
-      data: { outboundSinceInbound: { increment: 1 } },
-    });
     return true;
   } catch (error) {
     if (accepted) {
-      // Keep the sent claim even if saving the handle or counter fails.
+      // Keep the sent claim even if saving the handle fails.
       getLogger().error("messaging outbound bookkeeping error", error);
       return true;
     }

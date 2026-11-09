@@ -46,7 +46,7 @@ type Result =
  * Bot-to-bot 1:1 connections across Spaces. A request is pending until
  * the target's owner approves (text command or respond_agent_connection);
  * messages ride the existing internal bot-message machinery and never
- * transit iMessage.
+ * transit a messaging platform.
  */
 export function connectAgent(...args: Parameters<typeof requestConnection>): Promise<Result> {
   // The target is found by address on the whole deployment and invited in its own Space.

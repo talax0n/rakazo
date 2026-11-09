@@ -10,12 +10,11 @@ type MembershipWhere = { id?: string; identityId?: { in: string[] } };
 
 const identity = {
   id: "mi-1",
-  provider: "sendblue",
+  provider: "chat",
   address: "+15551111111",
   userId: "user-1",
   spaceId: "ws-1",
   botId: "bot-1",
-  outboundSinceInbound: 0,
 };
 
 function messagingDeps(
@@ -41,7 +40,7 @@ function messagingDeps(
           status: "invited",
           channel: {
             id: "ch-1",
-            provider: "sendblue",
+            provider: "chat",
             name: "Family",
             members: [{ id: "cm-1" }, { id: "cm-2" }],
           },
@@ -70,7 +69,7 @@ function messagingDeps(
     const pool = visibleMemberships(where);
     return where?.id ? (pool.find((row) => row.id === where.id) ?? null) : (pool[0] ?? null);
   };
-  const defaultChannel = { id: "ch-1", provider: "sendblue", name: "Family", members: [] };
+  const defaultChannel = { id: "ch-1", provider: "chat", name: "Family", members: [] };
   const connectionState = connection ? { ...connection } : null;
   const prisma = {
     spaceMember: { count: vi.fn(async () => 1) },
@@ -90,7 +89,7 @@ function messagingDeps(
         where.botId === "bot-9"
           ? {
               id: "mi-9",
-              provider: "sendblue",
+              provider: "chat",
               address: "+15559999999",
               userId: "user-9",
               botId: "bot-9",
@@ -272,8 +271,8 @@ function messagingDeps(
     },
     messaging: {
       enabled: overrides.enabled ?? true,
-      providers: ["sendblue"],
-      addresses: { sendblue: "+15550001111" },
+      providers: ["chat"],
+      addresses: { chat: "+15550001111" },
       openSignup: false,
     },
     dataDir: "/tmp/rakazo-router-test",
@@ -320,13 +319,13 @@ describe("messaging.status", () => {
     await expect(response.json()).resolves.toEqual({
       json: {
         enabled: true,
-        providers: ["sendblue"],
-        addresses: { sendblue: "+15550001111" },
+        providers: ["chat"],
+        addresses: { chat: "+15550001111" },
         openSignup: false,
         identities: [
           {
             id: "mi-1",
-            provider: "sendblue",
+            provider: "chat",
             address: "+15551111111",
             botId: "bot-1",
             botName: "Assistant",
@@ -342,8 +341,8 @@ describe("messaging.status", () => {
     await expect(response.json()).resolves.toEqual({
       json: {
         enabled: true,
-        providers: ["sendblue"],
-        addresses: { sendblue: "+15550001111" },
+        providers: ["chat"],
+        addresses: { chat: "+15550001111" },
         openSignup: false,
         identities: [],
       },
@@ -386,7 +385,7 @@ describe("messaging.identities", () => {
     await expect(response.json()).resolves.toEqual({
       json: {
         id: "mi-1",
-        provider: "sendblue",
+        provider: "chat",
         address: "+15551111111",
         botId: "bot-2",
         botName: "Assistant",
@@ -445,7 +444,7 @@ describe("messaging.channels", () => {
           id: "cm-1",
           channelId: "ch-1",
           identityId: "mi-1",
-          provider: "sendblue",
+          provider: "chat",
           name: "Family",
           status: "invited",
           memberCount: 2,
@@ -502,7 +501,7 @@ describe("messaging.channels", () => {
         channelId: "ch-1",
         identityId: "mi-1",
         status: "approved",
-        channel: { id: "ch-1", provider: "sendblue", name: "Family", members: [] },
+        channel: { id: "ch-1", provider: "chat", name: "Family", members: [] },
       },
     });
     const second = await call(already.handler, already.actor, "messaging/channels/respond", {
@@ -519,7 +518,7 @@ describe("messaging.channels", () => {
         channelId: "ch-1",
         identityId: "mi-1",
         status: "approved",
-        channel: { id: "ch-1", provider: "sendblue", name: "Family", members: [] },
+        channel: { id: "ch-1", provider: "chat", name: "Family", members: [] },
       },
     });
     const response = await call(handler, actor, "messaging/channels/leave", {
@@ -534,7 +533,7 @@ describe("messaging.channels", () => {
   it("answers the named membership when one user has two chat apps in a group", async () => {
     const channel = {
       id: "ch-1",
-      provider: "sendblue",
+      provider: "chat",
       name: "Family",
       members: [{ id: "cm-1" }, { id: "cm-2" }],
     };
@@ -897,7 +896,7 @@ describe("messaging status-write races", () => {
         address: "+15551111111",
         identityId: "mi-1",
         status: state.status,
-        channel: { id: "ch-1", provider: "sendblue", name: "Family", members: [{ id: "cm-1" }] },
+        channel: { id: "ch-1", provider: "chat", name: "Family", members: [{ id: "cm-1" }] },
       };
       // Interleaved: the owner left (or was swept out) after the read.
       state.status = "left";

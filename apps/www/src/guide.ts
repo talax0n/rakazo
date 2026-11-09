@@ -99,7 +99,7 @@ export const OPENCLAW_SETUP_PARAGRAPHS = [
 ] as const;
 
 export const OPENCLAW_DAY_TO_DAY_PARAGRAPHS = [
-  "Day to day, you manage Rakazo from the same chat. Schedules, memory, and approval boundaries stay with that bot, on the web, desktop, and mobile apps. Optional connectors can attach Slack, WhatsApp, Telegram, iMessage via Sendblue, and Feishu/Lark. They are not required to use the product.",
+  "Day to day, you manage Rakazo from the same chat. Schedules, memory, and approval boundaries stay with that bot, on the web, desktop, and mobile apps. An optional Slack connector can attach the bot to your workspace. It is not required to use the product.",
   "OpenClaw's docs send later changes through `openclaw configure` and a JSON config file, `~/.openclaw/openclaw.json` unless you override the path. `openclaw doctor` and `openclaw triage` diagnose the install. The Gateway is the process you keep running, in a terminal or as the installed background service, and chat apps are the main way you message the assistant, alongside the Control UI.",
 ] as const;
 
@@ -188,7 +188,7 @@ export const COMPARISON_ROWS: readonly ComparisonRow[] = [
   {
     aspect: "How you talk to it",
     rakazo:
-      "The Rakazo web app, Electron desktop app, and Expo mobile app. Optional connectors can attach Slack, WhatsApp, Telegram, iMessage via Sendblue, and Feishu/Lark.",
+      "The Rakazo web app, Electron desktop app, and Expo mobile app. An optional Slack connector can attach the bot to your workspace.",
     openclaw:
       "Chat apps are the primary surface. Documented channels include Discord, Google Chat, iMessage, Matrix, Microsoft Teams, Signal, Slack, Telegram, WhatsApp, Zalo, and others via plugins, plus WebChat.",
   },
@@ -284,7 +284,6 @@ There is no seat fee for the open source software. You pay the model provider yo
 
 These work on your own deployment and are not yet on Rakazo Cloud. Each turns on from \`.env\`.
 
-- **Telegram, WhatsApp, iMessage and SMS, Feishu and Lark.** Add the platform's credentials: \`TELEGRAM_BOT_TOKEN\`, \`WHATSAPP_*\`, \`SENDBLUE_*\` (iMessage and SMS), or \`LARK_*\`.
 - **Image and video generation.** \`MEDIA_GENERATION_PROVIDER=fal\`, \`MEDIA_GENERATION_API_KEY\`, and an image or video model (\`MEDIA_GENERATION_IMAGE_MODEL\`, \`MEDIA_GENERATION_VIDEO_MODEL\`).
 - **Cursor cloud agents.** \`CLOUD_AGENT_PROVIDER=cursor\`, \`CURSOR_API_KEY\`, and \`CLOUD_AGENT_SPACE_ID\`.
 - **Ticket board.** \`TICKET_BOARD_ENABLED=true\`.

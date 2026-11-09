@@ -39,7 +39,7 @@ describePostgres("steering after a run ends without completing (PostgreSQL)", ()
     const identity = await runAsSystem("test fixture", () =>
       provisionMessagingIdentity(
         prisma,
-        { provider: "sendblue", address },
+        { provider: "chat", address },
         { signupsEnabled: undefined, signupAllowlist: undefined },
       ),
     );
@@ -50,7 +50,7 @@ describePostgres("steering after a run ends without completing (PostgreSQL)", ()
   afterAll(async () => {
     try {
       if (prisma && provisioned) {
-        await system.messagingIdentity.deleteMany({ where: { provider: "sendblue", address } });
+        await system.messagingIdentity.deleteMany({ where: { provider: "chat", address } });
         await system.organization.deleteMany({ where: { id: spaceId } });
         await system.user.deleteMany({ where: { id: { in: [userId, partnerId] } } });
       }
@@ -327,7 +327,7 @@ describePostgres("steering after a run ends without completing (PostgreSQL)", ()
       blocks: [
         {
           kind: "channel_message",
-          provider: "sendblue",
+          provider: "chat",
           channelId: randomUUID(),
           fromAddress: "+15550000000",
           fromLabel: "Guest",

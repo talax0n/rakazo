@@ -17,8 +17,7 @@ import type {
 } from "@rakazo/adapter-kit";
 import { getLogger } from "@rakazo/logging";
 import type { Adapter, Message, PostableMarkdown, Root, Thread } from "chat";
-import { Chat, isLinkNode, paragraph, parseMarkdown, root, text, toPlainText, walkAst } from "chat";
-import { getLarkTextParts } from "./lark/text-parts.js";
+import { Chat, isLinkNode, paragraph, root, text, toPlainText, walkAst } from "chat";
 
 /**
  * Per-webhook drain of Chat SDK waitUntil work, plus the Chat dedupe keys of
@@ -59,11 +58,6 @@ export function boundInboundMarkdown(adapter: Adapter): void {
 /** Inbound webhook bodies larger than this are rejected before parsing. */
 export const MESSAGING_WEBHOOK_MAX_BODY_BYTES = 256 * 1024;
 
-/** Telegram Bot API limits: photos up to 10 MB, any upload up to 50 MB. */
-const TELEGRAM_PHOTO_MAX_BYTES = 10_000_000;
-const TELEGRAM_UPLOAD_MAX_BYTES = 50_000_000;
-const TELEGRAM_PHOTO_TYPES = new Set(["image/png", "image/jpeg", "image/gif", "image/webp"]);
-
 /**
  * One messaging platform mounted on the surface. The Chat SDK adapter owns
  * webhook verification, payload translation, and platform API calls; the
@@ -75,16 +69,16 @@ export interface MessagingPlatform {
   adapter: Adapter;
   /**
    * The adapter's own thread-id prefix when it differs from `provider`, so
-   * one adapter type can mount more than once (one Telegram bot per space:
-   * "telegram-work"). Rakazo only ever sees `provider`-prefixed thread ids;
+   * one adapter type can mount more than once (one bot per space:
+   * "chat-work"). Rakazo only ever sees `provider`-prefixed thread ids;
    * the adapter keeps its native ones. Defaults to `provider`.
    */
   adapterName?: string;
   /** The line people message to reach this deployment (a phone number), when it has one. */
   address?: string;
-  /** Deterministic 1:1 thread id for platforms without openDM (sendblue). */
+  /** Deterministic 1:1 thread id for platforms without openDM. */
   directThreadId?: (address: string) => string;
-  /** Delivery-status events the Chat SDK drops (sendblue is_outbound posts, WhatsApp statuses). */
+  /** Delivery-status events the Chat SDK drops (vendor status webhooks). */
   peekStatuses?: (payload: unknown) => MessagingOutboundStatus[];
   /**
    * State keys the adapter writes to drop vendor redeliveries of a webhook
@@ -103,23 +97,23 @@ export interface MessagingPlatform {
   rosterAt?: (raw: unknown) => Date | null;
   /**
    * Member departures one raw payload reports, for platforms that send
-   * per-event leave notices instead of a roster (Telegram service messages).
+   * per-event leave notices instead of a roster.
    * `botLeft` marks our own bot leaving the conversation; undefined when the
    * payload reports no departure.
    */
   departures?: (raw: unknown) => { addresses: string[]; botLeft: boolean } | undefined;
   channelName?: (raw: unknown) => string | null;
   /**
-   * Group-shaped raw payloads this platform still refuses (Telegram broadcast
-   * channel posts, which are not group conversations). Omitted by platforms
+   * Group-shaped raw payloads this platform still refuses (broadcast channel
+   * posts, which are not group conversations). Omitted by platforms
    * that take every group message.
    */
   acceptsGroup?: (raw: unknown) => boolean;
   /**
    * Rewrites the adapter's native thread id for Rakazo thread identity when
-   * the SDK's granularity differs from the platform's conversations: Telegram
-   * marks a non-forum reply with the reply root as its message thread id,
-   * which is still the group's own conversation.
+   * the SDK's granularity differs from the platform's conversations, such as
+   * a reply the SDK gives its own thread id while it is still the group's
+   * conversation.
    */
   normalizeThreadId?: (threadId: string, raw: unknown) => string;
   /** User-facing transport carried by the raw message when it differs from the provider. */
@@ -149,8 +143,8 @@ interface MountedPlatform {
  * contract.
  *
  * Each platform gets its own Chat instance: the SDK routes thread ids by
- * their adapter-name prefix, so two adapters of the same type (two Telegram
- * bots, both minting "telegram:<chatId>") cannot share one instance. The
+ * their adapter-name prefix, so two adapters of the same type (two bots,
+ * both minting "<adapter>:<chatId>") cannot share one instance. The
  * surface rewrites that prefix to the platform's provider at the boundary.
  */
 export class ChatSdkMessagingSurface implements MessagingSurface {
@@ -262,29 +256,9 @@ export class ChatSdkMessagingSurface implements MessagingSurface {
   ): Promise<MessagingSendResult> {
     const mounted = this.mountedForThread(request.threadId);
     await this.ensureInitialized();
-    // Telegram converts Markdown and retries parse errors as plain text;
-    // WhatsApp renders it as its own formatting and Lark posts it as an md
-    // block; Photon's iMessage adapter renders it as native styled text. Keep
-    // the other adapters' plain payloads (Slack markdown_text has a lower
-    // limit, Sendblue's iMessage has no markup).
-    const telegram = mounted.adapterName === "telegram";
-    const markdown =
-      telegram ||
-      mounted.adapterName === "whatsapp" ||
-      mounted.adapterName === "lark" ||
-      mounted.adapterName === "imessage";
+    // Plain payloads: Slack's markdown_text has a lower limit than its text.
     const { attachment } = request;
-    if (telegram && attachment && attachment.data.byteLength > TELEGRAM_UPLOAD_MAX_BYTES) {
-      throw new MessagingSendError(new Error("File is larger than Telegram accepts"), {
-        permanent: true,
-        retryAfterMs: null,
-      });
-    }
-    const message = attachment
-      ? attachmentMessage(telegram, request.body, attachment)
-      : markdown
-        ? { markdown: request.body }
-        : request.body;
+    const message = attachment ? attachmentMessage(request.body, attachment) : request.body;
     try {
       const sent = await mounted.chat
         .thread(toAdapterThreadId(mounted, request.threadId))
@@ -302,7 +276,7 @@ export class ChatSdkMessagingSurface implements MessagingSurface {
     _context: AdapterContext,
   ): Promise<string> {
     const mounted = this.byProvider.get(provider);
-    if (!mounted) throw new Error(`Unknown messaging provider: ${provider}`);
+    if (!mounted) throw unmounted(`Unknown messaging provider: ${provider}`);
     const { platform } = mounted;
     if (platform.directThreadId) return platform.directThreadId(address);
     await this.ensureInitialized();
@@ -360,8 +334,8 @@ export class ChatSdkMessagingSurface implements MessagingSurface {
   /**
    * Proactively start the underlying Chat SDK instance. Webhook handling
    * and outbound sends already trigger this lazily (see ensureInitialized
-   * below), but a polling-mode adapter (Telegram in "auto" mode with no
-   * public webhook URL registered) needs its pull loop running before the
+   * below), but a polling-mode adapter (one that pulls updates when no
+   * public webhook URL is registered) needs its pull loop running before the
    * first inbound message can ever arrive, so long-running hosts call this
    * explicitly at startup instead of waiting on the first send.
    */
@@ -370,8 +344,8 @@ export class ChatSdkMessagingSurface implements MessagingSurface {
   }
 
   /**
-   * Stop Telegram getUpdates before exit. Chat.shutdown() only calls
-   * adapter.disconnect(), which Telegram does not implement.
+   * Stop polling adapters before exit. Chat.shutdown() only calls
+   * adapter.disconnect(), which polling adapters may not implement.
    */
   async shutdown(): Promise<void> {
     const pending = this.initialized;
@@ -391,8 +365,8 @@ export class ChatSdkMessagingSurface implements MessagingSurface {
         () => undefined,
         async (error: unknown) => {
           try {
-            // Telegram may already be polling if another platform's
-            // initialize failed after Telegram's started getUpdates.
+            // A polling adapter may already be pulling updates if another
+            // platform's initialize failed after it started.
             await Promise.allSettled(chats);
             await this.stopPollingAdapters();
             await this.shutdownChats();
@@ -422,7 +396,7 @@ export class ChatSdkMessagingSurface implements MessagingSurface {
 
   private mountedForThread(threadId: string): MountedPlatform {
     const mounted = this.byProvider.get(providerOfThreadId(threadId));
-    if (!mounted) throw new Error(`No messaging provider mounted for thread ${threadId}`);
+    if (!mounted) throw unmounted(`No messaging provider mounted for thread ${threadId}`);
     return mounted;
   }
 
@@ -508,7 +482,7 @@ export class ChatSdkMessagingSurface implements MessagingSurface {
       participants: isDirect ? [] : (platform.participants?.(message.raw) ?? []),
       ...(rosterAt ? { rosterAt } : {}),
       content: [
-        plainTextWithLinks(message, platform.provider === "lark"),
+        plainTextWithLinks(message),
         ...(attachments.length
           ? message.attachments
               .filter((file) => !file.fetchData && file.url)
@@ -527,26 +501,9 @@ export class ChatSdkMessagingSurface implements MessagingSurface {
   }
 }
 
-/**
- * One file as its own message. Telegram shows common image formats under its
- * photo limit inline; everything else is uploaded as a document.
- */
-function attachmentMessage(
-  telegram: boolean,
-  body: string,
-  file: MessagingOutboundAttachment,
-): PostableMarkdown {
+/** One file as its own message, uploaded as a document. */
+function attachmentMessage(body: string, file: MessagingOutboundAttachment): PostableMarkdown {
   const data = Buffer.from(file.data.buffer, file.data.byteOffset, file.data.byteLength);
-  if (
-    telegram &&
-    TELEGRAM_PHOTO_TYPES.has(file.mimeType) &&
-    data.byteLength <= TELEGRAM_PHOTO_MAX_BYTES
-  ) {
-    return {
-      markdown: body,
-      attachments: [{ type: "image", data, name: file.name, mimeType: file.mimeType }],
-    };
-  }
   return { markdown: body, files: [{ data, filename: file.name, mimeType: file.mimeType }] };
 }
 
@@ -569,44 +526,7 @@ function inboundAttachments(message: Message): MessagingInboundAttachment[] {
  * The SDK's message.text keeps only a link's label, so a Slack link labelled
  * `example.com/projects/…` reaches the model without its target.
  */
-function plainTextWithLinks(message: Message, lark: boolean): string {
-  const parts = lark ? getLarkTextParts(message.formatted) : undefined;
-  if (parts) {
-    const rendered = parts.map((part, index) => {
-      if (part.literal) return { value: part.text, addedTarget: false };
-      const value = part.text;
-      if (!value.trim()) return { value, addedTarget: false };
-      const result = renderLinks(parseMarkdown(value));
-      const first = result.ast.children.at(0);
-      const last = result.ast.children.at(-1);
-      const start = first?.position?.start.offset ?? 0;
-      const end = last?.position?.end.offset ?? value.length;
-      const prefix = value.slice(0, start);
-      const previous = parts[index - 1];
-      const sameLine = previous?.literal && !previous.text.endsWith("\n") && !prefix.includes("\n");
-      const leading = sameLine ? prefix : prefix.replace(/[^\r\n]/g, "");
-      let trailing = value.slice(end);
-      // Markdown drops spaces at a fragment boundary; preserve them when the
-      // next structured item is on the same row.
-      if (last?.type === "paragraph" && !trailing && parts[index + 1]?.literal)
-        trailing = value.match(/[ \t]+$/)?.[0] ?? "";
-      // A heading followed by a code row has the same paragraph separation as
-      // a heading followed by ordinary text in the SDK's plain-text renderer.
-      const headingBreak =
-        parts[index + 1]?.literal &&
-        result.ast.children.at(-1)?.type === "heading" &&
-        trailing === "\n"
-          ? "\n"
-          : "";
-      return {
-        value: leading + toPlainText(result.ast) + headingBreak + trailing,
-        addedTarget: result.addedTarget,
-      };
-    });
-    return rendered.some((part) => part.addedTarget)
-      ? rendered.map((part) => part.value).join("")
-      : (message.text ?? "");
-  }
+function plainTextWithLinks(message: Message): string {
   const result = renderLinks(message.formatted);
   return result.addedTarget ? toPlainText(result.ast) : (message.text ?? "");
 }
@@ -637,7 +557,7 @@ export function providerOfThreadId(threadId: string): string {
   return threadId.split(":", 1)[0]?.split("~", 1)[0] ?? "";
 }
 
-/** Adapter-native thread id ("telegram:42") → Rakazo thread id ("telegram-work:42"). */
+/** Adapter-native thread id ("chat:42") → Rakazo thread id ("chat-work:42"). */
 function toProviderThreadId(mounted: MountedPlatform, threadId: string): string {
   const { provider } = mounted.platform;
   if (mounted.adapterName === provider) return threadId;
@@ -726,6 +646,14 @@ export class MessagingSendError extends Error {
     this.permanent = options.permanent;
     this.retryAfterMs = options.retryAfterMs;
   }
+}
+
+/**
+ * Rows stored for a platform this deployment no longer mounts (removed or
+ * unconfigured) can never be sent, so the outbox fails them without retrying.
+ */
+function unmounted(message: string): MessagingSendError {
+  return new MessagingSendError(new Error(message), { permanent: true, retryAfterMs: null });
 }
 
 function sendError(platform: MessagingPlatform, error: unknown): MessagingSendError {

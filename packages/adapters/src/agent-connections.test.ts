@@ -10,23 +10,21 @@ import {
 
 const requesterIdentity = {
   id: "mi-1",
-  provider: "sendblue",
+  provider: "chat",
   address: "+15551111111",
-  dmThreadId: "sendblue:dm-1",
+  dmThreadId: "chat:dm-1",
   userId: "user-1",
   spaceId: "ws-1",
   botId: "bot-1",
-  outboundSinceInbound: 0,
 };
 const targetIdentity = {
   id: "mi-2",
-  provider: "sendblue",
+  provider: "chat",
   address: "+15552222222",
-  dmThreadId: "sendblue:dm-2",
+  dmThreadId: "chat:dm-2",
   userId: "user-2",
   spaceId: "ws-2",
   botId: "bot-2",
-  outboundSinceInbound: 0,
 };
 
 function createDeps(
@@ -118,7 +116,7 @@ function createDeps(
           // Target lookups are provider-scoped: addresses are only unique
           // within a platform.
           if (where.provider_address) {
-            if (where.provider_address.provider !== "sendblue") return null;
+            if (where.provider_address.provider !== "chat") return null;
             if (where.provider_address.address === "+15552222222") return targetIdentity;
             if (where.provider_address.address === "+15551111111") return requesterIdentity;
             return null;

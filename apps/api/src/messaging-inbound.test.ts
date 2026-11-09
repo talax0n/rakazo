@@ -30,7 +30,7 @@ function createDeps(
       ? null
       : (overrides.identity ?? {
           id: "mi-1",
-          provider: "sendblue",
+          provider: "chat",
           address: "+15551111111",
           dmThreadId: null,
           userId: "user-1",
@@ -38,7 +38,6 @@ function createDeps(
           botId: "bot-1",
           verifiedAt: null,
           lastInboundAt: null,
-          outboundSinceInbound: 5,
           createdAt: new Date(),
           updatedAt: new Date(),
         });
@@ -63,8 +62,8 @@ function createDeps(
   }));
   const channel = {
     id: "ch-1",
-    provider: "sendblue",
-    threadId: "sendblue:grp-1",
+    provider: "chat",
+    threadId: "chat:grp-1",
     name: "Family",
     introPostedAt: null,
     rosterSeenAt: null as Date | null,
@@ -378,9 +377,9 @@ function createDeps(
 
 const dmEvent = {
   type: "message" as const,
-  provider: "sendblue",
+  provider: "chat",
   handle: "handle-1",
-  threadId: "sendblue:dm-1",
+  threadId: "chat:dm-1",
   isDirect: true,
   from: "+15551111111",
   fromLabel: null,
@@ -393,7 +392,7 @@ const dmEvent = {
 const groupEvent = {
   ...dmEvent,
   transport: "SMS",
-  threadId: "sendblue:grp-1",
+  threadId: "chat:grp-1",
   isDirect: false,
   channelName: "Family",
   participants: ["+15551111111", "+15552222222"],
@@ -418,7 +417,7 @@ describe("createMessagingInboundHandler DM routing", () => {
     expect(deps.provision).not.toHaveBeenCalled();
     expect(deps.prisma.messagingIdentity.update).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ outboundSinceInbound: 0, dmThreadId: "sendblue:dm-1" }),
+        data: expect.objectContaining({ lastInboundAt: expect.any(Date), dmThreadId: "chat:dm-1" }),
       }),
     );
     expect(deps.sendUserMessage).toHaveBeenCalledWith({
@@ -430,7 +429,7 @@ describe("createMessagingInboundHandler DM routing", () => {
       blocks: [{ kind: "text", text: "hello bot" }],
       prompt: "hello bot",
       trigger: "messaging",
-      clientNonce: "messaging:sendblue:handle-1",
+      clientNonce: "messaging:chat:handle-1",
     });
     expect(deps.enqueue).toHaveBeenCalledWith(
       expect.objectContaining({ name: "run.continue", payload: { runId: "run-1" } }),
@@ -466,7 +465,7 @@ describe("createMessagingInboundHandler DM routing", () => {
         spaceId: "ws-1",
         userId: "user-1",
         botId: "bot-1",
-        clientNonce: "messaging-attachment:sendblue:handle-1:0",
+        clientNonce: "messaging-attachment:chat:handle-1:0",
       }),
     );
     expect(deps.sendUserMessage).toHaveBeenCalledWith(
@@ -970,9 +969,9 @@ describe("createMessagingInboundHandler DM routing", () => {
 
     expect(deps.provision).toHaveBeenCalledWith(
       {
-        provider: "sendblue",
+        provider: "chat",
         address: "+15551111111",
-        dmThreadId: "sendblue:dm-1",
+        dmThreadId: "chat:dm-1",
         displayName: null,
       },
       signupPolicy,
@@ -983,7 +982,7 @@ describe("createMessagingInboundHandler DM routing", () => {
         threadId: "thread-new",
         botId: "bot-new",
         userId: "user-new",
-        clientNonce: "messaging:sendblue:handle-1",
+        clientNonce: "messaging:chat:handle-1",
       }),
     );
   });
@@ -1204,14 +1203,14 @@ describe("createMessagingInboundHandler DM routing", () => {
     expect(deps.sendUserMessage).not.toHaveBeenCalled();
   });
 
-  it("still resets the outbound counter on a known sender's content-free reply", async () => {
+  it("still records a known sender's content-free reply", async () => {
     const deps = createDeps();
     const handle = createMessagingInboundHandler(deps);
     await handle({ ...dmEvent, content: "", mediaUrl: null });
 
     expect(deps.prisma.messagingIdentity.update).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ outboundSinceInbound: 0 }),
+        data: expect.objectContaining({ lastInboundAt: expect.any(Date) }),
       }),
     );
     expect(deps.sendUserMessage).not.toHaveBeenCalled();
@@ -1232,9 +1231,7 @@ describe("inbound receipt", () => {
     const handle = createMessagingInboundHandler(deps);
     await handle(dmEvent);
 
-    expect(deps.acknowledge.mock.calls).toEqual([
-      ["sendblue:dm-1", "handle-1", expect.any(Function)],
-    ]);
+    expect(deps.acknowledge.mock.calls).toEqual([["chat:dm-1", "handle-1", expect.any(Function)]]);
   });
 
   it("reports the DM handled once its own run's reply is mirrored out", async () => {
@@ -1425,22 +1422,20 @@ describe("createMessagingInboundHandler owner commands", () => {
           if (where.botId === "bot-9") {
             return {
               id: "mi-9",
-              provider: "sendblue",
+              provider: "chat",
               address: "+15559999999",
               userId: "user-9",
               spaceId: "ws-9",
               botId: "bot-9",
-              outboundSinceInbound: 0,
             };
           }
           return {
             id: "mi-1",
-            provider: "sendblue",
+            provider: "chat",
             address: "+15551111111",
             userId: "user-1",
             spaceId: "ws-1",
             botId: "bot-1",
-            outboundSinceInbound: 0,
           };
         },
       ),
@@ -1557,15 +1552,15 @@ describe("createMessagingInboundHandler owner commands", () => {
 });
 
 describe("createMessagingInboundHandler channel routing", () => {
-  it("discovers a Telegram group from the senders it has seen, without sweeping members", async () => {
+  it("discovers a rosterless group from the senders it has seen, without sweeping members", async () => {
     const deps = createDeps({ identity: null });
     const handle = createMessagingInboundHandler(deps);
-    // Telegram names no roster: participants accumulate as senders appear.
+    // A rosterless platform: participants accumulate as senders appear.
     await handle({
       type: "message",
-      provider: "telegram",
+      provider: "chat",
       handle: "-1001234:11",
-      threadId: "telegram:-1001234",
+      threadId: "chat:-1001234",
       isDirect: false,
       from: "777",
       fromLabel: "Grace",
@@ -1579,8 +1574,8 @@ describe("createMessagingInboundHandler channel routing", () => {
     expect(deps.prisma.messagingChannel.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
         create: expect.objectContaining({
-          provider: "telegram",
-          threadId: "telegram:-1001234",
+          provider: "chat",
+          threadId: "chat:-1001234",
           name: "Family",
         }),
       }),
@@ -1599,8 +1594,8 @@ describe("createMessagingInboundHandler channel routing", () => {
 
     expect(deps.prisma.messagingChannel.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { threadId: "sendblue:grp-1" },
-        create: expect.objectContaining({ provider: "sendblue", threadId: "sendblue:grp-1" }),
+        where: { threadId: "chat:grp-1" },
+        create: expect.objectContaining({ provider: "chat", threadId: "chat:grp-1" }),
       }),
     );
     expect(deps.members).toHaveLength(2);
@@ -1620,7 +1615,7 @@ describe("createMessagingInboundHandler channel routing", () => {
         expect.objectContaining({
           idempotencyKey: "intro:ch-1",
           kind: "intro",
-          threadId: "sendblue:grp-1",
+          threadId: "chat:grp-1",
         }),
       ]),
     );
@@ -1634,8 +1629,8 @@ describe("createMessagingInboundHandler channel routing", () => {
     Object.assign(deps.prisma.messagingChannel, {
       upsert: vi.fn(async () => ({
         id: "ch-1",
-        provider: "sendblue",
-        threadId: "sendblue:grp-1",
+        provider: "chat",
+        threadId: "chat:grp-1",
         name: "Family",
         introPostedAt: new Date(),
       })),
@@ -1664,12 +1659,11 @@ describe("createMessagingInboundHandler channel routing", () => {
     const deps = createDeps({ members: [senderMember, peerMember] });
     const peerIdentity = {
       id: "mi-2",
-      provider: "sendblue",
+      provider: "chat",
       address: "+15553333333",
       userId: "user-2",
       spaceId: "ws-2",
       botId: "bot-2",
-      outboundSinceInbound: 0,
     };
     Object.assign(deps.prisma.messagingIdentity, {
       findUnique: vi.fn(
@@ -1683,12 +1677,11 @@ describe("createMessagingInboundHandler channel routing", () => {
           }
           return {
             id: "mi-1",
-            provider: "sendblue",
+            provider: "chat",
             address: "+15551111111",
             userId: "user-1",
             spaceId: "ws-1",
             botId: "bot-1",
-            outboundSinceInbound: 0,
           };
         },
       ),
@@ -1720,12 +1713,11 @@ describe("createMessagingInboundHandler channel routing", () => {
     const deps = createDeps({ members: [senderMember, peerMember] });
     const peerIdentity = {
       id: "mi-2",
-      provider: "sendblue",
+      provider: "chat",
       address: "+15553333333",
       userId: "user-2",
       spaceId: "ws-2",
       botId: "bot-2",
-      outboundSinceInbound: 0,
     };
     Object.assign(deps.prisma.messagingIdentity, {
       findUnique: vi.fn(
@@ -1739,12 +1731,11 @@ describe("createMessagingInboundHandler channel routing", () => {
           }
           return {
             id: "mi-1",
-            provider: "sendblue",
+            provider: "chat",
             address: "+15551111111",
             userId: "user-1",
             spaceId: "ws-1",
             botId: "bot-1",
-            outboundSinceInbound: 0,
           };
         },
       ),
@@ -1761,11 +1752,11 @@ describe("createMessagingInboundHandler channel routing", () => {
     expect(fanout).toHaveLength(2);
     for (const input of fanout as Array<Record<string, unknown>>) {
       expect(input.trigger).toBe("messaging");
-      expect(input.clientNonce).toBe("messaging:sendblue:handle-1");
+      expect(input.clientNonce).toBe("messaging:chat:handle-1");
       expect(input.blocks).toEqual([
         {
           kind: "channel_message",
-          provider: "sendblue",
+          provider: "chat",
           transport: "SMS",
           channelId: "ch-1",
           fromAddress: "+15551111111",
@@ -2320,21 +2311,19 @@ describe("createMessagingInboundHandler channel routing", () => {
     const identities = [
       {
         id: "mi-alice",
-        provider: "telegram",
+        provider: "chat",
         address: "777",
         userId: "user-a",
         spaceId: "ws-a",
         botId: "bot-a",
-        outboundSinceInbound: 0,
       },
       {
         id: "mi-bob",
-        provider: "telegram",
+        provider: "chat",
         address: "888",
         userId: "user-b",
         spaceId: "ws-b",
         botId: "bot-b",
-        outboundSinceInbound: 0,
       },
     ];
     Object.assign(deps.prisma.messagingIdentity, {
@@ -2352,9 +2341,9 @@ describe("createMessagingInboundHandler channel routing", () => {
     const handle = createMessagingInboundHandler(deps);
     const event = {
       type: "message" as const,
-      provider: "telegram",
+      provider: "chat",
       handle: "-1001234:50",
-      threadId: "telegram:-1001234",
+      threadId: "chat:-1001234",
       isDirect: false,
       from: "888",
       fromLabel: "Bob",
@@ -2380,7 +2369,7 @@ describe("createMessagingInboundHandler channel routing", () => {
     expect(deps.sendUserMessage).toHaveBeenCalledTimes(2);
   });
 
-  it("marks a Telegram member who left as left, without starting a run", async () => {
+  it("marks a rosterless member who left as left, without starting a run", async () => {
     const alice = {
       id: "cm-1",
       channelId: "ch-1",
@@ -2399,21 +2388,19 @@ describe("createMessagingInboundHandler channel routing", () => {
     const identities = [
       {
         id: "mi-alice",
-        provider: "telegram",
+        provider: "chat",
         address: "777",
         userId: "user-a",
         spaceId: "ws-a",
         botId: "bot-a",
-        outboundSinceInbound: 0,
       },
       {
         id: "mi-bob",
-        provider: "telegram",
+        provider: "chat",
         address: "888",
         userId: "user-b",
         spaceId: "ws-b",
         botId: "bot-b",
-        outboundSinceInbound: 0,
       },
     ];
     Object.assign(deps.prisma.messagingIdentity, {
@@ -2431,9 +2418,9 @@ describe("createMessagingInboundHandler channel routing", () => {
     const handle = createMessagingInboundHandler(deps);
     await handle({
       type: "message",
-      provider: "telegram",
+      provider: "chat",
       handle: "-1001234:31",
-      threadId: "telegram:-1001234",
+      threadId: "chat:-1001234",
       isDirect: false,
       from: "888",
       fromLabel: "Bob",
@@ -2460,9 +2447,9 @@ describe("createMessagingInboundHandler channel routing", () => {
     // Alice's bot no longer receives the group's later messages.
     await handle({
       type: "message",
-      provider: "telegram",
+      provider: "chat",
       handle: "-1001234:32",
-      threadId: "telegram:-1001234",
+      threadId: "chat:-1001234",
       isDirect: false,
       from: "888",
       fromLabel: "Bob",
@@ -2509,9 +2496,9 @@ describe("createMessagingInboundHandler channel routing", () => {
     Object.assign(deps.prisma.messagingChannel, { findMany });
     await createMessagingInboundHandler(deps)({
       type: "message",
-      provider: "telegram",
+      provider: "chat",
       handle: "-1001234:40",
-      threadId: "telegram:-1001234",
+      threadId: "chat:-1001234",
       isDirect: false,
       from: "888",
       fromLabel: "Bob",
@@ -2523,8 +2510,8 @@ describe("createMessagingInboundHandler channel routing", () => {
     });
     expect(findMany).toHaveBeenCalledWith({
       where: {
-        provider: "telegram",
-        OR: [{ threadId: "telegram:-1001234" }, { threadId: { startsWith: "telegram:-1001234:" } }],
+        provider: "chat",
+        OR: [{ threadId: "chat:-1001234" }, { threadId: { startsWith: "chat:-1001234:" } }],
       },
       select: { id: true },
     });
@@ -2546,19 +2533,18 @@ describe("createMessagingInboundHandler channel routing", () => {
       Object.assign(deps.prisma.messagingIdentity, {
         findUnique: vi.fn(async () => ({
           id: "mi-alice",
-          provider: "telegram",
+          provider: "chat",
           address: "777",
           userId: "user-a",
           spaceId: "ws-a",
           botId: "bot-a",
-          outboundSinceInbound: 0,
         })),
       });
       await createMessagingInboundHandler(deps)({
         type: "message",
-        provider: "telegram",
+        provider: "chat",
         handle: "-1001234:43",
-        threadId: "telegram:-1001234",
+        threadId: "chat:-1001234",
         isDirect: false,
         from: "777",
         fromLabel: "Alice",
@@ -2576,7 +2562,7 @@ describe("createMessagingInboundHandler channel routing", () => {
     },
   );
 
-  it("ends every membership when the Telegram bot itself is removed", async () => {
+  it("ends every membership when the bot itself is removed", async () => {
     const alice = {
       id: "cm-1",
       channelId: "ch-1",
@@ -2595,9 +2581,9 @@ describe("createMessagingInboundHandler channel routing", () => {
     const handle = createMessagingInboundHandler(deps);
     await handle({
       type: "message",
-      provider: "telegram",
+      provider: "chat",
       handle: "-1001234:41",
-      threadId: "telegram:-1001234",
+      threadId: "chat:-1001234",
       isDirect: false,
       from: "777",
       fromLabel: "Alice",
@@ -2620,9 +2606,9 @@ describe("createMessagingInboundHandler channel routing", () => {
     // With every membership ended, nothing in the group reaches a bot.
     await handle({
       type: "message",
-      provider: "telegram",
+      provider: "chat",
       handle: "-1001234:42",
-      threadId: "telegram:-1001234",
+      threadId: "chat:-1001234",
       isDirect: false,
       from: "777",
       fromLabel: "Alice",
@@ -2912,7 +2898,7 @@ describe("createMessagingInboundHandler confirmation atomicity", () => {
       new Error("database unavailable"),
     );
     const handle = createMessagingInboundHandler(deps);
-    const leave = { ...dmEvent, provider: "telegram", content: "LEAVE" };
+    const leave = { ...dmEvent, provider: "chat", content: "LEAVE" };
 
     await expect(handle(leave)).rejects.toThrow("database unavailable");
     await handle(leave);
@@ -2953,9 +2939,9 @@ describe("createMessagingInboundHandler linking", () => {
 
     expect(deps.createdIdentities).toEqual([
       expect.objectContaining({
-        provider: "sendblue",
+        provider: "chat",
         address: "+15551111111",
-        dmThreadId: "sendblue:dm-1",
+        dmThreadId: "chat:dm-1",
         userId: "user-web",
         spaceId: "ws-web",
         botId: "bot-web",

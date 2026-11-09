@@ -121,8 +121,8 @@ beforeEach(() => {
     },
     "messaging/status": {
       enabled: true,
-      providers: ["sendblue"],
-      addresses: { sendblue: "+15550001111" },
+      providers: ["chat"],
+      addresses: { chat: "+15550001111" },
       openSignup: false,
       identities: [],
     },
@@ -132,7 +132,7 @@ beforeEach(() => {
         id: "cm-invited",
         channelId: "ch-1",
         identityId: "mi-1",
-        provider: "sendblue",
+        provider: "chat",
         name: "Family",
         status: "invited",
         memberCount: 3,
@@ -141,7 +141,7 @@ beforeEach(() => {
         id: "cm-joined",
         channelId: "ch-2",
         identityId: "mi-1",
-        provider: "sendblue",
+        provider: "chat",
         name: "Ops",
         status: "approved",
         memberCount: 5,
@@ -231,13 +231,13 @@ it("answers requests and manages conversations by their own ids, then refreshes"
 
 it("says which line to send a link code to", async () => {
   await act(async () => root.render(<MessagingSettings />));
-  const imessage = [...container.querySelectorAll("button")].find(
-    (candidate) => candidate.textContent === "iMessage",
+  const chatApp = [...container.querySelectorAll("button")].find(
+    (candidate) => candidate.textContent === "chat",
   );
-  await act(async () => imessage?.click());
+  await act(async () => chatApp?.click());
   expect(rpc).toHaveBeenCalledWith("messaging/link/start", { botId: "bot-1" });
   expect(container.textContent).toContain(
-    "Send ABCD-2345 to +15550001111 from iMessage within 10 minutes.",
+    "Send ABCD-2345 to +15550001111 from chat within 10 minutes.",
   );
 });
 
@@ -255,10 +255,10 @@ it("falls back to the first bot when the selected one is archived elsewhere", as
   // Lead is archived on another device; the next refresh drops it.
   responses["bots/list"] = [{ id: "bot-1", name: "Chief" }];
   await press("Family", "Approve");
-  const imessage = [...container.querySelectorAll("button")].find(
-    (candidate) => candidate.textContent === "iMessage",
+  const chatApp = [...container.querySelectorAll("button")].find(
+    (candidate) => candidate.textContent === "chat",
   );
-  await act(async () => imessage?.click());
+  await act(async () => chatApp?.click());
   expect(rpc).toHaveBeenCalledWith("messaging/link/start", { botId: "bot-1" });
   expect(rpc).not.toHaveBeenCalledWith("messaging/link/start", { botId: "bot-2" });
 });
@@ -294,9 +294,9 @@ it("connects Slack to the default bot with workspace authorization", async () =>
 it("links DMs to the bot that answers in the workspace", async () => {
   responses["messaging/status"] = {
     enabled: true,
-    providers: ["slack", "telegram"],
+    providers: ["slack", "chat"],
     identities: [
-      { id: "mi-other", provider: "telegram", botId: "bot-2", botName: "Team", address: "12345" },
+      { id: "mi-other", provider: "chat", botId: "bot-2", botName: "Team", address: "12345" },
     ],
   };
   responses["messaging/installations/list"] = {

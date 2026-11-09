@@ -32,7 +32,7 @@ describe("copyableMessageText", () => {
         message([
           {
             kind: "channel_message",
-            provider: "sendblue",
+            provider: "chat",
             transport: "RCS",
             channelId: "ch-1",
             fromAddress: "+15551234567",
@@ -45,14 +45,13 @@ describe("copyableMessageText", () => {
     ).toBe("Alice (RCS): dinner at 7?");
   });
 
-  it("falls back to the provider label for unknown transport values", () => {
+  it("falls back to the provider label without a transport", () => {
     expect(
       copyableMessageText(
         message([
           {
             kind: "channel_message",
-            provider: "sendblue",
-            transport: "email",
+            provider: "slack",
             channelId: "ch-1",
             fromAddress: "+15551234567",
             fromLabel: "Alice",
@@ -60,7 +59,7 @@ describe("copyableMessageText", () => {
           },
         ]),
       ),
-    ).toBe("Alice (iMessage): hello");
+    ).toBe("Alice (Slack): hello");
   });
 
   it("leaves out card chrome between text and channel messages", () => {
@@ -70,7 +69,7 @@ describe("copyableMessageText", () => {
           { kind: "text", text: "Hello" },
           {
             kind: "channel_message",
-            provider: "sendblue",
+            provider: "chat",
             transport: "SMS",
             channelId: "ch-1",
             fromAddress: "+15551234567",

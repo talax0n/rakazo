@@ -3960,7 +3960,7 @@ describe("queue admission beside pending cards", () => {
     });
     const group = {
       kind: "channel_message",
-      provider: "sendblue",
+      provider: "chat",
       channelId: "channel-1",
       fromAddress: "+15550000001",
       fromLabel: "Sam",
@@ -4370,7 +4370,7 @@ describe("sendUserMessage", () => {
           group
             ? {
                 kind: "channel_message",
-                provider: "sendblue",
+                provider: "chat",
                 channelId: "channel-1",
                 fromAddress: "+15550000001",
                 fromLabel: "Sam",
@@ -4888,7 +4888,7 @@ describe("sendUserMessage", () => {
 describe("claimSteering", () => {
   const group = (fromAddress: string) => ({
     kind: "channel_message",
-    provider: "telegram",
+    provider: "chat",
     channelId: "channel-1",
     fromAddress,
     fromLabel: "Someone",
@@ -4917,7 +4917,7 @@ describe("claimSteering", () => {
         },
         event: { create: vi.fn() },
         messagingIdentity: {
-          findMany: vi.fn().mockResolvedValue([{ provider: "telegram", address: "+15550001" }]),
+          findMany: vi.fn().mockResolvedValue([{ provider: "chat", address: "+15550001" }]),
         },
         steeringMessage: {
           findMany: vi.fn().mockResolvedValue([

@@ -5,7 +5,7 @@ import { getLogger } from "@rakazo/logging";
 
 type InboundArtifact = { id: string; name: string; mimeType: string; size: number };
 
-/** Stores a platform file (Telegram photo, Slack upload, voice note, …) as a thread artifact. */
+/** Stores a platform file (Slack upload, voice note, …) as a thread artifact. */
 export type InboundAttachmentStore = (input: {
   spaceId: string;
   userId: string;

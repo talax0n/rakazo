@@ -18,7 +18,7 @@ const describePostgres =
   process.env.VERIFY_DATABASE && databaseUrl ? describe.sequential : describe.skip;
 
 describePostgres("new bot avatars (PostgreSQL)", () => {
-  const provider = "sendblue";
+  const provider = "chat";
   // A prefix no other test file uses, so parallel files never share this account.
   const address = `+1554${Math.floor(Math.random() * 9_000_000 + 1_000_000)}`;
   let prisma: PrismaClient;

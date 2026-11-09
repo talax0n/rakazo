@@ -311,7 +311,7 @@ export async function startMessagingRuntime({
   messaging.onInbound((event) => runAsSystem("messaging inbound", () => handleInbound(event)));
   mountMessagingWebhookRoutes(app, { messaging });
   // Start polling adapters now rather than on the first webhook or send; a second poller
-  // elsewhere would fight this one for Telegram's single getUpdates slot. Bounded retries
+  // elsewhere could fight this one for a single-consumer update stream. Bounded retries
   // cover transient startup failures, otherwise polling-only bots stay dark.
   messagingInitTask = (async () => {
     const delayMs = [0, 2_000, 10_000];

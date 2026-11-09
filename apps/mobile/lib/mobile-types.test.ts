@@ -234,7 +234,7 @@ describe("mobile thread event reduction", () => {
         mobileMessage("channel-1", [
           {
             kind: "channel_message",
-            provider: "sendblue",
+            provider: "chat",
             transport: "SMS",
             channelId: "ch-1",
             fromAddress: "+15551234567",

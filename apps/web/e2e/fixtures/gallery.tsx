@@ -449,7 +449,7 @@ const team: Scenario = {
     bot([
       {
         kind: "channel_message",
-        provider: "telegram",
+        provider: "slack",
         channelId: "channel-1",
         fromAddress: "@sam",
         fromLabel: "Sam",

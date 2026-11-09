@@ -85,7 +85,7 @@ describePostgres("appending a thread event (PostgreSQL)", () => {
     ({ userId, spaceId, botId, threadId } = await runAsSystem("test fixture", () =>
       provisionMessagingIdentity(
         prisma,
-        { provider: "sendblue", address },
+        { provider: "chat", address },
         { signupsEnabled: undefined, signupAllowlist: undefined },
       ),
     ));
@@ -115,7 +115,7 @@ describePostgres("appending a thread event (PostgreSQL)", () => {
   afterAll(async () => {
     try {
       if (prisma && provisioned) {
-        await system.messagingIdentity.deleteMany({ where: { provider: "sendblue", address } });
+        await system.messagingIdentity.deleteMany({ where: { provider: "chat", address } });
         await system.organization.deleteMany({ where: { id: spaceId } });
         await system.user.deleteMany({ where: { id: userId } });
       }

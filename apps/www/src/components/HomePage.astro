@@ -19,10 +19,7 @@ import grokLogo from "./provider-logos/grok.svg?raw";
 import lmStudioLogo from "./provider-logos/lmstudio.svg?raw";
 import ollamaLogo from "./provider-logos/ollama.svg?raw";
 import openRouterLogo from "./provider-logos/openrouter.svg?raw";
-import imessageLogo from "./brand-logos/imessage.svg?raw";
 import slackLogo from "./brand-logos/slack.svg?raw";
-import telegramLogo from "./brand-logos/telegram.svg?raw";
-import whatsappLogo from "./brand-logos/whatsapp.svg?raw";
 import {
   HOME_CHANNELS,
   HOME_FEATURE_KINDS,
@@ -83,9 +80,6 @@ const PROVIDER_LOGOS: Record<string, string> = {
 };
 const CHANNEL_LOGOS: Record<(typeof HOME_CHANNELS)[number]["id"], string> = {
   slack: slackLogo,
-  imessage: imessageLogo,
-  whatsapp: whatsappLogo,
-  telegram: telegramLogo,
 };
 const selfHostOnlyHref = `${SELF_HOST_GUIDE_PATH}#self-host-only`;
 const pageUrl = `${SITE_URL}${homeHref === "/" ? "/" : homeHref}`;

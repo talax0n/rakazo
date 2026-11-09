@@ -64,7 +64,7 @@ describePostgres("bounded latest bot roster runs (PostgreSQL)", () => {
     const identity = await runAsSystem("test fixture", () =>
       provisionMessagingIdentity(
         prisma,
-        { provider: "sendblue", address },
+        { provider: "chat", address },
         { signupsEnabled: undefined, signupAllowlist: undefined },
       ),
     );
@@ -163,7 +163,7 @@ describePostgres("bounded latest bot roster runs (PostgreSQL)", () => {
   afterAll(async () => {
     if (owner) {
       await asSystem(prisma).messagingIdentity.deleteMany({
-        where: { provider: "sendblue", address },
+        where: { provider: "chat", address },
       });
       await asSystem(prisma).organization.deleteMany({
         where: { id: { in: [owner.spaceId, otherSpace] } },

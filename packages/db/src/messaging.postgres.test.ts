@@ -9,7 +9,7 @@ const describePostgres =
   process.env.VERIFY_DATABASE && databaseUrl ? describe.sequential : describe.skip;
 
 describePostgres("provisionMessagingIdentity (PostgreSQL)", () => {
-  const provider = "sendblue";
+  const provider = "chat";
   const address = "+15550001111";
   let prisma: PrismaClient;
   let close: () => Promise<void>;
@@ -93,7 +93,6 @@ describePostgres("provisionMessagingIdentity (PostgreSQL)", () => {
     expect(identity!.spaceId).toBe(result.spaceId);
     expect(identity!.botId).toBe(result.botId);
     expect(identity!.dmThreadId).toBeNull();
-    expect(identity!.outboundSinceInbound).toBe(0);
     expect(identity!.verifiedAt).toBeNull();
 
     // bootstrap parity: same surrounding rows the auth signup hook creates
@@ -142,8 +141,8 @@ describePostgres("provisionMessagingIdentity (PostgreSQL)", () => {
     const orphan = await asSystem(prisma).user.create({
       data: {
         id: `partial${Date.now()}`,
-        name: "Sendblue 2222",
-        email: "msg-sendblue15550002222@messaging.invalid",
+        name: "Chat 2222",
+        email: "msg-chat15550002222@messaging.invalid",
         emailVerified: false,
       },
     });

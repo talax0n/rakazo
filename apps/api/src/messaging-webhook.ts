@@ -13,11 +13,4 @@ export function mountMessagingWebhookRoutes(app: Hono, deps: { messaging: Messag
     if (!response) return c.json({ error: "Unknown provider" }, 404);
     return response;
   });
-  // The pre-multi-platform sendblue path; already-configured dashboards
-  // keep delivering without an update.
-  app.post("/api/v1/phone/webhook", async (c) => {
-    const response = deps.messaging.handleWebhook("sendblue", c.req.raw);
-    if (!response) return c.json({ error: "Unknown provider" }, 404);
-    return response;
-  });
 }

@@ -4452,7 +4452,7 @@ describeJourneys("required product journeys", () => {
       const legacy = await steeredRun(null, "Obey the old channel", [
         {
           kind: "channel_message",
-          provider: "sendblue",
+          provider: "chat",
           channelId: "legacy-channel",
           fromAddress: "+15550000000",
           fromLabel: "Guest",

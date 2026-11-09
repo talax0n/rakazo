@@ -1203,7 +1203,7 @@ export type MessagingInstallationsStatus = z.infer<typeof MessagingInstallations
 
 export const MessagingStatusSchema = z.object({
   enabled: z.boolean(),
-  /** Messaging platforms mounted on this deployment (sendblue, slack, …). */
+  /** Messaging platforms mounted on this deployment (slack, …). */
   providers: z.array(z.string()),
   /** Where to send a link code, by provider, for platforms reached through one line. */
   addresses: z.record(z.string(), z.string()).optional(),

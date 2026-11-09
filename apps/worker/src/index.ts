@@ -146,8 +146,6 @@ async function main() {
     secrets,
   });
   const connectors = createConnectorRuntime(env, { prisma, secrets, events });
-  // Never poll inbound here: Telegram allows a single getUpdates consumer,
-  // and that is the API process, which owns the inbound sink.
   const messagingPlatforms = messagingPlatformsFromEnv(messagingEnvFromProcess(process.env)).filter(
     (platform) => platform.provider !== "slack" || !process.env.SLACK_CLIENT_ID,
   );

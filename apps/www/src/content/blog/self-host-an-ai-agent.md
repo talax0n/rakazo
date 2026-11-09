@@ -150,7 +150,7 @@ An approval is a card in the thread. The bot states the action, shows the detail
   <figcaption>The bot stops on the card. The audit log records the action.</figcaption>
 </figure>
 
-Optional connectors can attach Slack, WhatsApp, Telegram, iMessage via Sendblue, and Feishu/Lark. They are extras. Chat in the Rakazo apps does not require them.
+An optional Slack connector can attach the bot to your workspace. It is an extra. Chat in the Rakazo apps does not require it.
 
 ## When the machine is a server
 

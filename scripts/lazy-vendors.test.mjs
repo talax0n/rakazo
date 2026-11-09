@@ -19,7 +19,7 @@ const ENTRIES = [
 // @chat-adapter/state-memory is left out: it is the Chat SDK's own in-memory state, which
 // every messaging platform needs, not a vendor.
 const OPTIONAL_VENDORS =
-  /^(@aws-sdk\/.+|@composio\/core|@chat-adapter\/(slack|telegram|whatsapp)|chat-adapter-sendblue|@axiomhq\/js|@sentry\/node|@larksuiteoapi\/node-sdk|@photon-ai\/chat-adapter-imessage)$/;
+  /^(@aws-sdk\/.+|@composio\/core|@chat-adapter\/slack|@axiomhq\/js|@sentry\/node)$/;
 // Packages the bundles load through import() that are not vendor SDKs: an image library, the
 // auth library's own SCIM plugin, the email parser and DKIM check for inbound mail, and the
 // database client, which is also imported statically.
@@ -31,7 +31,7 @@ const LAZY_NON_VENDORS = [
   "@prisma/client",
 ];
 // Known static imports still to make lazy. Remove an entry once its SDK loads on demand.
-const PENDING = ["@chat-adapter/telegram", "@chat-adapter/whatsapp"];
+const PENDING = [];
 
 // Vendor SDKs statically imported by each emitted bundle: Map<entry, Set<vendor>>.
 const staticVendors = new Map();

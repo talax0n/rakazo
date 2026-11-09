@@ -3839,11 +3839,11 @@ it("does not blame the webhook on cards every run shows", async () => {
       })),
     },
     messagingIdentity: {
-      findUnique: vi.fn(async () => ({ address: "fake", provider: "telegram" })),
+      findUnique: vi.fn(async () => ({ address: "fake", provider: "slack" })),
     },
   });
   connection.setCalls([{ args: { accept: true }, executionId: "call-1" }]);
   await connection.run();
   expect(connection.pauseRunForInput).toHaveBeenCalledOnce();
-  expect(askDetail(connection)).toBe("Telegram: fake");
+  expect(askDetail(connection)).toBe("Slack: fake");
 });

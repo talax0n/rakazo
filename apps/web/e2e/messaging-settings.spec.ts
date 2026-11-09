@@ -39,20 +39,20 @@ test("messaging settings show linked chat apps, channels, connections, and team 
       body: JSON.stringify({
         json: {
           enabled: true,
-          providers: ["sendblue", "slack", "whatsapp", "telegram", "telegram-work", "lark"],
-          addresses: { sendblue: "+15550001111" },
+          providers: ["chat", "slack", "chat-work"],
+          addresses: { chat: "+15550001111" },
           openSignup: false,
           identities: [
             {
               id: "mi-1",
-              provider: "sendblue",
+              provider: "chat",
               address: "+15551230001",
               botId: "bot-1",
               botName: "Chief",
             },
             {
               id: "mi-2",
-              provider: "telegram-work",
+              provider: "chat-work",
               address: "424242",
               botId: "bot-2",
               botName: "Lead",
@@ -79,7 +79,7 @@ test("messaging settings show linked chat apps, channels, connections, and team 
             id: "cm1",
             channelId: "ch1",
             identityId: "mi-1",
-            provider: "sendblue",
+            provider: "chat",
             name: "Family",
             status: "invited",
             memberCount: 3,
@@ -204,7 +204,7 @@ test("messaging settings show linked chat apps, channels, connections, and team 
   await expect(messagingSettings.getByRole("button", { name: "승인" })).toHaveCount(2);
 
   await messagingSettings.getByRole("button", { name: "채팅 앱 연결" }).click();
-  await page.getByRole("menuitem", { name: "iMessage", exact: true }).click();
+  await page.getByRole("menuitem", { name: "chat", exact: true }).click();
   await expect(page.getByTestId("messaging-link-code")).toContainText("ABCD-2345");
   await expect(page.getByTestId("messaging-link-code")).toContainText("+15550001111");
   await captureScreenshot(page, testInfo, "messaging-settings-ko");

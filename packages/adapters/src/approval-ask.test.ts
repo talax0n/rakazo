@@ -207,15 +207,15 @@ describe("agent connection response cards", () => {
         connection_id: "request-1",
         connection_version: 2,
         requester_name: "Helper",
-        requester_address: "+15551234567",
-        requester_provider: "sendblue",
+        requester_address: "U123",
+        requester_provider: "slack",
       },
       [],
     );
     expect(block).toMatchObject({
       kind: "ask",
       text: `${accept ? "Approve" : "Decline"} connection with “Helper”?`,
-      detail: "iMessage: +15551234567",
+      detail: "Slack: U123",
       actions: [
         { id: "allow", label: "Allow once" },
         { id: "deny", label: "Deny" },

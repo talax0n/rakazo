@@ -163,7 +163,7 @@ describe("message authors", () => {
 describe("channelMessageSender", () => {
   const channel = {
     kind: "channel_message" as const,
-    provider: "telegram",
+    provider: "chat",
     channelId: "channel",
     fromAddress: "ada",
     fromLabel: "Ada",
@@ -209,7 +209,7 @@ describe("previewMessageText", () => {
           blocks: [
             {
               kind: "channel_message",
-              provider: "telegram",
+              provider: "chat",
               channelId: "channel",
               fromAddress: "ada",
               fromLabel: "Ada",

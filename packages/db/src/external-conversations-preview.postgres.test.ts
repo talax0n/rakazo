@@ -108,7 +108,7 @@ const EXTERNAL_ROW_BOUND = Math.min(A1_BOT_MESSAGES, BOT_SENDER_WINDOW) + A2_BOT
 const STEADY_POLICY = { "sender-steady": { name: "Steady", mode: "ignore" as const } };
 
 describePostgres("team-chat conversation previews (PostgreSQL)", () => {
-  const provider = "sendblue";
+  const provider = "chat";
   const stamp = `${Date.now()}`;
   const ownerAddress = `+1558${stamp.slice(-7)}`;
   const signup = { signupsEnabled: undefined, signupAllowlist: undefined };

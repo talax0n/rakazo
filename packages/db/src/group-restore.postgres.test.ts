@@ -12,7 +12,7 @@ const describePostgres =
   process.env.VERIFY_DATABASE && databaseUrl ? describe.sequential : describe.skip;
 
 describePostgres("archived groups and their bots (PostgreSQL)", () => {
-  const provider = "sendblue";
+  const provider = "chat";
   const stamp = String(Date.now()).slice(-7);
   const address = `+1557${stamp}`;
   let prisma: PrismaClient;

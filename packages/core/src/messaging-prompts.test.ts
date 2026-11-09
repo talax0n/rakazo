@@ -10,7 +10,7 @@ import {
 describe("isMessagingChannelRun", () => {
   const channelBlock = {
     kind: "channel_message" as const,
-    provider: "sendblue",
+    provider: "chat",
     channelId: "ch-1",
     fromAddress: "+15551234567",
     fromLabel: "Alice",
