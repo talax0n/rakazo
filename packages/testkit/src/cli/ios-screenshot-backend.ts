@@ -17,8 +17,8 @@ import { PluginMarketplaceFixture } from "../plugin-marketplace-fixture.js";
 import { disposableDatabaseEnv } from "./postgres.js";
 
 /**
- * An isolated API for the iOS catalog: scripted models, a fake sandbox, and offline billing,
- * wallet, and board, so every screen renders without a hosted provider.
+ * An isolated API for the iOS catalog: scripted models, a fake sandbox, and offline billing and
+ * board, so every screen renders without a hosted provider.
  */
 export async function startIosScreenshotBackend(input: {
   root: string;
@@ -49,7 +49,6 @@ export async function startIosScreenshotBackend(input: {
     SIGNUPS_ENABLED: "true",
     SIGNUP_ALLOWLIST: "",
     TICKET_BOARD_ENABLED: "true",
-    PAYMENT_WALLET_PROVIDER: "emulator",
     LOG_LEVEL: "warn",
     CI: "1",
   });

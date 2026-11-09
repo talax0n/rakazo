@@ -29,7 +29,6 @@ import {
   SettingsSwitch,
   useStackedSettings,
 } from "../../components/settings-group";
-import { SpendingLimitRow, useSpendingStatus } from "../../components/spending-limit-row";
 import { createAccountNameEditor } from "../../lib/account-name-editor";
 import { currentApiBase, rpc, selectedSpaceId } from "../../lib/api";
 import {
@@ -221,7 +220,6 @@ export default function Account() {
   const versionAccessibility = [versionInfo.nativeLabel, updateLabel].filter(Boolean).join(". ");
   const storeUpdateAvailable = useStoreUpdateAvailable();
   const approvals = useApprovalSettings(ACCOUNT_SETTINGS);
-  const spending = useSpendingStatus();
   const organizations = useOrganizations().data;
   const settingsLink = ({ title, href }: { title: string; href: Extract<Href, string> }) => (
     <SettingsRow
@@ -770,15 +768,9 @@ export default function Account() {
               onPress={() => router.push("/approvals")}
             />
           ) : null}
-          {spending?.shown ? (
-            <SpendingLimitRow key="spending-limit" status={spending} disabled={pending} />
-          ) : null}
           {(
             [
               { title: t("Vault"), href: "/vault" },
-              ...(me?.paymentWalletProvider
-                ? [{ title: t("Wallet"), href: "/wallet" } as const]
-                : []),
               { title: t("Integrations"), href: "/integrations" },
               { title: t("Skills"), href: "/skills" },
               { title: t("Memory"), href: "/memory" },

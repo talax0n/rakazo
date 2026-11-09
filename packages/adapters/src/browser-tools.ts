@@ -7,14 +7,10 @@ import type {
   ComputerRef,
 } from "@rakazo/adapter-kit";
 import { MAX_BROWSER_UPLOAD_FILES } from "@rakazo/adapter-kit";
-import type { PurchaseCardField } from "@rakazo/contracts";
-import { PURCHASE_CARD_FIELDS } from "@rakazo/contracts";
 import { getLogger } from "@rakazo/logging";
 import { redactConnectorPayload } from "./connector-safety.js";
 import { TOOL_RESULT_TEXT_LIMIT } from "./pi-runtime-limits.js";
-import type { PurchaseApproval } from "./purchase-gate.js";
 import { MAX_ACTIONS_PER_CALL } from "./tool-loop.js";
-import { cardFillSite } from "./vault-card-use.js";
 
 /** The action kinds `browser_act` takes, as its tool schema lists them. */
 export const BROWSER_ACT_KINDS = [
@@ -23,8 +19,6 @@ export const BROWSER_ACT_KINDS = [
   "type",
   "upload",
   "fill_secret",
-  "fill_card",
-  "fill_pay_token",
   "fill_code",
 ] as const;
 const MAX_QUERY = 200;
@@ -37,25 +31,9 @@ export type SecretFillStep = {
   secret: string;
   field: string;
 };
-/**
- * One field of an approved purchase's card, or of a saved card on the checkout `site` the person
- * approved. The model never supplies or sees the value.
- */
-export type CardFillStep = {
-  kind: "fill_card";
-  ref?: string;
-  field: PurchaseCardField;
-} & ({ purchase: string } | { card: string; site: string });
-/** The model never supplies or sees the token. */
-export type PayTokenFillStep = { kind: "fill_pay_token"; purchase: string };
 /** Types the code the user entered for the run's last code request; the model never sees it. */
 export type CodeFillStep = { kind: "fill_code"; ref: string };
-export type BrowserActInput =
-  | BrowserActStep
-  | SecretFillStep
-  | CardFillStep
-  | PayTokenFillStep
-  | CodeFillStep;
+export type BrowserActInput = BrowserActStep | SecretFillStep | CodeFillStep;
 /**
  * desktopTools: the run also has computer_act, so a page-tool failure can fall back to it.
  * downloads: the folder in the computer's home that the page's file downloads are saved to, and the
@@ -69,10 +47,6 @@ export type ResolveSecretFill = (
   step: SecretFillStep,
 ) => Promise<{ text: string; origin: string; hidden: boolean } | { error: string }>;
 
-export type ResolveCardFill = (
-  step: CardFillStep,
-) => Promise<{ text: string; origin: string } | { error: string }>;
-
 /** `claim` takes the code for this one fill; `restore` gives it back if the page refused. */
 export type ResolveCodeFill = (step: CodeFillStep) => Promise<
   | {
@@ -83,10 +57,6 @@ export type ResolveCodeFill = (step: CodeFillStep) => Promise<
     }
   | { error: string }
 >;
-
-export type ResolvePayTokenFill = (
-  step: PayTokenFillStep,
-) => Promise<{ text: string; origin: string; merchantAccountId: string } | { error: string }>;
 
 /**
  * A browser tool call turned down before anything ran, such as a missing argument. It is settled:
@@ -158,23 +128,12 @@ export async function browserActFromTool(
   args: Record<string, unknown>,
   options: PageToolOptions & {
     resolveSecretFill?: ResolveSecretFill;
-    resolveCardFill?: ResolveCardFill;
-    resolvePayTokenFill?: ResolvePayTokenFill;
     resolveCodeFill?: ResolveCodeFill;
     redactions?: () => string[];
     /** Maps a bot-facing workspace path to its path in the computer's home. */
     resolveUploadPath?: (path: string) => string;
     /** Trusted upload roots relative to the computer home, set by the executor. */
     uploadRoots?: string[];
-    /** The purchase the user approved for this call; its clicks alone may complete it. */
-    approvedPurchase?: PurchaseApproval;
-    /**
-     * Counts the approved purchase against the spending limit just before the page is asked; returns
-     * why it may not go ahead.
-     */
-    countPurchase?: () => Promise<string | undefined>;
-    /** Called when the counted purchase was clearly not pressed, so it no longer counts. */
-    releasePurchase?: () => Promise<void>;
   } = {},
 ) {
   try {
@@ -183,7 +142,7 @@ export async function browserActFromTool(
     let codeTyped:
       | { index: number; claim: () => Promise<boolean>; restore: () => Promise<void> }
       | undefined;
-    // Resolve every saved login and card before acting, so a missing one cannot leave a
+    // Resolve every saved login before acting, so a missing one cannot leave a
     // half-filled form.
     for (const step of parseBrowserActions(args.actions)) {
       if (step.kind === "upload") {
@@ -200,24 +159,6 @@ export async function browserActFromTool(
           paths,
           ...(options.uploadRoots ? { roots: options.uploadRoots } : {}),
         });
-        continue;
-      }
-      if (step.kind === "fill_pay_token") {
-        let resolved: Awaited<ReturnType<ResolvePayTokenFill>>;
-        try {
-          resolved = options.resolvePayTokenFill
-            ? await options.resolvePayTokenFill(step)
-            : { error: "Pay tokens are unavailable here." };
-        } catch (error) {
-          context.signal.throwIfAborted();
-          getLogger().warn("purchase pay token could not be loaded for a fill", {
-            errorName: error instanceof Error ? error.name : typeof error,
-          });
-          return { ...refusedInput("This pay token could not be loaded."), completed: 0 };
-        }
-        if ("error" in resolved) return { ...refusedInput(resolved.error), completed: 0 };
-        const { text, origin, merchantAccountId } = resolved;
-        actions.push({ kind: "pay_token", text, origin, merchantAccountId });
         continue;
       }
       if (step.kind === "fill_code") {
@@ -246,81 +187,37 @@ export async function browserActFromTool(
         });
         continue;
       }
-      if (step.kind !== "fill_secret" && step.kind !== "fill_card") {
+      if (step.kind !== "fill_secret") {
         actions.push(step);
         continue;
       }
-      const card = step.kind === "fill_card";
       let resolved: { text: string; origin: string; hidden?: boolean } | { error: string };
       try {
-        resolved = card
-          ? options.resolveCardFill
-            ? await options.resolveCardFill(step)
-            : { error: "Card fills are unavailable here." }
-          : options.resolveSecretFill
-            ? await options.resolveSecretFill(step)
-            : { error: "Saved logins are unavailable here." };
+        resolved = options.resolveSecretFill
+          ? await options.resolveSecretFill(step)
+          : { error: "Saved logins are unavailable here." };
       } catch (error) {
         context.signal.throwIfAborted();
-        // A stored login or card that can't be read may quote its own text in the error, so
-        // neither the bot nor the log gets the message: only that it failed, and how.
-        getLogger().warn(
-          card
-            ? "purchase card could not be loaded for a fill"
-            : "saved login could not be loaded for a fill",
-          { errorName: error instanceof Error ? error.name : typeof error },
-        );
-        return {
-          ...refusedInput(
-            card ? "This card could not be loaded." : "This saved login could not be loaded.",
-          ),
-          completed: 0,
-        };
+        // A stored login that can't be read may quote its own text in the error, so neither the
+        // bot nor the log gets the message: only that it failed, and how.
+        getLogger().warn("saved login could not be loaded for a fill", {
+          errorName: error instanceof Error ? error.name : typeof error,
+        });
+        return { ...refusedInput("This saved login could not be loaded."), completed: 0 };
       }
       if ("error" in resolved) return { ...refusedInput(resolved.error), completed: 0 };
-      const { text, origin } = resolved;
-      if (step.ref === undefined) {
-        actions.push({ kind: "fill", text, origin, field: "card", cardField: step.field });
-      } else {
-        actions.push({
-          kind: "fill",
-          ref: step.ref,
-          text,
-          origin,
-          // Every page browser, older computer images included, types "password" only into a
-          // password field and "username" into a text, email or telephone field.
-          field: card ? "card" : resolved.hidden === false ? "username" : "password",
-        });
-      }
-    }
-    const approved = options.approvedPurchase;
-    // A card for a page that could not be checked names no click: it covers each one, and the page
-    // browser still refuses any click it then finds buying on a known site.
-    const approvedSteps =
-      approved && !approved.site && !approved.steps.length
-        ? actions.flatMap((step, index) => (step.kind === "click" ? [index] : []))
-        : (approved?.steps ?? []);
-    for (const index of approvedSteps) {
-      const step = actions[index];
-      if (step?.kind === "click" && approved) {
-        const { site, label, amount } = approved;
-        actions[index] = {
-          ...step,
-          approved: true,
-          site,
-          label,
-          amount,
-          total: approved.total ?? "",
-        };
-      }
-    }
-    if (approved) {
-      const refused = await options.countPurchase?.();
-      if (refused) return { ...refusedInput(refused), completed: 0 };
+      actions.push({
+        kind: "fill",
+        ref: step.ref,
+        text: resolved.text,
+        origin: resolved.origin,
+        // Every page browser, older computer images included, types "password" only into a
+        // password field and "username" into a text, email or telephone field.
+        field: resolved.hidden === false ? "username" : "password",
+      });
     }
     // Taken just before the page is asked, by one call only, so two fills never both type it.
     if (codeTyped && !(await codeTyped.claim())) {
-      if (approved) await options.releasePurchase?.();
       return {
         ...refusedInput("No code is waiting. Use request_secret with oneTimeCode."),
         completed: 0,
@@ -331,14 +228,6 @@ export async function browserActFromTool(
       { actions, downloads: options.downloads?.folder, signal: context.signal },
       context,
     );
-    // A purchase the page refused (it changed, or another step failed first) never went through.
-    if (
-      approvedSteps.length &&
-      result.uncertain === false &&
-      result.completed <= Math.min(...approvedSteps)
-    ) {
-      await options.releasePurchase?.();
-    }
     // A code the page took is spent. One it clearly refused goes back, so a fill on the right page
     // can use it; any doubt about the outcome keeps it spent, never typed twice.
     if (codeTyped && result.uncertain === false && result.completed <= codeTyped.index) {
@@ -389,30 +278,6 @@ export function parseBrowserActions(value: unknown): BrowserActInput[] {
       );
     }
     const ref = String(action.ref ?? "").trim();
-    if (kind === "fill_pay_token") {
-      const purchase = String(action.purchase ?? "").trim();
-      if (!purchase)
-        throw new BrowserToolInputError(
-          "browser_act fill_pay_token needs purchase: the id of an approved purchase",
-        );
-      return { kind, purchase };
-    }
-    if (kind === "fill_card") {
-      const purchase = String(action.purchase ?? "").trim();
-      const card = typeof action.card === "string" ? action.card.trim() : "";
-      const field = action.field;
-      if (!purchase === !card)
-        throw new BrowserToolInputError(
-          "browser_act fill_card needs purchase: the id of an approved purchase, or card: the name of a saved card",
-        );
-      if (!(PURCHASE_CARD_FIELDS as readonly unknown[]).includes(field)) {
-        throw new BrowserToolInputError(
-          `browser_act fill_card needs field: ${PURCHASE_CARD_FIELDS.map((name) => `"${name}"`).join(", ")}`,
-        );
-      }
-      const step = { kind, ...(ref ? { ref } : {}), field: field as PurchaseCardField };
-      return purchase ? { ...step, purchase } : { ...step, card, site: cardFillSite(action.site) };
-    }
     if (!ref) throw new BrowserToolInputError(`browser_act action ${index} requires ref`);
     if (kind === "fill_code") return { kind, ref };
     if (kind === "upload") {

@@ -12,8 +12,8 @@ export const ZH_TW_MESSAGES: Record<string, string> = {
   "Search tools": "搜尋工具",
   "A model approves routine actions and asks you about the rest.":
     "模型會核准例行動作，其餘的會先詢問你。",
-  "Asks only before purchases and the first use of your computer. Only Block rules apply.":
-    "只在購買和第一次使用你的電腦前詢問。只有封鎖規則會生效。",
+  "Asks only before the first use of your computer. Only Block rules apply.":
+    "只在第一次使用你的電腦前詢問。只有封鎖規則會生效。",
   "Asks before sending, spending or changing anything in your apps.":
     "在你的應用程式中傳送、花費或變更任何東西之前先詢問。",
   Haptics: "觸覺回饋",

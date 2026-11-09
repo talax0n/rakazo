@@ -23,7 +23,6 @@ import {
   createConnectorRuntime,
   createDeadJobPruner,
   createMediaGenerationProvider,
-  createPaymentWalletProvider,
   createPostgresReconciliationLeadership,
   createProductAnalytics,
   createReservedGraphileJobWorkerHost,
@@ -185,7 +184,6 @@ async function main() {
   });
   // One provider instance so emulator launches and polls share the same Map.
   const cloudAgent = createCloudAgentConnection();
-  const paymentWallet = await createPaymentWalletProvider();
   // One instance: the executor submits videos and background polls finish them.
   const mediaGeneration = createMediaGenerationProvider();
   // Shared with the reconciler so a stuck wait uses the same push path as a finish notice.
@@ -233,7 +231,6 @@ async function main() {
             prisma,
             forwardSecret: userDeviceForwardSecret(env.encryptionKey),
           }),
-    paymentWallet,
     shutdownSignal: shutdown.signal,
   });
 
@@ -247,7 +244,7 @@ async function main() {
     );
 
   const reconciler = createRunReconciler(
-    { prisma, jobs, events, notifications, cloudAgent, paymentWallet, mediaGeneration },
+    { prisma, jobs, events, notifications, cloudAgent, mediaGeneration },
     {
       leadership: createPostgresReconciliationLeadership(pool),
       reconcileRoutineRetryNotices: inMemoryJobs

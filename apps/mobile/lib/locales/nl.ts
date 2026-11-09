@@ -12,8 +12,8 @@ export const NL_MESSAGES: Record<string, string> = {
   "Search tools": "Tools zoeken",
   "A model approves routine actions and asks you about the rest.":
     "Een model keurt routineacties goed en vraagt jou naar de rest.",
-  "Asks only before purchases and the first use of your computer. Only Block rules apply.":
-    "Vraagt alleen bij aankopen en het eerste gebruik van je computer. Alleen blokkeerregels gelden.",
+  "Asks only before the first use of your computer. Only Block rules apply.":
+    "Vraagt alleen bij het eerste gebruik van je computer. Alleen blokkeerregels gelden.",
   "Asks before sending, spending or changing anything in your apps.":
     "Vraagt eerst voordat er iets in je apps wordt verstuurd, uitgegeven of gewijzigd.",
   Haptics: "Haptische feedback",

@@ -171,11 +171,6 @@ Connect を使う場合は `PIPEDREAM_CLIENT_ID`、`PIPEDREAM_CLIENT_SECRET`、`
 OpenAPI JSON ドキュメントを追加できます。コネクターの認証情報はサーバー上で暗号化され、
 API から返されることはありません。
 
-有料データサービス（地図の店舗情報、検索結果、勤務先メールアドレス、プロフィール、SEO データ）も任意です。
-`PAID_SERVICES_PROVIDER=treg` と、組織用の [Treg](https://treg.to) トークンを入れた `PAID_SERVICES_API_KEY` を設定すると、
-ボットがデプロイ側のアカウントでそれらを検索して呼び出せます。モデルクレジットが有効な場合、各呼び出しは
-提供元の費用に 20% を加えた額が組織のクレジットから差し引かれます。
-
 ```bash
 docker compose --env-file .env \
   -f infra/compose/docker-compose.yml \

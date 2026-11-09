@@ -51,9 +51,6 @@ import { RAKAZO_DOCS_URLS } from "./builtin-skills.js";
 import type { ExecutorDeps } from "./executor-deps.js";
 import { CATALOG_LOAD, CATALOG_SEARCH } from "./lazy-tool-catalog.js";
 import { findConnectedModelCredential } from "./model-selection.js";
-import { paidRequestEffect } from "./paid-request.js";
-import type { PurchaseApproval } from "./purchase-gate.js";
-import { PURCHASE_CHECKED_TOOLS, purchaseApprovalOf } from "./purchase-gate.js";
 import { autoReviewCheckerProvider } from "./run-auto-review.js";
 import type { RunContext, RunTrust } from "./run-context.js";
 import {
@@ -76,11 +73,9 @@ import { resolveCompletedSecretLeftover } from "./run-secret.js";
 import type { ToolRequest } from "./run-tool-request.js";
 import { BUILTIN_AGENT_TOOL_NAMES, READ_ONLY_AGENT_TOOLS } from "./run-tool-selection.js";
 import { callMediaTool } from "./run-tools-files.js";
-import { callPaidService } from "./run-tools-integrations.js";
 import { USER_COMPUTER_TOOLS, userComputerGate } from "./run-tools-user-computer.js";
 import { connectorTrustKeys } from "./run-trust.js";
 import { watchFromTool } from "./schedule-tools.js";
-import { pagePaymentPrecheck, paysWithWallet } from "./spending-gate.js";
 
 export type AppliedEffect = Awaited<ReturnType<typeof recordEffect>>;
 
@@ -108,11 +103,6 @@ export interface ToolCall {
   readonly nextApprovedTool: string | undefined;
   /** A gated call that policy or the reviewer allowed without asking. */
   readonly bypassApproval: boolean;
-  /**
-   * The approved payment this call presses, counted against the user's spending limit just before
-   * the press: the handler records it then, so a call that stops earlier never uses the room.
-   */
-  readonly spend: PurchaseApproval | undefined;
   /** This call moved its effect to executing. request_secret can hand the claim back. */
   claimedEffect: boolean;
   /** Store the result on the effect; false when it could not be stored. */
@@ -208,9 +198,7 @@ export async function gateToolCall(
   }
   const connectorProviders = ctx.tools.connectedPlugins.map((plugin) => plugin.provider);
   const connectorKind = connectorKindFromToolName(approvalName, connectorProviders);
-  // paid_request with only a purchase id sends the request its approval already named.
-  const sendsToSite =
-    SITE_SENDING_TOOLS.has(name) && (name === "web_fetch" || args.url !== undefined);
+  const sendsToSite = SITE_SENDING_TOOLS.has(name);
   const fetchUrl = sendsToSite ? normalizedHttpUrl(String(args.url ?? "")) : undefined;
   const fetchSite = fetchUrl ? urlSite(fetchUrl) : undefined;
   if (sendsToSite && !fetchSite) return { result: { error: "url must be an http(s) URL" } };
@@ -219,7 +207,7 @@ export async function gateToolCall(
   // The card, the stored effect and the request all use the URL the gate checked.
   if (fetchUrl) {
     args = { ...args, url: fetchUrl };
-    effectRequest = name === "paid_request" ? paidRequestEffect(args) : args;
+    effectRequest = args;
   }
   const connectorTrusts = connectorTrustKeys(
     batch?.actions,
@@ -277,12 +265,8 @@ export async function gateToolCall(
       (name === "schedule_update" && Boolean(args.prompt))) &&
     (await isRunTainted(ctx)) &&
     (await ctx.trust.routineNamesNewSite(String(args.prompt ?? "")));
-  const { purchase, cardUse } = request;
-  // Typing a saved card is approved like a purchase: every time, by a person.
-  const paying = Boolean(purchase) || Boolean(cardUse);
   const requiresApprovalByDefault =
     request.heldForApproval ||
-    paying ||
     commandWatch ||
     requiresUnattendedApproval ||
     siteGate === "new" ||
@@ -295,7 +279,7 @@ export async function gateToolCall(
   const gated = requiresApprovalByDefault || connectorReadGated;
   // These ask in every run, whatever started it.
   const mandatoryInAnyRun =
-    paying || commandWatch || scheduleNamesNewSite || toolRequiresExplicitApproval(name);
+    commandWatch || scheduleNamesNewSite || toolRequiresExplicitApproval(name);
   const requiresMandatoryApproval = mandatoryInAnyRun || requiresUnattendedApproval;
   // No allow rule skips these, and without them the tool needs no approval, so "Always allow"
   // on their card would save a rule that never takes effect.
@@ -368,18 +352,7 @@ export async function gateToolCall(
         reviewOnly: connectorReadGated,
         checkerConfigured,
         newDestination: siteGate === "new",
-        purchase: paying,
       });
-  // Nobody is there to approve a purchase a webhook run reaches.
-  if (paying && run.trigger === "webhook" && plan !== "deny") {
-    await auditToolCall(ctx, name, "denied", { reason: "purchase_unattended" });
-    return {
-      result: {
-        error:
-          "This would complete a purchase, which needs the user's approval, and a webhook run cannot ask. Don't retry; tell the user.",
-      },
-    };
-  }
   if (plan === "deny") {
     await auditToolCall(ctx, name, "denied", {
       reason: approvalResolved.decision === "deny" ? "rule" : "never_asks",
@@ -392,23 +365,6 @@ export async function gateToolCall(
             : `${name} needs the owner's approval because it could have been asked for by someone else, and this space never asks. Don't retry; tell the user.`,
       },
     };
-  }
-  // A pay click counts against the user's spending limit, unless it pays with a wallet purchase,
-  // which was counted when it was requested. One the limit refuses is refused before the card; the
-  // handler counts it for good just before the press.
-  const spends = purchase && !paysWithWallet(args) ? purchase : undefined;
-  if (spends && nextApprovedTool !== name) {
-    const spender = {
-      userId: run.userId,
-      spaceId: run.spaceId,
-      botId: ctx.bot.id,
-      threadId: ctx.thread.id,
-    };
-    const refused = await pagePaymentPrecheck(deps.prisma, spender, spends);
-    if (refused) {
-      await auditToolCall(ctx, name, "denied", { reason: "spending_limit" });
-      return { result: { error: refused } };
-    }
   }
   let reviewReason: string | undefined;
   let gateDecision: "ask" | "allow" = plan === "ask" ? "ask" : "allow";
@@ -461,9 +417,6 @@ export async function gateToolCall(
   // so only real denies match. A stored row is checked only while it still waits for an
   // answer. web_fetch and secret_request target one site per call; request_secret and
   // connect_app name their own target.
-  // Browsing goes on after a denied purchase: a purchase is checked against earlier denied purchases
-  // on the same site, and other page work against earlier denied page work that bought nothing.
-  const pageAction = PURCHASE_CHECKED_TOOLS.has(name);
   const repeatChecked =
     applied &&
     (!applied.duplicate || applied.effect.status === "intended") &&
@@ -475,11 +428,7 @@ export async function gateToolCall(
           select: { request: true, result: true },
         })
       ).flatMap((effect) =>
-        effect.result == null &&
-        (!pageAction ||
-          purchaseApprovalOf(
-            (effect.request as { purchaseApproval?: unknown } | null)?.purchaseApproval,
-          )?.site === purchase?.site)
+        effect.result == null
           ? [
               boundDirectApprovalDetails(effect.request, CATALOG_APPROVAL_TOOL)?.args ??
                 effect.request,
@@ -579,7 +528,6 @@ export async function gateToolCall(
     applied,
     nextApprovedTool,
     bypassApproval: gateDecision === "allow" && gated,
-    spend: spends,
   });
   // Only when the webhook overrode the owner's Always allow; cards every run shows say nothing.
   const webhookForcedAsk =
@@ -756,16 +704,6 @@ async function settleToolUncertainty(
     const recovered = await callMediaTool(ctx, call, true);
     if (
       recovered !== undefined &&
-      (await completeEffect(ctx.deps, effectId, "executing", recovered))
-    )
-      return recovered;
-  }
-  if (call.name === "service_call") {
-    const recovered = await callPaidService(ctx, call).catch(() => undefined);
-    // Only an answer the provider settled carries a cost; anything else stays uncertain.
-    if (
-      recovered &&
-      "cost_usd" in recovered &&
       (await completeEffect(ctx.deps, effectId, "executing", recovered))
     )
       return recovered;

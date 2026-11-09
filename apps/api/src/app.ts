@@ -36,7 +36,6 @@ import {
   createCloudAgentConnection,
   createConnectorRuntime,
   createMediaGenerationProvider,
-  createPaymentWalletProvider,
   createProductAnalytics,
   createRunReconciler,
   createRunRuntime,
@@ -588,10 +587,6 @@ async function buildApp(overrides: CreateAppOverrides): Promise<AppHandles> {
     CURSOR_API_KEY: env.cursorApiKey,
     CLOUD_AGENT_SPACE_ID: env.cloudAgentSpaceId,
   });
-  const paymentWallet = await createPaymentWalletProvider({
-    PAYMENT_WALLET_PROVIDER: env.paymentWalletProvider,
-    PAYMENT_WALLET_CLIENT_ID: env.paymentWalletClientId,
-  });
   // One cache serves models.list, selection validation, and run-time model
   // resolution alike, so a list call warms the run path in this process.
   const codexCatalog = new CodexCatalogCache();
@@ -619,7 +614,6 @@ async function buildApp(overrides: CreateAppOverrides): Promise<AppHandles> {
     messaging,
     cloudAgent,
     userDevices: userDevicesOverride ?? userDevices,
-    paymentWallet,
     shutdownSignal: shutdown.signal,
     now,
   });
@@ -635,7 +629,6 @@ async function buildApp(overrides: CreateAppOverrides): Promise<AppHandles> {
         events,
         notifications,
         cloudAgent,
-        paymentWallet,
         mediaGeneration,
         billingEnabled: modelCreditsEnabled,
       })
@@ -701,7 +694,6 @@ async function buildApp(overrides: CreateAppOverrides): Promise<AppHandles> {
     pluginRepoFetcher,
     pluginMarketplaceRead,
     cloudAgent,
-    paymentWallet,
     codexCatalog,
     prisma,
     notifications,

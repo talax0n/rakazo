@@ -6,7 +6,6 @@ import type {
   ConnectorProvider,
   ConnectorTool,
   JobPublisher,
-  PaymentWalletProvider,
   SandboxProvider,
   SecretStore,
 } from "@rakazo/adapter-kit";
@@ -29,7 +28,6 @@ import { ComputerBusyError, provisionComputer } from "./computer-lifecycle.js";
 import { resolveBotWorkspaceCwd, teamBotWorkspaceDirectory } from "./computer-support.js";
 import { connectedContext, selectRunConnections } from "./connection-context.js";
 import { nativeShellCommandArgv, usesNativeShell } from "./native-shell.js";
-import { loadPurchaseRedactions } from "./purchase-service.js";
 
 /**
  * The checker behind a routine's "when something changes" trigger. It never
@@ -61,7 +59,6 @@ export type RoutineWatchDeps = {
   commandRefusal?: (command: string) => string | undefined;
   /** Decrypts Vault credentials. Absent, a command watch runs without them. */
   secretStore?: SecretStore;
-  paymentWallet?: PaymentWalletProvider | null;
 };
 
 export type RoutineWatchTarget = {
@@ -445,7 +442,7 @@ async function readComputer(
     // without a model or per-run approval: equivalent to the bot running it itself.
     const secrets = new Set<string>();
     const secretStore = deps.secretStore;
-    const [commandEnvironment, loginRedactions, purchaseRedactions] = secretStore
+    const [commandEnvironment, loginRedactions] = secretStore
       ? await Promise.all([
           shellCommandEnvironment({
             prisma: deps.prisma,
@@ -456,12 +453,9 @@ async function readComputer(
             },
           }),
           loadLoginPasswordRedactions(deps.prisma, secretStore, routine),
-          deps.paymentWallet
-            ? loadPurchaseRedactions({ prisma: deps.prisma, secretStore }, routine)
-            : [],
         ])
-      : [undefined, [], []];
-    for (const value of [...loginRedactions, ...purchaseRedactions]) secrets.add(value);
+      : [undefined, []];
+    for (const value of loginRedactions) secrets.add(value);
     const shellEnvironment = usesNativeShell(bot.computer.kind)
       ? await deps.sandbox.environment?.(computer, ctx)
       : undefined;

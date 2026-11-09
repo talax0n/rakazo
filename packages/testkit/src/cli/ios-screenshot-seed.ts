@@ -164,24 +164,6 @@ export async function seedIosScreenshotFixture(input: {
     });
     await rpc(input.apiUrl, populated.headers, "models/setDefault", model);
   }
-  // Most people who reach the wallet have connected one; the emulator connects on the first poll.
-  const wallet = await rpc<{ status: string }>(
-    input.apiUrl,
-    populated.headers,
-    "paymentWallet/status",
-  );
-  if (wallet.status !== "connected") {
-    await rpc(input.apiUrl, populated.headers, "paymentWallet/connect");
-    // The first sign-in check waits out the provider's poll interval.
-    const deadline = Date.now() + 15_000;
-    while (
-      (await rpc<{ status: string }>(input.apiUrl, populated.headers, "paymentWallet/status"))
-        .status !== "connected"
-    ) {
-      if (Date.now() > deadline) throw new Error("The wallet emulator never connected");
-      await new Promise((resolve) => setTimeout(resolve, 500));
-    }
-  }
   const rules = await rpc<{ matchValue: string }[]>(
     input.apiUrl,
     populated.headers,
@@ -330,12 +312,6 @@ export async function seedIosScreenshotFixture(input: {
       botId: researcher.id,
     });
     await ensureRequestCards(db.prisma, { threadId: support.threadId, botId: support.id });
-    await ensurePayments(db.prisma, {
-      spaceId: me.spaceId,
-      userId: me.userId,
-      researcher,
-      writer,
-    });
     const billing = { apiUrl: input.apiUrl, prisma: db.prisma, complete: input.completeCheckout };
     await ensurePlan({ ...billing, headers: populated.headers, userId: me.userId, trial: false });
     await ensurePlan({ ...billing, headers: empty.headers, userId: emptyMe.userId, trial: true });
@@ -662,41 +638,6 @@ const TICKETS = [
 ] as const;
 
 /** Board cards in several columns. Only an API with the board enabled shows them. */
-/** Two payments bots made with the wallet, as the spending limit lists them. */
-async function ensurePayments(
-  prisma: ReturnType<typeof createDb>["prisma"],
-  input: { spaceId: string; userId: string; researcher: BotRow; writer: BotRow },
-) {
-  const payments = [
-    {
-      key: "groceries",
-      bot: input.researcher,
-      site: "groceries.example.com",
-      amount: 2_340,
-      hours: 2,
-    },
-    { key: "books", bot: input.writer, site: "books.example.com", amount: 1_299, hours: 30 },
-  ];
-  for (const payment of payments) {
-    const operationKey = `ios-screenshot-payment-${payment.key}`;
-    const data = {
-      userId: input.userId,
-      spaceId: input.spaceId,
-      botId: payment.bot.id,
-      threadId: payment.bot.threadId,
-      site: payment.site,
-      amount: payment.amount,
-      currency: "usd",
-      createdAt: new Date(Date.now() - payment.hours * 3_600_000),
-    };
-    await prisma.payment.upsert({
-      where: { operationKey },
-      create: { operationKey, ...data },
-      update: data,
-    });
-  }
-}
-
 async function ensureTickets(
   prisma: ReturnType<typeof createDb>["prisma"],
   spaceId: string,
@@ -819,30 +760,6 @@ async function ensureRequestCards(
   ]);
   await bot([
     { kind: "computer", state: "Needs you", text: "Approve the sign-in code on your phone." },
-  ]);
-  await bot([
-    {
-      kind: "ask",
-      approvalEffectId: "ios-screenshot-pay",
-      text: "Pay on freshcart.test?",
-      detailFormat: "text",
-      receipt: {
-        button: "Place order",
-        items: [
-          { name: "Bananas × 6", amount: "$3.00" },
-          { name: "Oat milk 1L × 2", amount: "$8.40" },
-          { name: "Delivery", amount: "$6.00" },
-        ],
-        amount: "$17.40",
-        amountSource: "page",
-      },
-      status: "answered",
-      answer: "allow",
-      actions: [
-        { id: "allow", label: "Allow once" },
-        { id: "deny", label: "Deny" },
-      ],
-    },
   ]);
 }
 

@@ -29,6 +29,7 @@ export const RUN_TRIGGERS = [
   "webhook",
   "messaging",
   "cloud_agent",
+  /** Runs from before bot purchases were removed. */
   "purchase",
   "media",
   "created",

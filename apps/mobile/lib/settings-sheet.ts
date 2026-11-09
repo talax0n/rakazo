@@ -28,11 +28,9 @@ const settingsScreens = new Set([
   "skill",
   "skills",
   "space",
-  "spending-limit",
   "team-conversation",
   "vault",
   "voice",
-  "wallet",
 ]);
 
 /** Registers the open settings sheet's close action; the returned function unregisters it. */

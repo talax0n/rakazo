@@ -9,13 +9,11 @@ import {
   newVaultItemName,
   relabelVaultItem,
   resolveLoginFill,
-  resolveVaultCardFill,
   revealBotSecret,
   storeBotSecret,
 } from "./bot-secrets.js";
 import { fakeDatabase } from "./bot-secrets.test-support.js";
 import { EncryptedSecretStore } from "./secrets.js";
-import { cardUseSummary, requestedCardUse, vaultCardUseOf } from "./vault-card-use.js";
 
 const scope = { userId: "user-1", spaceId: "space-1" };
 const secretStore = new EncryptedSecretStore("test-only-encryption-key");
@@ -189,137 +187,7 @@ describe("what the bot sees", () => {
     const db = await vaultWithCard();
     const fill = (name: string) =>
       resolveLoginFill({ prisma: db.prisma, secretStore, scope, runId: "run-1", name, field: "x" });
-    expect(await fill("visa")).toEqual({ error: expect.stringContaining("fill_card") });
+    expect(await fill("visa")).toEqual({ error: expect.stringContaining("saved card") });
     expect(await fill("home")).toEqual({ error: expect.stringContaining("list_secrets") });
-  });
-});
-
-describe("filling a saved card", () => {
-  const savedAt = (db: ReturnType<typeof fakeDatabase>, name = "visa") =>
-    db
-      .rows()
-      .find((row) => row.name === name)!
-      .updatedAt!.toISOString();
-  const fill = (
-    db: ReturnType<typeof fakeDatabase>,
-    field: string,
-    site = "https://shop.example.test",
-  ) =>
-    resolveVaultCardFill({
-      prisma: db.prisma,
-      secretStore,
-      scope,
-      name: "visa",
-      field: field as "number",
-      site,
-      savedAt: savedAt(db),
-    });
-
-  it("types each field only on the approved checkout's origin", async () => {
-    const db = await vaultWithCard();
-    expect(await fill(db, "number")).toEqual({
-      text: "4242424242424242",
-      origin: "https://shop.example.test",
-      redactions: expect.arrayContaining(["4242424242424242"]),
-    });
-    expect(await fill(db, "expiry")).toMatchObject({ text: "08/30" });
-    const cvc = await fill(db, "cvc");
-    expect(cvc).toMatchObject({ text: "123" });
-    // Hiding 3 digits would blank every total and order number that contains them.
-    expect("redactions" in cvc && cvc.redactions).not.toContain("123");
-    // The billing contact's postal code.
-    expect(await fill(db, "postal_code")).toMatchObject({ text: "12345" });
-  });
-
-  it("refuses a site that is not an HTTPS origin, or a name that is not a card", async () => {
-    const db = await vaultWithCard();
-    expect(await fill(db, "number", "http://shop.example.test")).toEqual({
-      error: expect.stringContaining("HTTPS"),
-    });
-    expect(
-      await resolveVaultCardFill({
-        prisma: db.prisma,
-        secretStore,
-        scope,
-        name: "home",
-        field: "number",
-        site: "https://shop.example.test",
-        savedAt: savedAt(db, "home"),
-      }),
-    ).toEqual({ error: expect.stringContaining("No card") });
-  });
-
-  it("refuses a card replaced after the user approved it", async () => {
-    const db = await vaultWithCard();
-    const approved = savedAt(db);
-    await save(db, "visa", JSON.stringify({ ...fakeCard, number: "5555555555554444" }), card);
-    expect(
-      await resolveVaultCardFill({
-        prisma: db.prisma,
-        secretStore,
-        scope,
-        name: "visa",
-        field: "number",
-        site: "https://shop.example.test",
-        savedAt: approved,
-      }),
-    ).toEqual({ error: expect.stringContaining("changed after the user approved") });
-  });
-});
-
-describe("approving a saved card", () => {
-  it("reads one card on one site from a browser_act call", () => {
-    const step = { kind: "fill_card", card: "visa", site: "https://shop.example.test/checkout" };
-    expect(
-      requestedCardUse([
-        { ...step, field: "number" },
-        { ...step, field: "cvc" },
-        { kind: "click", ref: "e1" },
-      ]),
-    ).toEqual({ card: "visa", site: "https://shop.example.test" });
-    expect(requestedCardUse([{ kind: "fill_card", purchase: "p1" }])).toBeUndefined();
-    expect(requestedCardUse([{ kind: "fill_card", purchase: "p1", card: "" }])).toBeUndefined();
-    expect(requestedCardUse([{ kind: "fill_card", purchase: "p1", card: null }])).toBeUndefined();
-    expect(
-      requestedCardUse([
-        { ...step, field: "number" },
-        { ...step, site: "https://other.example.test", field: "cvc" },
-      ]),
-    ).toEqual({ error: expect.stringContaining("one site") });
-    expect(requestedCardUse([{ kind: "fill_card", card: "visa", site: "" }])).toEqual({
-      error: expect.stringContaining("HTTPS origin"),
-    });
-  });
-
-  it("asks once, naming the card and the site, and keeps only a well-formed approval", () => {
-    const use = {
-      card: "visa",
-      site: "https://shop.example.test",
-      title: "Visa ·· 4242",
-      savedAt: "2026-09-01T00:00:01.000Z",
-    };
-    expect(cardUseSummary(use)).toEqual({
-      onceOnly: true,
-      title: "Pay with Visa ·· 4242 on shop.example.test?",
-      lines: [],
-    });
-    // Typed together with the click that pays: the card names what the page lists for the order.
-    const purchase = {
-      steps: [0],
-      site: "shop.example.test",
-      label: "Place order",
-      amount: "$9.00",
-      amountSource: "page" as const,
-      items: [{ name: "Bananas × 6", amount: "$3.00" }],
-    };
-    expect(cardUseSummary(use, purchase).lines).toEqual([
-      'Button: "Place order"',
-      "Bananas × 6: $3.00",
-      "Total on the page: $9.00",
-      "The button label, items and total are read from the page. The bot has not checked them.",
-    ]);
-    expect(vaultCardUseOf(use)).toEqual(use);
-    expect(vaultCardUseOf({ ...use, site: "http://shop.example.test" })).toBeUndefined();
-    expect(vaultCardUseOf({ ...use, card: "Visa Card" })).toBeUndefined();
   });
 });

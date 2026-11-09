@@ -5,7 +5,6 @@ import type {
   CardSecretValue,
   LoginField,
   LoginSecretValue,
-  PurchaseCardField,
   SettingsScope,
   VaultPreview,
 } from "@rakazo/contracts";
@@ -1312,7 +1311,7 @@ export async function resolveLoginFill(input: {
   if (!stored) return { error: "Login is unavailable. Use request_secret to save it first." };
   const storedType = BotSecretAuth.safeParse(stored.auth).data?.type;
   if (storedType === "card") {
-    return { error: "This is a saved card. Type it with browser_act fill_card, passing card." };
+    return { error: "This is a saved card, which is never typed into a page." };
   }
   if (storedType === "contact") {
     return {
@@ -1431,62 +1430,4 @@ export async function resolveCodeFill(input: {
       await move(runCodeSpentKind(input.runId), runCodeKind(input.runId));
     },
   };
-}
-
-/**
- * One field of a saved card for browser_act fill_card, only on `site`: the checkout the person
- * approved typing this card into. The caller passes the returned origin to the page browser,
- * which refuses to fill unless the page is still on it. The number's forms are returned for the
- * run to hide; later runs hide them too, through loadLoginPasswordRedactions.
- */
-export async function resolveVaultCardFill(input: {
-  prisma: PrismaClient;
-  secretStore: Pick<SecretStore, "load">;
-  scope: BotSecretScope;
-  name: string;
-  field: PurchaseCardField;
-  site: string;
-  /** When the approved card was last saved; a card replaced since then is not typed. */
-  savedAt: string;
-}): Promise<{ text: string; origin: string; redactions: string[] } | { error: string }> {
-  const target = OneTimeCodeTarget.safeParse({ origin: input.site });
-  if (!target.success) return { error: "site must be the checkout page's HTTPS origin." };
-  const vault = await vaultFields(input.prisma, input.scope);
-  const row = await input.prisma.vaultCredential.findFirst({
-    where: { ...vault, name: input.name },
-  });
-  if (!row || BotSecretAuth.safeParse(row.auth).data?.type !== "card") {
-    return { error: "No card is saved under this name. Check list_secrets." };
-  }
-  if (row.updatedAt.toISOString() !== input.savedAt) {
-    return {
-      error:
-        "This card changed after the user approved it, so nothing was typed. Call browser_act again to ask them.",
-    };
-  }
-  const card = decodeCardSecret(await input.secretStore.load(row.ciphertext, row.id));
-  const origin = new URL(target.data.origin).origin;
-  const redactions = cardRedactionForms(card.number);
-  if (input.field === "number") return { text: card.number, origin, redactions };
-  if (input.field === "expiry") return { text: cardExpiry(card), origin, redactions };
-  if (input.field === "cvc") {
-    // Only the number is hidden, as for a wallet card: hiding 3 or 4 digits would blank every total
-    // and order number that contains them for the rest of the run.
-    return card.cvc
-      ? { text: card.cvc, origin, redactions }
-      : { error: "This card has no security code saved." };
-  }
-  const billing = card.billing
-    ? await input.prisma.vaultCredential.findFirst({ where: { ...vault, name: card.billing } })
-    : null;
-  const postalCode =
-    billing && BotSecretAuth.safeParse(billing.auth).data?.type === "contact"
-      ? decodeContactSecret(await input.secretStore.load(billing.ciphertext, billing.id)).postalCode
-      : undefined;
-  return postalCode
-    ? { text: postalCode, origin, redactions }
-    : {
-        error:
-          "This card has no billing postal code saved. Type the postal code of the user's billing address yourself.",
-      };
 }

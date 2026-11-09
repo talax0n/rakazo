@@ -18,7 +18,6 @@ import {
   newSiteOutcome,
   outboundSiteGate,
   planActionGate,
-  receiptItems,
   repeatsDeniedAction,
   resolveActionApproval,
   resolveActionApprovalDetail,
@@ -71,9 +70,6 @@ describe("toolRequiresApproval", () => {
     expect(toolRequiresApproval("cloud_agent_launch", false)).toBe(true);
     expect(toolRequiresApproval("create_space", false)).toBe(true);
     expect(toolRequiresExplicitApproval("create_space")).toBe(true);
-    // The wallet owner approves every purchase on the provider's side.
-    expect(toolRequiresApproval("request_purchase", false)).toBe(false);
-    expect(toolRequiresApproval("purchase_status", false)).toBe(false);
     expect(toolRequiresExplicitApproval("save_shared_memory")).toBe(false);
     expect(toolRequiresExplicitApproval("archive_bot")).toBe(false);
   });
@@ -224,7 +220,7 @@ describe("isOwnerStartedRun", () => {
 
 describe("unattendedTriggerToolRequiresApproval", () => {
   it("forces approval for webhook-triggered local side effects", () => {
-    for (const name of ["shell", "write_file", "browser_act", "computer_act", "request_purchase"]) {
+    for (const name of ["shell", "write_file", "browser_act", "computer_act"]) {
       expect(unattendedTriggerToolRequiresApproval("webhook", name, false)).toBe(true);
     }
   });
@@ -238,7 +234,6 @@ describe("unattendedTriggerToolRequiresApproval", () => {
       "request_takeover",
       "run_subagent",
       "list_fleet",
-      "purchase_status",
     ]) {
       expect(unattendedTriggerToolRequiresApproval("webhook", name, false)).toBe(false);
     }
@@ -509,15 +504,6 @@ describe("planActionGate", () => {
       expect(gate(mode, { resolved: blocked })).toBe("deny");
       expect(gate(mode, { resolved: blocked, mandatory: true })).toBe("deny");
       expect(gate(mode, { resolved: blocked, consequential: false })).toBe("deny");
-    }
-  });
-
-  it("asks for a purchase in every mode, past an allow rule, and still refuses a block", () => {
-    for (const mode of ["never", "auto", "ask"] as const) {
-      expect(gate(mode, { purchase: true, consequential: false })).toBe("ask");
-      expect(gate(mode, { purchase: true, resolved: allowed })).toBe("ask");
-      expect(gate(mode, { purchase: true, mandatory: true, steerable: true })).toBe("ask");
-      expect(gate(mode, { purchase: true, resolved: blocked })).toBe("deny");
     }
   });
 
@@ -1041,22 +1027,6 @@ describe("repeatsDeniedAction", () => {
       repeatsDeniedAction({ toolName: WRAPPER, args: args("GMAIL_SEND_DRAFT"), denied: [sent] }),
     ).toBe(false);
     expect(repeatsDeniedAction({ toolName: WRAPPER, args: {}, denied: [sent] })).toBe(false);
-  });
-});
-
-describe("receiptItems", () => {
-  it("leaves out page lines named like the card's own rows, in the app's words", () => {
-    const items = [
-      { name: "Bananas", amount: "$3.00" },
-      { name: " gesamt ", amount: "$1.00" },
-      { name: "Gesamt: fällig", amount: "$1.00" },
-      { name: "Gesamtpaket Socken", amount: "$9.00" },
-      { name: "Auf der Schaltfläche", amount: "$1.00" },
-    ];
-    expect(receiptItems(items, ["Gesamt", "Auf der Schaltfläche"])).toEqual([
-      { name: "Bananas", amount: "$3.00" },
-      { name: "Gesamtpaket Socken", amount: "$9.00" },
-    ]);
   });
 });
 
