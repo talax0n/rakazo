@@ -53,12 +53,12 @@ const context = {
 } satisfies AdapterContext;
 
 describe("computer provisioning", () => {
-  it("provisions a Private Computer with Wuying selected", async () => {
+  it("provisions a Private Computer with a desktop provider selected", async () => {
     const dataDir = await mkdtemp(path.join(tmpdir(), "rakazo-private-provision-"));
     const ref: ComputerRef = {
       id: "computer-1",
       botId: "bot-1",
-      kind: "wuying",
+      kind: "desktop",
       providerRef: "ecd-fake",
     };
     const prisma = {
@@ -79,7 +79,7 @@ describe("computer provisioning", () => {
     } as unknown as PrismaClient;
     const provision = vi.fn().mockResolvedValue(ref);
     const sandbox = {
-      describe: () => ({ id: "wuying" }),
+      describe: () => ({ id: "desktop" }),
       provision,
       prepare: vi.fn().mockResolvedValue(undefined),
     } as unknown as SandboxProvider;
@@ -1069,20 +1069,20 @@ describe("computer provisioning", () => {
   );
 
   it.each([
-    { stage: "prepare", rollbackFails: false, providerRef: "provider-2", kind: "e2b" },
-    { stage: "restore", rollbackFails: false, providerRef: "provider-2", kind: "e2b" },
-    { stage: "record", rollbackFails: false, providerRef: "provider-2", kind: "e2b" },
-    { stage: "restore", rollbackFails: true, providerRef: "provider-2", kind: "e2b" },
-    { stage: "restore", rollbackFails: true, providerRef: "provider-2", kind: "boat" },
-    { stage: "restore", rollbackFails: true, providerRef: "provider-1", kind: "e2b" },
+    { stage: "prepare", rollbackFails: false, providerRef: "provider-2", kind: "desktop" },
+    { stage: "restore", rollbackFails: false, providerRef: "provider-2", kind: "desktop" },
+    { stage: "record", rollbackFails: false, providerRef: "provider-2", kind: "desktop" },
+    { stage: "restore", rollbackFails: true, providerRef: "provider-2", kind: "desktop" },
+    { stage: "restore", rollbackFails: true, providerRef: "provider-2", kind: "fake" },
+    { stage: "restore", rollbackFails: true, providerRef: "provider-1", kind: "desktop" },
     // A new machine under the stored name: the original is gone, so the computer is marked.
-    { stage: "restore", rollbackFails: false, providerRef: "provider-1", kind: "boat" },
-    { stage: "prepare", rollbackFails: true, providerRef: "provider-1", kind: "boat" },
-    { stage: "mark", rollbackFails: true, providerRef: "provider-1", kind: "boat" },
+    { stage: "restore", rollbackFails: false, providerRef: "provider-1", kind: "fake" },
+    { stage: "prepare", rollbackFails: true, providerRef: "provider-1", kind: "fake" },
+    { stage: "mark", rollbackFails: true, providerRef: "provider-1", kind: "fake" },
   ] as const)(
     "handles a failed reconnect $stage (rollbackFails=$rollbackFails, replacement $kind/$providerRef)",
     async ({ stage, rollbackFails, providerRef, kind }) => {
-      const sameName = providerRef === "provider-1" && kind === "boat";
+      const sameName = providerRef === "provider-1" && kind === "fake";
       const dataDir = await mkdtemp(path.join(tmpdir(), "rakazo-reconnect-rollback-"));
       const failure = new Error(`${stage} failed`);
       const rollbackError = new Error("replacement deletion failed");
@@ -1090,7 +1090,7 @@ describe("computer provisioning", () => {
         id: "computer-1",
         homeKey: "bot-1",
         providerRef: "provider-1",
-        kind: "boat",
+        kind: "fake",
         scope: "dedicated",
         state: "running",
         controlLeaseId: null,
@@ -1149,7 +1149,7 @@ describe("computer provisioning", () => {
             id: "computer-1",
             state: "booting",
             providerRef: "provider-1",
-            kind: "boat",
+            kind: "fake",
             updatedAt: expect.any(Date),
           },
           data: sameName ? { state: "error", restorePending: true } : { state: "running" },
@@ -1171,7 +1171,7 @@ describe("computer provisioning", () => {
         }
         expect(original).toMatchObject({
           state: "running",
-          kind: "boat",
+          kind: "fake",
           providerRef: "provider-1",
         });
       } finally {
@@ -1187,7 +1187,7 @@ describe("computer provisioning", () => {
       id: "computer-1",
       homeKey: "bot-1",
       providerRef: "provider-1",
-      kind: "boat",
+      kind: "fake",
       scope: "dedicated",
       state: "running",
       controlLeaseId: null,
@@ -1196,7 +1196,7 @@ describe("computer provisioning", () => {
     const ref = {
       id: "provider-2",
       botId: "bot-1",
-      kind: "e2b" as const,
+      kind: "fake" as const,
       providerRef: "provider-2",
       fresh: false,
     };
@@ -1245,7 +1245,7 @@ describe("computer provisioning", () => {
     const resumed = {
       id: "provider-1",
       botId: "bot-1",
-      kind: "boat" as const,
+      kind: "fake" as const,
       providerRef: "provider-1",
     };
     const replacement = { ...resumed, fresh: true };
@@ -1256,7 +1256,7 @@ describe("computer provisioning", () => {
           id: "computer-1",
           homeKey: "bot-1",
           providerRef: "provider-1",
-          kind: "boat",
+          kind: "fake",
           scope: "dedicated",
           state: "running",
           controlLeaseId: null,
@@ -1313,7 +1313,7 @@ describe("computer provisioning", () => {
     const ref = {
       ...(await sandbox.provision({ botId: "bot-1", homePath: dataDir }, context)),
       providerRef: "provider-1",
-      kind: "boat" as const,
+      kind: "fake" as const,
       fresh: true,
     };
     vi.spyOn(sandbox, "provision").mockResolvedValue(ref);
@@ -1324,7 +1324,7 @@ describe("computer provisioning", () => {
           id: "computer-1",
           homeKey: "bot-1",
           providerRef: "provider-1",
-          kind: "boat",
+          kind: "fake",
           scope: "dedicated",
           state: "running",
           controlLeaseId: null,
@@ -1359,12 +1359,12 @@ describe("computer provisioning", () => {
   });
 
   it.each([
-    { kind: "e2b" as const, providerRef: "provider-2", fresh: true, state: "running" },
-    { kind: "boat" as const, providerRef: "provider-2", fresh: false, state: "running" },
-    { kind: "e2b" as const, providerRef: "provider-1", fresh: false, state: "running" },
-    { kind: "boat" as const, providerRef: "provider-1", fresh: true, state: "running" },
+    { kind: "desktop" as const, providerRef: "provider-2", fresh: true, state: "running" },
+    { kind: "fake" as const, providerRef: "provider-2", fresh: false, state: "running" },
+    { kind: "desktop" as const, providerRef: "provider-1", fresh: false, state: "running" },
+    { kind: "fake" as const, providerRef: "provider-1", fresh: true, state: "running" },
     // Taking over an abandoned boot: the provider resumes the same machine, which may be part-way.
-    { kind: "boat" as const, providerRef: "provider-1", fresh: false, state: "booting" },
+    { kind: "fake" as const, providerRef: "provider-1", fresh: false, state: "booting" },
   ])(
     "restores saved files before starting $kind/$providerRef (fresh=$fresh) from $state",
     async ({ state, ...next }) => {
@@ -1386,7 +1386,7 @@ describe("computer provisioning", () => {
             id: "computer-1",
             homeKey: "bot-1",
             providerRef: "provider-1",
-            kind: "boat",
+            kind: "fake",
             scope: "dedicated",
             state,
             controlLeaseId: null,
@@ -1445,7 +1445,7 @@ describe("computer provisioning", () => {
             id: "computer-1",
             state: "booting",
             providerRef: "provider-1",
-            kind: "boat",
+            kind: "fake",
             updatedAt: expect.any(Date),
             bots: { some: { id: "bot-1", archivedAt: null } },
           },
@@ -1458,7 +1458,7 @@ describe("computer provisioning", () => {
           .mock.calls.filter(([args]) => args.data.restorePending === true);
         if (
           state === "booting" ||
-          (next.fresh && next.providerRef === "provider-1" && next.kind === "boat")
+          (next.fresh && next.providerRef === "provider-1" && next.kind === "fake")
         ) {
           expect(marks).toEqual([
             [
@@ -1468,7 +1468,7 @@ describe("computer provisioning", () => {
                   state: "booting",
                   updatedAt: expect.any(Date),
                   providerRef: "provider-1",
-                  kind: "boat",
+                  kind: "fake",
                   maintenanceId: null,
                 },
                 data: { restorePending: true, updatedAt: expect.any(Date) },
@@ -1516,7 +1516,7 @@ describe("computer provisioning", () => {
     const ref = await sandbox.provision({ botId: "bot-1", homePath: dataDir }, context);
     const provision = vi
       .spyOn(sandbox, "provision")
-      .mockResolvedValue({ ...ref, kind: "boat", providerRef: "provider-1", fresh: false });
+      .mockResolvedValue({ ...ref, kind: "fake", providerRef: "provider-1", fresh: false });
     const prisma = {
       computer: {
         findUniqueOrThrow: vi.fn().mockResolvedValue({
@@ -1525,7 +1525,7 @@ describe("computer provisioning", () => {
           homeRevision: row.homeRevision,
           homeRevisionAt: row.homeRevisionAt,
           providerRef: "provider-1",
-          kind: "boat",
+          kind: "fake",
           scope: "dedicated",
           state: "running",
           controlLeaseId: null,
@@ -1698,7 +1698,7 @@ describe("computer provisioning", () => {
       const ref = {
         id: "new-provider-1",
         botId: "bot-1",
-        kind: "e2b" as const,
+        kind: "fake" as const,
         providerRef: "new-provider-1",
         fresh: true,
       };
@@ -1709,7 +1709,7 @@ describe("computer provisioning", () => {
             id: "computer-1",
             homeKey: "bot-1",
             providerRef: reconnecting ? "old-provider" : null,
-            kind: "e2b",
+            kind: "fake",
             scope: "dedicated",
             state: reconnecting ? "running" : "stopped",
             controlLeaseId: null,
@@ -1746,13 +1746,13 @@ describe("computer provisioning", () => {
             id: "computer-1",
             state: "booting",
             providerRef: reconnecting ? "old-provider" : null,
-            kind: "e2b",
+            kind: "fake",
             updatedAt: expect.any(Date),
           },
           data: {
             state: unsafeStop ? "quarantined" : "error",
             providerRef: "new-provider-1",
-            kind: "e2b",
+            kind: "fake",
             restorePending: true,
           },
         });
@@ -1772,7 +1772,7 @@ describe("computer provisioning", () => {
           id: "computer-1",
           homeKey: "bot-1",
           providerRef: null,
-          kind: "e2b",
+          kind: "fake",
           scope: "dedicated",
           state: "stopped",
           controlLeaseId: null,
@@ -1785,7 +1785,7 @@ describe("computer provisioning", () => {
       provision: vi.fn().mockResolvedValue({
         id: "new-provider-1",
         botId: "bot-1",
-        kind: "e2b",
+        kind: "fake",
         providerRef: "new-provider-1",
         fresh: true,
       }),
@@ -1813,7 +1813,7 @@ describe("computer provisioning", () => {
           data: expect.objectContaining({
             state: "error",
             providerRef: "new-provider-1",
-            kind: "e2b",
+            kind: "fake",
           }),
         }),
       );
@@ -1895,7 +1895,7 @@ describe("computer provisioning", () => {
     const ref = {
       id: "provider-2",
       botId: "bot-1",
-      kind: "createos" as const,
+      kind: "fake" as const,
       providerRef: "provider-2",
       fresh: true,
     };
@@ -1908,7 +1908,7 @@ describe("computer provisioning", () => {
           id: "computer-1",
           homeKey: "bot-1",
           providerRef: "provider-1",
-          kind: "createos",
+          kind: "fake",
           scope: "dedicated",
           state: "running",
           controlLeaseId: null,
@@ -1948,7 +1948,7 @@ describe("computer provisioning", () => {
           data: expect.objectContaining({
             state: "running",
             providerRef: "provider-2",
-            kind: "createos",
+            kind: "fake",
           }),
         }),
       );
@@ -1972,7 +1972,7 @@ describe("Team Computer wake", () => {
     const ref = {
       id: "sandbox-1",
       botId: "team-workspace-1",
-      kind: "e2b" as const,
+      kind: "fake" as const,
       providerRef: "sandbox-1",
       fresh: false,
       ...provisioned,
@@ -1989,7 +1989,7 @@ describe("Team Computer wake", () => {
           spaceId: "workspace-1",
           homeKey: "team-workspace-1",
           providerRef: "sandbox-1",
-          kind: "e2b",
+          kind: "fake",
           scope: "team",
           state,
           controlLeaseId: null,
@@ -2055,7 +2055,7 @@ describe("Team Computer wake", () => {
         }),
       },
       // $10 of a $50 plan, at the default $0.10 an hour.
-      $queryRaw: vi.fn().mockResolvedValue([{ kind: "e2b", hours: 100 }]),
+      $queryRaw: vi.fn().mockResolvedValue([{ kind: "fake", hours: 100 }]),
     });
 
     await expect(boot(harness)).rejects.toBeInstanceOf(SandboxAllowanceUsedError);
@@ -2137,7 +2137,7 @@ describe("Team Computer wake", () => {
           computerId: "computer-1",
           spaceId: "workspace-1",
           userId: "user-1",
-          kind: "e2b",
+          kind: "fake",
           providerRef: "sandbox-1",
           startedAt,
         },
@@ -2858,9 +2858,8 @@ function leasePrisma(options: {
 
 describe("computer replacement", () => {
   it("exposes update availability by sandbox kind", () => {
-    expect(computerSupportsUpdate("e2b")).toBe(true);
+    expect(computerSupportsUpdate("fake")).toBe(true);
     expect(computerSupportsUpdate("desktop")).toBe(false);
-    expect(computerSupportsUpdate("wuying")).toBe(false);
     expect(computerSupportsUpdate("none")).toBe(false);
   });
 
@@ -4131,8 +4130,8 @@ function replaceDeps(
 }
 
 describe("computer terminal capability", () => {
-  it("allows Novita terminals through the product capability gate", () => {
-    expect(computerSupportsTerminal("novita")).toBe(true);
+  it("allows terminals only on kinds the shared screen gateway serves", () => {
+    expect(computerSupportsTerminal("fake")).toBe(true);
     expect(computerSupportsTerminal("unknown")).toBe(false);
     expect(computerSupportsTerminal("none")).toBe(false);
   });

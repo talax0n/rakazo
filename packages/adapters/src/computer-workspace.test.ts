@@ -270,78 +270,6 @@ describe("provider-neutral computer workspace", () => {
   });
 });
 
-describe("mounted Kubernetes homes", () => {
-  function kubernetesSandbox(persistentHome: boolean, mountedHome = persistentHome) {
-    const importWorkspace = vi.fn(async () => undefined);
-    const exportWorkspace = vi.fn(async function* () {});
-    const sandbox = {
-      describe: () => ({
-        id: "kubernetes",
-        contractVersion: "1",
-        adapterVersion: "test",
-        capabilities: {
-          graphical: true,
-          pty: true,
-          snapshots: true,
-          takeover: true,
-          persistentHome,
-          multiScreen: true,
-        },
-      }),
-      hasMountedHome: vi.fn(async () => mountedHome),
-      importWorkspace,
-      exportWorkspace,
-    } as unknown as SandboxProvider;
-    return { sandbox, importWorkspace, exportWorkspace };
-  }
-  const computer: ComputerRef = {
-    id: "pod",
-    botId: "bot-1",
-    kind: "kubernetes",
-    providerRef: "pod",
-  };
-
-  it("skips the copy when the pod mounts the local home", async () => {
-    const root = await mkdtemp(path.join(tmpdir(), "rakazo-workspace-store-"));
-    roots.push(root);
-    const home = new LocalAgentHomeStore(root);
-    const { sandbox, importWorkspace, exportWorkspace } = kubernetesSandbox(true);
-
-    await restoreComputerWorkspace(home, sandbox, "bot-1", computer, context);
-    const revision = await checkpointComputerWorkspace(home, sandbox, "bot-1", computer, context);
-
-    expect(importWorkspace).not.toHaveBeenCalled();
-    expect(exportWorkspace).not.toHaveBeenCalled();
-    expect(revision).toMatch(/^rev-/);
-  });
-
-  it("saves a legacy pod even after persistent homes have been enabled", async () => {
-    const root = await mkdtemp(path.join(tmpdir(), "rakazo-workspace-store-"));
-    roots.push(root);
-    const home = new LocalAgentHomeStore(root);
-    const { sandbox, exportWorkspace } = kubernetesSandbox(true, false);
-    exportWorkspace.mockImplementation(async function* () {
-      yield { path: "latest.txt", content: Buffer.from("latest bytes") };
-    } as never);
-    await checkpointComputerWorkspace(home, sandbox, "bot-1", computer, context);
-    expect(await home.readFile("bot-1", "latest.txt", context)).toBe("latest bytes");
-    expect(exportWorkspace).toHaveBeenCalledOnce();
-  });
-
-  it("copies the home in and out when the pod has no mounted home", async () => {
-    const root = await mkdtemp(path.join(tmpdir(), "rakazo-workspace-store-"));
-    roots.push(root);
-    const home = new LocalAgentHomeStore(root);
-    const { sandbox, importWorkspace, exportWorkspace } = kubernetesSandbox(false);
-
-    await restoreComputerWorkspace(home, sandbox, "bot-1", computer, context);
-    await checkpointComputerWorkspace(home, sandbox, "bot-1", computer, context);
-
-    expect(importWorkspace).toHaveBeenCalledOnce();
-    expect(exportWorkspace).toHaveBeenCalledOnce();
-  });
-});
-
 describe("Team run checkpoints", () => {
   it("defers a remote export when another run prevents an exclusive checkpoint", async () => {
     const { checkpointRunComputerWorkspace } = await import("./computer-workspace.js");
@@ -361,7 +289,7 @@ describe("Team run checkpoints", () => {
     const result = await checkpointRunComputerWorkspace(
       deps as never,
       { id: "team", homeKey: "team", scope: "team", spaceId: "workspace-1" },
-      { id: "remote", providerRef: "remote", kind: "e2b", botId: "team" },
+      { id: "remote", providerRef: "remote", kind: "desktop", botId: "team" },
       { ...context, botId: "writer", screenLeaseId: "run-a:2" },
     );
     expect(result).toBeUndefined();
@@ -401,7 +329,7 @@ describe("Team run checkpoints", () => {
       checkpointRunComputerWorkspace(
         deps as never,
         { id: "team", homeKey: "team", scope: "team", spaceId: "workspace-1" },
-        { id: "remote", providerRef: "remote", kind: "boat", botId: "team" },
+        { id: "remote", providerRef: "remote", kind: "fake", botId: "team" },
         { ...context, botId: "writer", screenLeaseId: "run-a:2" },
       ),
     ).rejects.toThrow("export failed");
@@ -417,7 +345,12 @@ describe("Team run checkpoints", () => {
 
 describe("checkpointAndStopComputer", () => {
   const record = { id: "computer-1", homeKey: "home-1", scope: "dedicated", spaceId: "space-1" };
-  const ref: ComputerRef = { id: "boat-1", providerRef: "boat-1", kind: "boat", botId: "home-1" };
+  const ref: ComputerRef = {
+    id: "sandbox-1",
+    providerRef: "sandbox-1",
+    kind: "fake",
+    botId: "home-1",
+  };
 
   function sandboxFailingWith(error: Error) {
     return {
@@ -496,7 +429,7 @@ describe("Team bot folder cleanup", () => {
   const computer: ComputerRef = {
     id: "sandbox-1",
     botId: "team-workspace",
-    kind: "createos",
+    kind: "fake",
     providerRef: "sandbox-1",
   };
 

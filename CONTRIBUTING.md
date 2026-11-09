@@ -34,7 +34,6 @@ Run `pnpm install --frozen-lockfile` when you need to run or test the worktree.
 | `pnpm test:pi` | Real Pi against a local HTTP model fixture: streaming, tool round trips, failures and cancellation. No keys. |
 | `pnpm test:computer-replay` | Real Pi and Docker Chromium against a local model fixture. Needs the computer image; no keys or Electron windows. |
 | `pnpm test:evals --list` | List agent-quality cases. Add `--live` and a model connection to measure repeated real-model task success. |
-| `pnpm test:computer` | Real vision model + E2B desktop. Needs keys; see [computer verification](docs/computer-runtime.md#verification). Not PR CI. |
 | `pnpm check` | TypeScript (`tsc`) across the monorepo. |
 | `pnpm lint` | Biome lint and format check. |
 
@@ -78,24 +77,6 @@ scope and test those changes explicitly instead of assuming the web catalog cove
 
 See [agent verification](docs/agent-verification.md) for the distinction between
 deterministic execution tests, computer replay, and real-model quality evals.
-
-## Optional live-provider checks
-
-The default Playwright suite uses the fake sandbox. To run the same scripted-agent suite against
-real computers, set the matching `E2B_API_KEY`, `NOVITA_API_KEY`, `DAYTONA_API_KEY`, `BOAT_API_KEY`, or `BOXD_API_KEY` and choose a provider:
-
-```bash
-pnpm test:e2e -- --sandbox=e2b
-pnpm test:e2e -- --sandbox=novita
-pnpm test:e2e -- --sandbox=daytona
-pnpm test:e2e -- --sandbox=boat
-pnpm test:e2e -- --sandbox=boxd
-```
-
-For Novita, build the [computer template](docs/self-host-sandbox-providers.md#novita-computer-template) first.
-These runs provision real machines and destroy them after the suite. CI always uses `fake`.
-For the separate real-model desktop acceptance test, see
-[computer verification](docs/computer-runtime.md#verification).
 
 ## Secrets and configuration
 

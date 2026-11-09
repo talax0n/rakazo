@@ -109,79 +109,10 @@ describe("loadEnv", () => {
     ).toBe("https://catalog.example.test/feed");
   });
 
-  it("falls back to none when a remote provider key is missing", () => {
-    expect(
-      loadEnv({
-        ...base,
-        SANDBOX_PROVIDER: "e2b",
-      }).sandboxProvider,
-    ).toBe("none");
-    expect(
-      loadEnv({
-        ...base,
-        SANDBOX_PROVIDER: "createos",
-      }).sandboxProvider,
-    ).toBe("none");
-    expect(
-      loadEnv({
-        ...base,
-        SANDBOX_PROVIDER: "none",
-      }).sandboxProvider,
-    ).toBe("none");
-    expect(
-      loadEnv({
-        ...base,
-        SANDBOX_PROVIDER: "",
-      }).sandboxProvider,
-    ).toBe("none");
-  });
-
-  it("loads provider-specific Daytona configuration", () => {
-    const env = loadEnv({
-      ...base,
-      SANDBOX_PROVIDER: "daytona",
-      DAYTONA_API_KEY: "test-daytona-key",
-      DAYTONA_API_URL: "https://daytona.test/api",
-      DAYTONA_TARGET: "test-target",
-    });
-    expect(env).toMatchObject({
-      sandboxProvider: "daytona",
-      daytonaApiKey: "test-daytona-key",
-      daytonaApiUrl: "https://daytona.test/api",
-      daytonaTarget: "test-target",
-    });
-  });
-
-  it("loads Novita credentials and the shared sandbox template", () => {
-    expect(
-      loadEnv({
-        ...base,
-        SANDBOX_PROVIDER: "novita",
-        NOVITA_API_KEY: "test-novita-key",
-        SANDBOX_TEMPLATE: "custom-desktop",
-      }),
-    ).toMatchObject({
-      sandboxProvider: "novita",
-      novitaApiKey: "test-novita-key",
-      sandboxTemplate: "custom-desktop",
-    });
-    expect(
-      loadEnv({ ...base, SANDBOX_PROVIDER: "novita", E2B_API_KEY: "test-e2b-key" }).sandboxProvider,
-    ).toBe("none");
-  });
-
-  it("loads provider-specific Boat configuration", () => {
-    const env = loadEnv({
-      ...base,
-      SANDBOX_PROVIDER: "boat",
-      BOAT_API_KEY: "test-boat-key",
-      BOAT_API_URL: "https://boat.test/api/v1",
-    });
-    expect(env).toMatchObject({
-      sandboxProvider: "boat",
-      boatApiKey: "test-boat-key",
-      boatApiUrl: "https://boat.test/api/v1",
-    });
+  it("keeps none, reads an empty provider as none, and leaves a removed provider for startup to refuse", () => {
+    expect(loadEnv({ ...base, SANDBOX_PROVIDER: "none" }).sandboxProvider).toBe("none");
+    expect(loadEnv({ ...base, SANDBOX_PROVIDER: "" }).sandboxProvider).toBe("none");
+    expect(loadEnv({ ...base, SANDBOX_PROVIDER: "e2b" }).sandboxProvider).toBe("e2b");
   });
 
   it("throws when production omits secrets", () => {
@@ -213,7 +144,7 @@ describe("loadEnv", () => {
       BETTER_AUTH_SECRET: "prod-auth-secret-with-enough-length",
       ENCRYPTION_KEY: "prod-encryption-key-with-enough-length",
       SCREEN_PROXY_SECRET: "prod-screen-proxy-secret-with-enough-length",
-      SANDBOX_PROVIDER: "e2b",
+      SANDBOX_PROVIDER: "none",
       API_HOST: "0.0.0.0",
     });
     expect(env.authSecret).toBe("prod-auth-secret-with-enough-length");
@@ -230,7 +161,7 @@ describe("loadEnv", () => {
       BETTER_AUTH_SECRET: "prod-auth-secret-with-enough-length",
       ENCRYPTION_KEY: "prod-encryption-key-with-enough-length",
       SCREEN_PROXY_SECRET: "prod-screen-proxy-secret-with-enough-length",
-      SANDBOX_PROVIDER: "e2b",
+      SANDBOX_PROVIDER: "none",
     };
     expect(loadEnv(production).contentEncryption).toBe(true);
     expect(loadEnv({ ...production, CONTENT_ENCRYPTION: "off" }).contentEncryption).toBe(false);

@@ -1,9 +1,0 @@
-{
-  "$schema": "https://turbo.build/schema.json",
-  "extends": ["//"],
-  "tasks": {
-    "check": {
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/infra/railway/sandbox-environment.*"]
-    }
-  }
-}

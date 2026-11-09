@@ -36,9 +36,6 @@ const SOURCES = {
   worker: ["apps/worker/src", ...SHARED_SOURCES],
 } as const;
 
-const KUBERNETES_SANDBOX =
-  "SANDBOX_PROVIDER=kubernetes runs the api and worker in a cluster, not Compose";
-
 /** Read by code but never passed to the api or worker containers, with the reason. */
 const NOT_PASSED: Record<string, string> = {
   VITEST: "set by the test runner",
@@ -58,17 +55,6 @@ const NOT_PASSED: Record<string, string> = {
   RAKAZO_IMAGE_TAG: "read by deployment tooling and the updater sidecar, not app processes",
   RAKAZO_DEPLOYED_MIGRATIONS: "passed only to the migration CLI by the production deploy script",
   RAKAZO_IMAGE_TAG_PREVIOUS: "read by the updater sidecar, which has its own environment",
-  KUBERNETES_SANDBOX_COMPUTER_IMAGE: KUBERNETES_SANDBOX,
-  KUBERNETES_SANDBOX_HOME_CLAIM: KUBERNETES_SANDBOX,
-  KUBERNETES_SANDBOX_HOME_COLOCATE_LABELS: KUBERNETES_SANDBOX,
-  KUBERNETES_SANDBOX_HOME_COLOCATE_NAMESPACE: KUBERNETES_SANDBOX,
-  KUBERNETES_SANDBOX_CPU_LIMIT: KUBERNETES_SANDBOX,
-  KUBERNETES_SANDBOX_MEMORY_LIMIT: KUBERNETES_SANDBOX,
-  KUBERNETES_SANDBOX_NAMESPACE: KUBERNETES_SANDBOX,
-  KUBERNETES_SANDBOX_POD_ANNOTATIONS: KUBERNETES_SANDBOX,
-  KUBERNETES_SANDBOX_POD_LABELS: KUBERNETES_SANDBOX,
-  KUBERNETES_SANDBOX_READY_TIMEOUT_MS: KUBERNETES_SANDBOX,
-  KUBERNETES_SANDBOX_RUNTIME_CLASS_NAME: KUBERNETES_SANDBOX,
 };
 
 /**
@@ -198,7 +184,12 @@ describe("api and worker environment allowlists", () => {
   it("finds the reads it is meant to find", () => {
     const api = expectedKeys("api");
     const worker = expectedKeys("worker");
-    for (const key of ["DATABASE_URL", "ENCRYPTION_KEY", "OPENROUTER_API_KEY", "E2B_API_KEY"]) {
+    for (const key of [
+      "DATABASE_URL",
+      "ENCRYPTION_KEY",
+      "OPENROUTER_API_KEY",
+      "SANDBOX_SUPERVISOR_TOKEN",
+    ]) {
       expect(api).toContain(key);
       expect(worker).toContain(key);
     }

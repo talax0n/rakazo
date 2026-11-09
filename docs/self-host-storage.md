@@ -128,7 +128,7 @@ note in each bot’s thread asks you to remove large or unneeded files. The work
 `computer.sleep_deferred` with reason `too_large` or `too_many_files`. Saves leave out rebuildable
 caches, dependencies (`node_modules` and `.venv`), build output (`.next` and `.turbo`), logs and
 core dump files. These files stay on the running computer but are absent on a fresh restore.
-Docker, Kubernetes and Railway put tool caches under `/tmp/rakazo-cache`, outside the saved home.
+Docker computers put tool caches under `/tmp/rakazo-cache`, outside the saved home.
 Staging left by a killed process is removed at startup and by the worker within minutes.
 
 ### Moving existing homes

@@ -167,7 +167,6 @@ describe("desktop session permissions", () => {
   it.each([
     // The screen frame serves the bot computer's own page, so it must never read the host clipboard.
     ["the screen frame", new URL("/novnc/embed.html?path=x", appUrl).href, false],
-    ["the embedded screen", new URL("/computer-screen/screen.html", appUrl).href, false],
     ["the main frame", appUrl, true],
     ["another app path", new URL("/chat/frame", appUrl).href, false],
     ["another origin", "https://provider.example.test/novnc/embed.html", false],

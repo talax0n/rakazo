@@ -186,7 +186,7 @@ describe("computer recovery preserves live work", () => {
     const { deps, row, root } = await fixture();
     row.state = "stopped";
     row.providerRef = null;
-    row.kind = "e2b";
+    row.kind = "desktop";
     const own = deps.sandbox.describe();
     vi.spyOn(deps.sandbox, "describe").mockReturnValue({ ...own, id: "docker" });
     const home = objectHome(root);

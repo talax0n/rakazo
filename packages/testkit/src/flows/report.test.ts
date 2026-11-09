@@ -26,7 +26,7 @@ const result: FlowResult = {
 
 describe("flow HTML report", () => {
   it("interleaves chat and screen frames in time order, escaping app text", () => {
-    const page = htmlReport({ ...result, sandbox: "boat" }, undefined);
+    const page = htmlReport({ ...result, sandbox: "docker" }, undefined);
     expect(page).toContain("Do my shop &lt;b&gt;now&lt;/b&gt;");
     expect(page).toContain("Done &amp; dusted");
     const order = ["Do my shop", "frames/0001.png", "Done &amp; dusted"].map((text) =>

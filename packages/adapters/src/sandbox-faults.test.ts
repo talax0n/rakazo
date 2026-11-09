@@ -2,22 +2,12 @@ import { mkdtemp, realpath, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import type { PortableFile, SandboxProvider, StreamedPortableFile } from "@rakazo/adapter-kit";
-import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
-import {
-  fakeBoatProvider as fakeBoat,
-  routeFakeBoatDownloads,
-} from "./boat-sandbox.test-support.js";
+import { afterEach, describe, expect, it } from "vitest";
 import { DesktopSandboxProvider } from "./desktop-sandbox.js";
 import { FakeSandboxProvider } from "./fake-sandbox.js";
 import { HostComputerSandbox } from "./host-computer-sandbox.js";
 import { startHostComputerServer } from "./host-computer-server.js";
 import { provisionPrepared } from "./sandbox-test-support.js";
-
-let restoreFetch: () => void;
-beforeAll(() => {
-  restoreFetch = routeFakeBoatDownloads();
-});
-afterAll(() => restoreFetch());
 
 const context = {
   operationId: "sandbox-fault-test",
@@ -55,7 +45,6 @@ describe.each([
     },
   ],
   ["fake", () => Promise.resolve(new FakeSandboxProvider())],
-  ["Boat over a fake API", () => Promise.resolve(fakeBoat())],
   [
     "desktop",
     async () => {
@@ -310,7 +299,6 @@ async function providerSet(label: string): Promise<Array<[string, SandboxProvide
   temporaryRoots.push(root);
   return [
     ["fake", new FakeSandboxProvider()],
-    ["boat", fakeBoat()],
     ["desktop", new DesktopSandboxProvider({ root: await realpath(root) })],
   ];
 }

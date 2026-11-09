@@ -1,7 +1,6 @@
 import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
-import { FetchError } from "@boatdev/sdk";
 import type { AgentHomeStore, JobPublisher, SandboxProvider } from "@rakazo/adapter-kit";
 import {
   SandboxDamagedError,
@@ -13,7 +12,6 @@ import {
 import type { PrismaClient, ThreadEvents } from "@rakazo/db";
 import { createLogger, createTestSink, installLogger } from "@rakazo/logging";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { boatError, FakeBoatApi, fakeBoatProvider } from "./boat-sandbox.test-support.js";
 import {
   ABANDONED_SUSPEND_CLAIM_MS,
   BACKGROUND_WORK_LAUNCH,
@@ -33,7 +31,6 @@ import {
   unbilledComputerMaxActiveMs,
 } from "./computer-idle.js";
 import { BrowserStillRunningError } from "./computer-screens.js";
-import { e2bCreateOptions } from "./e2b-sandbox.js";
 import { HomeSaveConflictError } from "./home-object-store.js";
 
 describe("sandbox idle", () => {
@@ -203,7 +200,7 @@ describe("sandbox idle", () => {
     expect(harness.jobs.enqueue).toHaveBeenCalledOnce();
 
     harness.sandbox.keepAlive.mockRejectedValueOnce(
-      new SandboxUnresponsiveError("Boat could not be reached"),
+      new SandboxUnresponsiveError("The provider could not be reached"),
     );
     await expect(sleepComputerIfIdle(harness.deps, harness.computer.id)).resolves.toBeUndefined();
     expect(harness.jobs.enqueue).toHaveBeenCalledTimes(2);
@@ -420,72 +417,24 @@ describe("sandbox idle", () => {
   it("defers sleep with a warning when the sandbox does not answer in time", async () => {
     const sink = createTestSink();
     installLogger(createLogger({ service: "test", sinks: [sink] }));
-    const command = vi
-      .spyOn(FakeBoatApi.prototype, "command")
-      .mockRejectedValue(boatError(502, "sandbox_direct_failed", "Request timeout after 74997ms"));
-    const boat = fakeBoatProvider();
-    const boatComputer = await boat.provision(
-      { botId: "bot", homePath: "/unused" },
-      {
-        operationId: "test",
-        traceId: "test",
-        spaceId: "workspace",
-        userId: "user",
-        signal: new AbortController().signal,
-      },
-    );
-    const harness = idleHarness();
-    harness.deps.sandbox.exportWorkspace = (_computer, context) =>
-      boat.exportWorkspace(boatComputer, context);
+    const harness = idleHarness({
+      exportError: new SandboxUnresponsiveError("The computer did not answer in time"),
+    });
 
     await expect(sleepComputerIfIdle(harness.deps, harness.computer.id)).resolves.toBeUndefined();
 
-    expect(command).toHaveBeenCalled();
     expect(harness.sandbox.stop).not.toHaveBeenCalled();
     expect(harness.home.commit).not.toHaveBeenCalled();
     expect(harness.computer.state).toBe("running");
     expect(harness.jobs.enqueue).toHaveBeenCalledOnce();
     expect(sink.events).toContainEqual(
-      expect.objectContaining({ level: "warn", message: "computer.sleep_deferred" }),
-    );
-    expect(sink.events.some((event) => event.level === "error")).toBe(false);
-  });
-
-  it("defers sleep when the connection to the provider drops", async () => {
-    const sink = createTestSink();
-    installLogger(createLogger({ service: "test", sinks: [sink] }));
-    vi.spyOn(FakeBoatApi.prototype, "command").mockRejectedValue(
-      new FetchError(
-        new TypeError("fetch failed"),
-        "The request failed and the interceptors did not return an alternative response",
-      ),
-    );
-    const boat = fakeBoatProvider();
-    const boatComputer = await boat.provision(
-      { botId: "bot", homePath: "/unused" },
-      {
-        operationId: "test",
-        traceId: "test",
-        spaceId: "workspace",
-        userId: "user",
-        signal: new AbortController().signal,
-      },
-    );
-    const harness = idleHarness();
-    harness.deps.sandbox.exportWorkspace = (_computer, context) =>
-      boat.exportWorkspace(boatComputer, context);
-
-    await expect(sleepComputerIfIdle(harness.deps, harness.computer.id)).resolves.toBeUndefined();
-
-    expect(harness.sandbox.stop).not.toHaveBeenCalled();
-    expect(harness.computer.state).toBe("running");
-    expect(sink.events).toContainEqual(
       expect.objectContaining({
+        level: "warn",
         message: "computer.sleep_deferred",
         reason: "unresponsive",
-        error: expect.objectContaining({ name: "SandboxUnresponsiveError" }),
       }),
     );
+    expect(sink.events.some((event) => event.level === "error")).toBe(false);
   });
 
   it("stops a computer whose system cannot start programs without a checkpoint", async () => {
@@ -508,35 +457,6 @@ describe("sandbox idle", () => {
       }),
     );
     expect(sink.events.some((event) => event.level === "error")).toBe(false);
-  });
-
-  it("forces the stop of a damaged computer its provider refuses to stop", async () => {
-    const boatApi = new FakeBoatApi();
-    const boat = fakeBoatProvider(boatApi);
-    const boatComputer = await boat.provision(
-      { botId: "bot", homePath: "/unused" },
-      {
-        operationId: "test",
-        traceId: "test",
-        spaceId: "workspace",
-        userId: "user",
-        signal: new AbortController().signal,
-      },
-    );
-    boatApi.saveSnapshot(boatComputer.id);
-    boatApi.damage(boatComputer.id);
-    const harness = idleHarness();
-    Object.assign(harness.computer, { kind: "boat", providerRef: boatComputer.providerRef });
-    harness.deps.sandbox = boat;
-
-    await expect(sleepComputerIfIdle(harness.deps, harness.computer.id)).resolves.toBeUndefined();
-
-    expect(boatApi.state(boatComputer.id)).toBe("archived");
-    expect(harness.home.commit).not.toHaveBeenCalled();
-    expect(harness.computer).toMatchObject({
-      state: "suspended",
-      providerRef: boatComputer.providerRef,
-    });
   });
 
   it("never discards unsaved work when stopping a computer it could save", async () => {
@@ -721,7 +641,7 @@ describe("sandbox idle", () => {
     installLogger(createLogger({ service: "test", sinks: [sink] }));
     const harness = idleHarness();
     harness.sandbox.stop.mockRejectedValueOnce(
-      new SandboxUnresponsiveError("Boat sandbox did not reach archived"),
+      new SandboxUnresponsiveError("The sandbox did not reach archived"),
     );
 
     await expect(sleepComputerIfIdle(harness.deps, harness.computer.id)).resolves.toBeUndefined();
@@ -1955,15 +1875,6 @@ describe("CANCEL_PRIMARY_BROWSER_WORK", () => {
   });
 });
 
-describe("e2b create options", () => {
-  it("pauses on timeout instead of killing the sandbox", () => {
-    const opts = e2bCreateOptions("bot-1", "e2b_test");
-    expect(opts.lifecycle).toEqual({ onTimeout: "pause", autoResume: false });
-    expect(opts.timeoutMs).toBe(sandboxIdleMs());
-    expect(opts.metadata.botId).toBe("bot-1");
-  });
-});
-
 function idleHarness(
   options: {
     backgroundWorkProbeCode?: number;
@@ -1992,7 +1903,7 @@ function idleHarness(
     homeKey: "team-workspace",
     homeRevision: "rev-before",
     providerRef: "computer",
-    kind: "e2b",
+    kind: "fake",
     state: "running",
     spaceId: "workspace",
     userId: "user",
@@ -2010,7 +1921,7 @@ function idleHarness(
   const notices = new Map<string, { id: string }>();
   const prisma = {
     $transaction: async <T>(work: (tx: unknown) => Promise<T>): Promise<T> => work(prisma),
-    $queryRaw: vi.fn(async () => [{ kind: "e2b", hours: options.computerHours ?? 0 }]),
+    $queryRaw: vi.fn(async () => [{ kind: "fake", hours: options.computerHours ?? 0 }]),
     deploymentSettings: {
       findUnique: vi.fn(async () => ({ modelCreditsEnabled: options.computerHours !== undefined })),
     },

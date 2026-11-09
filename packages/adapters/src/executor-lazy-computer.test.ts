@@ -21,7 +21,7 @@ vi.mock("./computer-lifecycle.js", async (importOriginal) => ({
 const COMPUTER: ComputerRef = {
   id: "sandbox-1",
   botId: "home-1",
-  kind: "e2b",
+  kind: "desktop",
   providerRef: "sandbox-1",
 };
 
@@ -158,7 +158,7 @@ async function runRoutine(
         computer: {
           id: "computer-1",
           scope: "dedicated",
-          kind: options.native ? "desktop" : "e2b",
+          kind: options.native ? "desktop" : "desktop",
           homeKey: "home-1",
         },
       })),
@@ -245,7 +245,7 @@ async function runRoutine(
     },
   };
   const sandbox = {
-    describe: () => ({ id: "e2b", capabilities: { graphical: false } }),
+    describe: () => ({ id: "desktop", capabilities: { graphical: false } }),
     environment: options.native
       ? vi.fn(async () => {
           if (options.nativeUnavailable) throw new Error("native app is closed");
@@ -385,7 +385,7 @@ describe("run computer provisioning", () => {
     try {
       const before = Date.now();
       const { run, enqueue } = await runRoutine([], {
-        setupError: new SandboxUnresponsiveError("Boat could not be reached"),
+        setupError: new SandboxUnresponsiveError("The provider could not be reached"),
         onRunStarted: vi.fn(),
         priorSetupFailures: 2,
       });
@@ -571,7 +571,7 @@ describe("run computer provisioning", () => {
       [{ name: "list_files", args: { path: "" } }],
       {
         attachments: "file",
-        exportError: new Error("Boat API request failed (HTTP 502, sandbox_direct_failed)"),
+        exportError: new Error("Provider API request failed (HTTP 502, sandbox_direct_failed)"),
       },
     );
 
@@ -624,7 +624,9 @@ describe("run computer provisioning", () => {
   });
 
   it("retries setup after a computer provider outage without an error report", async () => {
-    provisionComputer.mockRejectedValue(new SandboxUnresponsiveError("Boat could not be reached"));
+    provisionComputer.mockRejectedValue(
+      new SandboxUnresponsiveError("The provider could not be reached"),
+    );
 
     await expect(runRoutine([{ name: "list_files", args: { path: "" } }])).rejects.toThrow(
       "Run setup failed; retrying",

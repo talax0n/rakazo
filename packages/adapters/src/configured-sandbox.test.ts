@@ -352,6 +352,30 @@ it("reads settings at most once per window, and again before calling a computer 
   expect(load.mock.calls.length).toBe(reads);
 });
 
+it("treats a computer stored under a removed provider as gone and replaces it on the primary", async () => {
+  const { sandbox } = setup({ provider: "default", settings: null });
+  const stored = {
+    id: "old",
+    botId: "a",
+    kind: "removed-provider",
+    providerRef: "old-ref",
+  } as unknown as ComputerRef;
+  await expect(sandbox.prepare(stored, ctx)).rejects.toMatchObject({
+    name: "SandboxNotFoundError",
+  });
+  const next = await sandbox.provision(
+    {
+      botId: "a",
+      homePath: "/h",
+      providerRef: "old-ref",
+      providerKind: "removed-provider" as ComputerRef["kind"],
+    },
+    ctx,
+  );
+  expect(next).toMatchObject({ kind: "fake" });
+  expect(next.providerRef).not.toBe("old-ref");
+});
+
 it("refuses a desktop reference belonging to another account connection", async () => {
   const { sandbox, own } = setup({ provider: "default", settings: null });
   own.set("mine", { ...settings, values: { ...values, desktopId: "ecd-own" } });
@@ -377,7 +401,8 @@ vi.mock(
 
 it("bills a kind only the primary runs the way the primary does", async () => {
   const primary = Object.assign(new FakeSandboxProvider(), {
-    billsWhileRunning: (computer: Pick<ComputerRef, "kind">) => computer.kind !== "kubernetes",
+    billsWhileRunning: (computer: Pick<ComputerRef, "kind">) =>
+      computer.kind !== ("local" as string),
   });
   const sandbox = new ConfiguredSandbox(primary, async () => ({
     provider: "default",
@@ -386,7 +411,7 @@ it("bills a kind only the primary runs the way the primary does", async () => {
   const local = {
     id: "c",
     botId: "a",
-    kind: "kubernetes",
+    kind: "local",
     providerRef: "k",
   } as unknown as ComputerRef;
   expect(sandbox.billsWhileRunning(local)).toBe(false);
