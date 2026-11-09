@@ -108,19 +108,7 @@ Logins saved before fields existed read as a visible Username and a hidden Passw
 
 A bot asks for a card with `request_secret` and auth `{ "type": "card" }`, with no origin. The card asks for the number, expiry, security code, name on card and, optionally, a saved contact whose address bills it. The whole card is encrypted like any other value. `list_secrets` shows the bot only its brand, last four digits, expiry, name and billing contact, never the number or security code.
 
-The bot types a saved card with `browser_act` `fill_card`, passing `card` and `site`, the checkout page's HTTPS origin:
-
-```json
-{
-  "actions": [
-    { "kind": "fill_card", "card": "visa-4242", "site": "https://shop.example.test", "field": "number" },
-    { "kind": "fill_card", "card": "visa-4242", "site": "https://shop.example.test", "field": "expiry" },
-    { "kind": "fill_card", "card": "visa-4242", "site": "https://shop.example.test", "field": "cvc" }
-  ]
-}
-```
-
-Every call that types a saved card asks the person first, naming the card and the site ("Pay with Visa ·· 4242 on shop.example.test?"). Allow once is the only way to approve it, and a webhook run, which nobody can answer, is refused. One call types one card on one site, and the page browser types it only while the page is still on that origin, including a payment frame inside it. `postal_code` comes from the billing contact. Approving the card names no amount, so the click that places the order still asks, with the total the page shows; a call that types the card and presses that click asks once, showing both. That click counts against your [spending limit](./approvals.md#spending-limit), if you set one. Every run of the bot hides each saved card number from tool output, in plain, digits-only, spaced and dashed forms. The security code is not hidden, as for a wallet card: at 3 or 4 digits, hiding it would blank every total and order number that contains them.
+Saved cards are never typed into a page. Every run of the bot hides each saved card number from tool output, in plain, digits-only, spaced and dashed forms.
 
 ## Contacts
 
