@@ -177,10 +177,6 @@ msgstr "{count}日"
 msgid "{count} months"
 msgstr "{count}か月"
 
-#: src/components/AskCard.tsx
-msgid "{count} more"
-msgstr "他 {count} 件"
-
 #: src/lib/billing.ts
 msgid "{count} weeks"
 msgstr "{count}週間"
@@ -370,38 +366,6 @@ msgstr "残り{remaining}"
 #: src/pages/BillingSettingsPanel.tsx
 msgid "{seats, plural, one {# seat} other {# seats}}"
 msgstr "{seats, plural, one {#席} other {#席}}"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} a day"
-msgstr "1日あたり{shown}"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} a month"
-msgstr "1か月あたり{shown}"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} a week"
-msgstr "1週間あたり{shown}"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} in total"
-msgstr "合計{shown}"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} spent"
-msgstr "支出: {shown}"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} spent this month"
-msgstr "今月の支出: {shown}"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} spent this week"
-msgstr "今週の支出: {shown}"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} spent today"
-msgstr "今日の支出: {shown}"
 
 #: src/components/ArtifactFileCard.tsx
 msgid "{size} B"
@@ -701,7 +665,6 @@ msgstr "サーバー名を追加してください。"
 msgid "Add a stdio command."
 msgstr "stdioコマンドを追加してください。"
 
-#: src/pages/RoutineEditor.tsx
 #: src/pages/shell/use-routine-editor.ts
 msgid "Add a trigger to run this routine."
 msgstr "このルーティンを実行するトリガーを追加してください。"
@@ -813,12 +776,12 @@ msgstr "住所2"
 msgid "Adds"
 msgstr "追加されるもの"
 
+#: src/lib/cron.ts
 #: src/pages/McpServerForm.tsx
 #: src/pages/model-settings/compatible-model-fields.tsx
 #: src/pages/ModelSettingsOverlay.tsx
 #: src/pages/onboarding/model-step.tsx
 #: src/pages/routine-editor/model-settings.tsx
-#: src/pages/RoutineSchedule.tsx
 #: src/pages/shell/bot-panel.tsx
 msgid "Advanced"
 msgstr "詳細設定"
@@ -882,10 +845,6 @@ msgstr "今回のみ許可"
 msgid "Allow Rakazo to use Speech Recognition and the microphone in System Settings."
 msgstr "システム設定で、Rakazoに音声認識とマイクの使用を許可してください。"
 
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-msgid "Allow writing"
-msgstr "書き込みを許可"
-
 #: src/components/AskCard.tsx
 msgid "Allowed in this space"
 msgstr "このスペースで許可しました"
@@ -929,10 +888,6 @@ msgstr "常に確認"
 #: src/components/markdown-link-prompt.tsx
 msgid "Always open {site}"
 msgstr "{site} を常に開く"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "Amount"
-msgstr "金額"
 
 #: src/lib/model-connection-preflight.ts
 msgid "An API key is stored for this provider, not a subscription sign-in."
@@ -1108,8 +1063,8 @@ msgid "Asks before sending, spending or changing anything in your apps."
 msgstr "アプリでの送信、支払い、変更の前に確認します。"
 
 #: src/components/ApprovalRulesSettings.tsx
-msgid "Asks only before purchases and the first use of your computer. Only Block rules apply."
-msgstr "購入時とコンピューターの初回使用時のみ確認します。ブロックルールのみ適用されます。"
+msgid "Asks only before the first use of your computer. Only Block rules apply."
+msgstr ""
 
 #: src/pages/shell/computer-panel.tsx
 msgid "Asleep"
@@ -1175,8 +1130,8 @@ msgid "Automated senders"
 msgstr "自動送信者"
 
 #: src/pages/routine-editor/trigger-cards.tsx
-msgid "Available after the routine is saved"
-msgstr "ルーティンの保存後に利用可能"
+msgid "Available after saving"
+msgstr ""
 
 #: src/components/ModelCredits.tsx
 msgid "Available credits"
@@ -1239,7 +1194,6 @@ msgstr "Basic認証（{username}）"
 
 #: src/components/vault/VaultItemDetail.tsx
 #: src/components/vault/VaultItemEditor.tsx
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
 #: src/pages/plugins/source-form.tsx
 msgid "Bearer token"
 msgstr "Bearerトークン"
@@ -1344,10 +1298,6 @@ msgstr "専用のコンピューターとブラウザを持つボット"
 msgid "Bots with their own model"
 msgstr "独自のモデルを使うボット"
 
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-msgid "Brain label"
-msgstr "Brainラベル"
-
 #: src/components/integrations/skills-dialog.tsx
 msgid "Browse"
 msgstr "参照"
@@ -1361,10 +1311,6 @@ msgstr "MCPサーバーを探す"
 #: src/pages/shell/agent-import-plan.tsx
 msgid "Built-in"
 msgstr "組み込み"
-
-#: src/components/AskCard.tsx
-msgid "Button “{button}” · read from the page, not checked"
-msgstr "ボタン「{button}」· ページから読み取り、未確認"
 
 #: src/pages/shell/chat-header.tsx
 msgid "Call"
@@ -1414,14 +1360,12 @@ msgstr "画像を読み取れません"
 #: src/components/markdown-link-prompt.tsx
 #: src/components/ModelCredits.tsx
 #: src/components/PasskeySettings.tsx
-#: src/components/SpendingLimitSettings.tsx
 #: src/components/teach/TeachComputerOverlay.tsx
 #: src/components/vault/VaultItemDetail.tsx
 #: src/pages/AccountSettingsOverlay.tsx
 #: src/pages/KnowledgeSection.tsx
 #: src/pages/model-settings/connection-controls.tsx
 #: src/pages/onboarding/model-step.tsx
-#: src/pages/PaymentWalletSettingsPanel.tsx
 #: src/pages/PluginSubmissionsPanel.tsx
 #: src/pages/shell/create-bot-dialog.tsx
 #: src/pages/shell/dialogs.tsx
@@ -1909,11 +1853,8 @@ msgstr "このブラウザセッションからURLにアクセスできること
 #: src/components/integrations/IntegrationSetup.tsx
 #: src/components/integrations/plugin-marketplace.tsx
 #: src/pages/memory-providers/HonchoSettingsForm.tsx
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-#: src/pages/memory-providers/SupermemorySettingsForm.tsx
 #: src/pages/MessagingSettingsPanel.tsx
 #: src/pages/model-settings/role-model-picker.tsx
-#: src/pages/PaymentWalletSettingsPanel.tsx
 #: src/pages/shell/message-cards.tsx
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "Connect"
@@ -1992,8 +1933,6 @@ msgstr "{0}を接続しました。"
 #: src/components/integrations/plugin-marketplace.tsx
 #: src/pages/McpServersOverlay.tsx
 #: src/pages/memory-providers/HonchoSettingsForm.tsx
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-#: src/pages/memory-providers/SupermemorySettingsForm.tsx
 #: src/pages/shell/message-cards.tsx
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "Connecting…"
@@ -2072,6 +2011,7 @@ msgstr "会話"
 #: src/components/vault/VaultItemDetail.tsx
 #: src/pages/model-settings/connection-controls.tsx
 #: src/pages/onboarding/model-step.tsx
+#: src/pages/routine-editor/trigger-cards.tsx
 #: src/pages/shell/agent-import.tsx
 #: src/pages/shell/message-hover-actions.tsx
 msgid "Copied"
@@ -2088,6 +2028,10 @@ msgstr "コピー"
 #: src/components/vault/BotEmailAddresses.tsx
 msgid "Copy {address}"
 msgstr "{address} をコピー"
+
+#: src/pages/routine-editor/trigger-cards.tsx
+msgid "Copy {label}"
+msgstr ""
 
 #: src/components/markdown-copy.tsx
 msgid "Copy code"
@@ -2591,10 +2535,6 @@ msgstr "ルールを保存できませんでした"
 msgid "Could not save skill"
 msgstr "スキルを保存できませんでした"
 
-#: src/components/SpendingLimitSettings.tsx
-msgid "Could not save spending limit"
-msgstr "支出上限を保存できませんでした"
-
 #: src/pages/HostComputerPrompt.tsx
 msgid "Could not save that choice"
 msgstr "その選択を保存できませんでした"
@@ -2631,6 +2571,10 @@ msgstr "送信できませんでした"
 #: src/components/VaultSettings.tsx
 msgid "Could not show the credential"
 msgstr "認証情報を表示できませんでした"
+
+#: src/pages/shell/use-routine-editor.ts
+msgid "Could not show the webhook key"
+msgstr ""
 
 #: src/components/integrations/plugin-marketplace.tsx
 msgid "Could not sign in"
@@ -2725,10 +2669,6 @@ msgstr "申請を読み込めませんでした"
 msgid "Couldn't load this page. Try again."
 msgstr "このページを読み込めませんでした。もう一度お試しください。"
 
-#: src/pages/PaymentWalletSettingsPanel.tsx
-msgid "Couldn't load your wallet"
-msgstr "ウォレットを読み込めませんでした"
-
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Couldn't update bot style"
 msgstr "ボットのスタイルを更新できませんでした"
@@ -2740,10 +2680,6 @@ msgstr "メッセージ設定を更新できませんでした"
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Couldn't update your timezone"
 msgstr "タイムゾーンを更新できませんでした"
-
-#: src/pages/PaymentWalletSettingsPanel.tsx
-msgid "Couldn't update your wallet"
-msgstr "ウォレットを更新できませんでした"
 
 #: src/components/vault/VaultItemEditor.tsx
 msgid "Country"
@@ -2781,8 +2717,8 @@ msgid "Create organization"
 msgstr "組織を作成"
 
 #: src/pages/RoutineList.tsx
-msgid "Create Routine"
-msgstr "ルーティンを作成"
+msgid "Create routine"
+msgstr ""
 
 #: src/components/AskCard.tsx
 #: src/pages/shell/dialogs.tsx
@@ -2836,10 +2772,6 @@ msgstr "Cron"
 msgid "Cron expression"
 msgstr "Cron式"
 
-#: src/components/SpendingLimitSettings.tsx
-msgid "Currency"
-msgstr "通貨"
-
 #: src/components/AccountAccess.tsx
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Current password"
@@ -2864,10 +2796,6 @@ msgstr "{label}をカスタマイズ"
 #: src/pages/shell/avatar-studio-popover.tsx
 msgid "Customize bot avatar"
 msgstr "ボットのアバターをカスタマイズ"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "Daily"
-msgstr "毎日"
 
 #: src/pages/shell/bot-settings-sections.tsx
 msgid "Daily check-ins on unfinished work"
@@ -3087,7 +3015,6 @@ msgstr "録音を破棄"
 #: src/pages/MemorySettingsOverlay.tsx
 #: src/pages/MessagingSettingsPanel.tsx
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/PaymentWalletSettingsPanel.tsx
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "Disconnect"
 msgstr "切断"
@@ -3095,10 +3022,6 @@ msgstr "切断"
 #: src/pages/ModelSettingsOverlay.tsx
 msgid "Disconnect {disconnectName}?"
 msgstr "{disconnectName}を切断しますか？"
-
-#: src/pages/PaymentWalletSettingsPanel.tsx
-msgid "Disconnect {name}?"
-msgstr "{name}を切断しますか？"
 
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "Disconnect Self-hosted"
@@ -3215,7 +3138,6 @@ msgid "Each name can be used once."
 msgstr "各名前は一度だけ使用できます。"
 
 #: src/components/AskCard.tsx
-#: src/components/SpendingLimitSettings.tsx
 #: src/components/vault/VaultItemDetail.tsx
 #: src/pages/AccountSettingsOverlay.tsx
 #: src/pages/McpServersOverlay.tsx
@@ -3353,14 +3275,10 @@ msgid "Every bot in this space reads these notes and keeps them up to date."
 msgstr "このスペースのすべてのボットがこのメモを読み、最新の状態に保ちます。"
 
 #: src/lib/cron.ts
-#: src/pages/routine-editor/add-trigger-menu.tsx
-#: src/pages/RoutineSchedule.tsx
 msgid "Every day"
 msgstr "毎日"
 
 #: src/lib/cron.ts
-#: src/pages/routine-editor/add-trigger-menu.tsx
-#: src/pages/RoutineSchedule.tsx
 msgid "Every hour"
 msgstr "毎時"
 
@@ -3376,16 +3294,6 @@ msgstr "すべてのメッセージ"
 #: src/lib/cron.ts
 msgid "Every Monday"
 msgstr "毎週月曜日"
-
-#: src/pages/routine-editor/add-trigger-menu.tsx
-#: src/pages/RoutineSchedule.tsx
-msgid "Every month"
-msgstr "毎月"
-
-#: src/pages/routine-editor/add-trigger-menu.tsx
-#: src/pages/RoutineSchedule.tsx
-msgid "Every week"
-msgstr "毎週"
 
 #: src/components/SharedSpaceRules.tsx
 msgid "Everyone here sees its chats, bots and memory"
@@ -3704,8 +3612,8 @@ msgid "Hang up, then enter the code on screen."
 msgstr "通話を終了してから、画面に表示されたコードを入力してください。"
 
 #: src/pages/routine-editor/trigger-cards.tsx
-msgid "header"
-msgstr "ヘッダー"
+msgid "Header"
+msgstr ""
 
 #: src/components/vault/VaultItemDetail.tsx
 msgid "Header \"{header}\""
@@ -3742,6 +3650,10 @@ msgstr "非表示"
 #: src/components/vault/VaultItemDetail.tsx
 msgid "Hide"
 msgstr "非表示"
+
+#: src/pages/routine-editor/trigger-cards.tsx
+msgid "Hide key"
+msgstr ""
 
 #: src/components/I18nBootstrap.tsx
 msgid "Hide password"
@@ -3901,10 +3813,6 @@ msgstr "アップデートをインストール"
 msgid "Installing…"
 msgstr "インストール中…"
 
-#: src/pages/memory-providers/SupermemorySettingsForm.tsx
-msgid "Instance API key"
-msgstr "インスタンスのAPIキー"
-
 #: src/pages/RoutineEditor.tsx
 msgid "Instruction"
 msgstr "指示"
@@ -3945,8 +3853,7 @@ msgstr "連携ドメイン"
 msgid "Integrations"
 msgstr "連携"
 
-#: src/pages/routine-editor/add-trigger-menu.tsx
-#: src/pages/RoutineSchedule.tsx
+#: src/lib/cron.ts
 msgid "Interval"
 msgstr "間隔"
 
@@ -4037,8 +3944,8 @@ msgid "Keep tool results whole"
 msgstr "ツールの結果をそのまま保持"
 
 #: src/pages/routine-editor/trigger-cards.tsx
-msgid "key"
-msgstr "キー"
+msgid "Key options"
+msgstr ""
 
 #: src/pages/shell/keyboard-shortcuts-dialog.tsx
 #: src/pages/shell/use-palette-actions.ts
@@ -4316,10 +4223,6 @@ msgstr "リクエストあたりの最大画像数"
 msgid "Maximum output tokens"
 msgstr "最大出力トークン数"
 
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-msgid "MCP endpoint"
-msgstr "MCPエンドポイント"
-
 #: src/pages/plugins/add-menu.tsx
 #: src/pages/plugins/source-form.tsx
 msgid "MCP server"
@@ -4535,7 +4438,6 @@ msgid "month"
 msgstr "月"
 
 #: src/components/ModelCredits.tsx
-#: src/components/SpendingLimitSettings.tsx
 #: src/lib/cron.ts
 msgid "Monthly"
 msgstr "毎月"
@@ -4547,6 +4449,10 @@ msgstr "月間クレジット"
 #: src/components/ModelCredits.tsx
 msgid "Monthly credits expire at renewal. Top-ups do not expire."
 msgstr "月間クレジットは更新時に失効します。追加購入分は失効しません。"
+
+#: src/lib/cron.ts
+msgid "Monthly on the 1st"
+msgstr ""
 
 #: src/components/SpaceMembersSettings.tsx
 #: src/pages/plugins/plugin-browse.tsx
@@ -4854,16 +4760,16 @@ msgstr "リモートMCPサーバーが見つかりません"
 msgid "No reply"
 msgstr "返信なし"
 
-#: src/components/SpendingLimitSettings.tsx
-msgid "No reset"
-msgstr "リセットなし"
-
 #: src/pages/model-settings/providers-section.tsx
 #: src/pages/plugins/domain-search.tsx
 #: src/pages/shell/command-palette.tsx
 #: src/pages/SpaceSearch.tsx
 msgid "No results"
 msgstr "結果なし"
+
+#: src/pages/RoutineList.tsx
+msgid "No routines yet"
+msgstr ""
 
 #: src/components/markdown-copy.tsx
 msgid "No rows"
@@ -4873,7 +4779,7 @@ msgstr "行なし"
 msgid "No runs match these filters."
 msgstr "このフィルターに一致する実行はありません。"
 
-#: src/pages/RoutineRunHistory.tsx
+#: src/pages/ActivityList.tsx
 msgid "No runs yet"
 msgstr "実行はまだありません"
 
@@ -4893,7 +4799,6 @@ msgstr "チケットはまだありません"
 msgid "No trigger"
 msgstr "トリガーなし"
 
-#: src/components/SpendingLimitSettings.tsx
 #: src/components/vault/VaultItemEditor.tsx
 msgid "None"
 msgstr "なし"
@@ -4983,6 +4888,7 @@ msgid "Offline"
 msgstr "オフライン"
 
 #: src/pages/routine-editor/add-trigger-menu.tsx
+#: src/pages/RoutineSchedule.tsx
 msgid "On a schedule"
 msgstr "スケジュール"
 
@@ -4994,10 +4900,6 @@ msgstr "{day}日 {time}"
 #: src/lib/cron.ts
 msgid "on the 1st at {0}"
 msgstr "1日 {0}"
-
-#: src/components/AskCard.tsx
-msgid "On the button"
-msgstr "ボタンの金額"
 
 #: src/lib/cron.ts
 msgid "One-time"
@@ -5016,6 +4918,10 @@ msgid "Only me"
 msgstr "自分のみ"
 
 #: src/pages/shell/use-routine-editor.ts
+msgid "Only the bot's creator can see its webhook key."
+msgstr ""
+
+#: src/pages/shell/use-routine-editor.ts
 msgid "Only the bot's creator can set its webhook key."
 msgstr "Webhookキーを設定できるのはボットの作成者のみです。"
 
@@ -5026,7 +4932,6 @@ msgstr "自分のみ"
 #: src/components/bot-templates/bot-templates-dialog.tsx
 #: src/components/markdown-link-prompt.tsx
 #: src/components/pages/PagesList.tsx
-#: src/pages/PaymentWalletSettingsPanel.tsx
 #: src/pages/shell/computer-panel.tsx
 #: src/pages/shell/import-setup-card.tsx
 #: src/pages/shell/message-view.tsx
@@ -5128,10 +5033,6 @@ msgstr "またはAPIキーを貼り付け"
 #: src/pages/settings-nav.ts
 msgid "Organization"
 msgstr "組織"
-
-#: src/pages/memory-providers/SupermemorySettingsForm.tsx
-msgid "Organization API key"
-msgstr "組織のAPIキー"
 
 #: src/pages/AccountSettingsOverlay.tsx
 #: src/pages/shell/avatar-studio-popover.tsx
@@ -5374,10 +5275,6 @@ msgstr "プラグイン"
 msgid "Post \"No changes\" in chat"
 msgstr "チャットに「変更なし」と投稿"
 
-#: src/pages/routine-editor/trigger-cards.tsx
-msgid "POST to"
-msgstr "POST先"
-
 #: src/components/bot-templates/bot-template-copy.ts
 msgid "PR reviewer"
 msgstr "PRレビュアー"
@@ -5479,10 +5376,6 @@ msgstr "リアクション"
 msgid "Reactions"
 msgstr "リアクション"
 
-#: src/components/AskCard.tsx
-msgid "Read from the page, not checked"
-msgstr "ページから読み取り、未確認"
-
 #: src/pages/shell/bot-settings-sections.tsx
 msgid "Read replies aloud"
 msgstr "返信を読み上げる"
@@ -5500,17 +5393,9 @@ msgstr "理由"
 msgid "Reasoning effort"
 msgstr "推論レベル"
 
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-msgid "Recall and write"
-msgstr "参照と書き込み"
-
 #: src/pages/memory-providers/HonchoSettingsForm.tsx
 msgid "Recall from this peer; save to Rakazo’s own peers."
 msgstr "このピアから呼び出し、Rakazo専用のピアに保存します。"
-
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-msgid "Recall only"
-msgstr "参照のみ"
 
 #: src/pages/AdminAccessPage.tsx
 msgid "Received"
@@ -5519,10 +5404,6 @@ msgstr "受け取り済み"
 #: src/pages/ActivityList.tsx
 msgid "Recent"
 msgstr "最近"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "Recent payments"
-msgstr "最近の支払い"
 
 #: src/pages/plugins/plugin-browse.tsx
 msgid "Recommended"
@@ -5660,7 +5541,6 @@ msgstr "再読み込み"
 
 #: src/components/integrations/plugin-marketplace.tsx
 #: src/components/SpaceMembersSettings.tsx
-#: src/components/SpendingLimitSettings.tsx
 #: src/components/TrustedLinkSitesSettings.tsx
 #: src/components/vault/LoginFieldsInput.tsx
 #: src/components/vault/VaultItemDetail.tsx
@@ -5727,7 +5607,7 @@ msgstr "ヘッダーを削除"
 msgid "Remove message trigger"
 msgstr "メッセージトリガーを削除"
 
-#: src/pages/RoutineEditor.tsx
+#: src/pages/RoutineSchedule.tsx
 msgid "Remove schedule"
 msgstr "スケジュールを削除"
 
@@ -5854,10 +5734,6 @@ msgstr "パスワードをリセット"
 #: src/pages/Auth.tsx
 msgid "Reset your password"
 msgstr "パスワードをリセット"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "Resets"
-msgstr "リセット"
 
 #: src/components/ComputerMaintenanceActions.tsx
 msgid "Resetting…"
@@ -5993,6 +5869,10 @@ msgstr "実行日時"
 msgid "Run history"
 msgstr "実行履歴"
 
+#: src/pages/RoutineEditor.tsx
+msgid "Run now"
+msgstr ""
+
 #: src/pages/shell/use-routine-editor.ts
 msgid "Run time must be in the future."
 msgstr "実行日時は未来の日時を指定してください。"
@@ -6042,7 +5922,6 @@ msgstr "土曜日"
 #: src/components/ComputerProviderSettings.tsx
 #: src/components/PasskeySettings.tsx
 #: src/components/SecretAskCard.tsx
-#: src/components/SpendingLimitSettings.tsx
 #: src/components/teach/SkillDraftCard.tsx
 #: src/components/vault/VaultItemEditor.tsx
 #: src/pages/AccountSettingsOverlay.tsx
@@ -6082,10 +5961,6 @@ msgstr "保存しましたが、一覧を更新できませんでした"
 #: src/pages/model-settings/use-model-settings.ts
 msgid "Saved."
 msgstr "保存しました。"
-
-#: src/pages/routine-editor/trigger-cards.tsx
-msgid "Saved. Rotate to reveal."
-msgstr "保存しました。表示するにはローテーションしてください。"
 
 #: src/components/ComputerUpdateProgress.tsx
 msgid "Saving your workspace"
@@ -6211,6 +6086,10 @@ msgstr "検索: {0}"
 msgid "Searching…"
 msgstr "検索中…"
 
+#: src/pages/routine-editor/trigger-cards.tsx
+msgid "Secret"
+msgstr ""
+
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Security"
 msgstr "セキュリティ"
@@ -6283,10 +6162,6 @@ msgstr "送信中…"
 msgid "Sent"
 msgstr "送信済み"
 
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-msgid "Serenity endpoint is required."
-msgstr "Serenityのエンドポイントは必須です。"
-
 #: src/pages/McpServerForm.tsx
 msgid "Server name"
 msgstr "サーバー名"
@@ -6298,10 +6173,6 @@ msgstr "サーバー名"
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "Server URL"
 msgstr "サーバーURL"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "Set"
-msgstr "設定"
 
 #: src/components/call/CallCard.tsx
 #: src/components/SidebarFooter.tsx
@@ -6375,7 +6246,6 @@ msgstr "共有メモリ"
 msgid "Show"
 msgstr "表示"
 
-#: src/components/SpendingLimitSettings.tsx
 #: src/pages/GroupPanel.tsx
 msgid "Show all"
 msgstr "すべて表示"
@@ -6383,6 +6253,10 @@ msgstr "すべて表示"
 #: src/pages/shell/sidebar-header.tsx
 msgid "Show bots"
 msgstr "ボットを表示"
+
+#: src/pages/routine-editor/trigger-cards.tsx
+msgid "Show key"
+msgstr ""
 
 #: src/pages/Artifacts.tsx
 msgid "Show list"
@@ -6606,10 +6480,6 @@ msgstr "話しています"
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "Speech model"
 msgstr "音声モデル"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "Spending limit"
-msgstr "支出上限"
 
 #: src/components/AccountAccess.tsx
 msgid "SSO"
@@ -6857,10 +6727,6 @@ msgstr "APIキーをテスト"
 #: src/pages/McpServersOverlay.tsx
 msgid "Test connection"
 msgstr "接続をテスト"
-
-#: src/pages/RoutineEditor.tsx
-msgid "Test run"
-msgstr "テスト実行"
 
 #: src/pages/PluginSubmissionsPanel.tsx
 msgid "Testing"
@@ -7219,10 +7085,6 @@ msgstr "ツール"
 msgid "Topic watch"
 msgstr "トピックの追跡"
 
-#: src/components/AskCard.tsx
-msgid "Total"
-msgstr "合計"
-
 #: src/components/composer/HoldToTalk.tsx
 msgid "Transcribing…"
 msgstr "文字起こし中…"
@@ -7425,6 +7287,10 @@ msgstr "アップロード"
 msgid "Urgent"
 msgstr "緊急"
 
+#: src/pages/routine-editor/trigger-cards.tsx
+msgid "URL"
+msgstr ""
+
 #: src/pages/settings-nav.ts
 msgid "Usage"
 msgstr "使用量"
@@ -7594,10 +7460,6 @@ msgstr "待機中…"
 msgid "Wake"
 msgstr "起動"
 
-#: src/pages/settings-nav.ts
-msgid "Wallet"
-msgstr "ウォレット"
-
 #: src/components/ModelCredits.tsx
 msgid "Web, desktop and mobile"
 msgstr "Web、デスクトップ、モバイル"
@@ -7619,18 +7481,12 @@ msgid "week"
 msgstr "週"
 
 #: src/lib/cron.ts
-#: src/pages/routine-editor/add-trigger-menu.tsx
-#: src/pages/RoutineSchedule.tsx
 msgid "Weekdays"
 msgstr "平日"
 
 #: src/lib/cron.ts
 msgid "Weekends"
 msgstr "週末"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "Weekly"
-msgstr "毎週"
 
 #: src/components/SignupSurvey.tsx
 msgid "Welcome to Rakazo"
@@ -7712,10 +7568,6 @@ msgstr "使用するタイミング"
 #: src/pages/HostComputerPrompt.tsx
 msgid "Where should bots run?"
 msgstr "ボットをどこで実行しますか？"
-
-#: src/pages/settings-nav.ts
-msgid "Where your bots pay from."
-msgstr "ボットの支払い元。"
 
 #: src/pages/settings-nav.ts
 msgid "Which LLMs your bots use."

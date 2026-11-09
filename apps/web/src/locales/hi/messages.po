@@ -177,10 +177,6 @@ msgstr "{count} दिन"
 msgid "{count} months"
 msgstr "{count} महीने"
 
-#: src/components/AskCard.tsx
-msgid "{count} more"
-msgstr "{count} और"
-
 #: src/lib/billing.ts
 msgid "{count} weeks"
 msgstr "{count} सप्ताह"
@@ -370,38 +366,6 @@ msgstr "{remaining} शेष"
 #: src/pages/BillingSettingsPanel.tsx
 msgid "{seats, plural, one {# seat} other {# seats}}"
 msgstr "{seats, plural, one {# सीट} other {# सीटें}}"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} a day"
-msgstr "{shown} प्रति दिन"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} a month"
-msgstr "{shown} प्रति माह"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} a week"
-msgstr "{shown} प्रति सप्ताह"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} in total"
-msgstr "कुल {shown}"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} spent"
-msgstr "{shown} खर्च हुए"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} spent this month"
-msgstr "इस महीने {shown} खर्च हुए"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} spent this week"
-msgstr "इस सप्ताह {shown} खर्च हुए"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} spent today"
-msgstr "आज {shown} खर्च हुए"
 
 #: src/components/ArtifactFileCard.tsx
 msgid "{size} B"
@@ -701,7 +665,6 @@ msgstr "सर्वर का नाम दर्ज करें।"
 msgid "Add a stdio command."
 msgstr "एक stdio कमांड दर्ज करें।"
 
-#: src/pages/RoutineEditor.tsx
 #: src/pages/shell/use-routine-editor.ts
 msgid "Add a trigger to run this routine."
 msgstr "इस रूटीन को चलाने के लिए ट्रिगर जोड़ें।"
@@ -813,12 +776,12 @@ msgstr "पता पंक्ति 2"
 msgid "Adds"
 msgstr "क्या जोड़ा जाएगा"
 
+#: src/lib/cron.ts
 #: src/pages/McpServerForm.tsx
 #: src/pages/model-settings/compatible-model-fields.tsx
 #: src/pages/ModelSettingsOverlay.tsx
 #: src/pages/onboarding/model-step.tsx
 #: src/pages/routine-editor/model-settings.tsx
-#: src/pages/RoutineSchedule.tsx
 #: src/pages/shell/bot-panel.tsx
 msgid "Advanced"
 msgstr "उन्नत"
@@ -882,10 +845,6 @@ msgstr "एक बार अनुमति दें"
 msgid "Allow Rakazo to use Speech Recognition and the microphone in System Settings."
 msgstr "सिस्टम सेटिंग्स में Rakazo को स्पीच रिकग्निशन और माइक्रोफ़ोन उपयोग करने की अनुमति दें।"
 
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-msgid "Allow writing"
-msgstr "लिखने की अनुमति दें"
-
 #: src/components/AskCard.tsx
 msgid "Allowed in this space"
 msgstr "इस स्पेस में अनुमत"
@@ -929,10 +888,6 @@ msgstr "हमेशा पूछें"
 #: src/components/markdown-link-prompt.tsx
 msgid "Always open {site}"
 msgstr "{site} हमेशा खोलें"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "Amount"
-msgstr "राशि"
 
 #: src/lib/model-connection-preflight.ts
 msgid "An API key is stored for this provider, not a subscription sign-in."
@@ -1108,8 +1063,8 @@ msgid "Asks before sending, spending or changing anything in your apps."
 msgstr "आपके ऐप्स में कुछ भी भेजने, खर्च करने या बदलने से पहले पूछता है।"
 
 #: src/components/ApprovalRulesSettings.tsx
-msgid "Asks only before purchases and the first use of your computer. Only Block rules apply."
-msgstr "केवल खरीदारी और आपके कंप्यूटर के पहले उपयोग से पहले पूछता है। केवल ब्लॉक नियम लागू होते हैं।"
+msgid "Asks only before the first use of your computer. Only Block rules apply."
+msgstr ""
 
 #: src/pages/shell/computer-panel.tsx
 msgid "Asleep"
@@ -1175,8 +1130,8 @@ msgid "Automated senders"
 msgstr "स्वचालित प्रेषक"
 
 #: src/pages/routine-editor/trigger-cards.tsx
-msgid "Available after the routine is saved"
-msgstr "रूटीन सहेजे जाने के बाद उपलब्ध"
+msgid "Available after saving"
+msgstr ""
 
 #: src/components/ModelCredits.tsx
 msgid "Available credits"
@@ -1239,7 +1194,6 @@ msgstr "बेसिक ऑथ ({username})"
 
 #: src/components/vault/VaultItemDetail.tsx
 #: src/components/vault/VaultItemEditor.tsx
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
 #: src/pages/plugins/source-form.tsx
 msgid "Bearer token"
 msgstr "बियरर टोकन"
@@ -1344,10 +1298,6 @@ msgstr "अपने कंप्यूटर और ब्राउज़र �
 msgid "Bots with their own model"
 msgstr "अपने मॉडल वाले बॉट"
 
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-msgid "Brain label"
-msgstr "ब्रेन लेबल"
-
 #: src/components/integrations/skills-dialog.tsx
 msgid "Browse"
 msgstr "ब्राउज़ करें"
@@ -1361,10 +1311,6 @@ msgstr "MCP सर्वर ब्राउज़ करें"
 #: src/pages/shell/agent-import-plan.tsx
 msgid "Built-in"
 msgstr "अंतर्निहित"
-
-#: src/components/AskCard.tsx
-msgid "Button “{button}” · read from the page, not checked"
-msgstr "बटन “{button}” · पेज से पढ़ा गया, जाँचा नहीं गया"
 
 #: src/pages/shell/chat-header.tsx
 msgid "Call"
@@ -1414,14 +1360,12 @@ msgstr "तस्वीरें नहीं पढ़ सकता"
 #: src/components/markdown-link-prompt.tsx
 #: src/components/ModelCredits.tsx
 #: src/components/PasskeySettings.tsx
-#: src/components/SpendingLimitSettings.tsx
 #: src/components/teach/TeachComputerOverlay.tsx
 #: src/components/vault/VaultItemDetail.tsx
 #: src/pages/AccountSettingsOverlay.tsx
 #: src/pages/KnowledgeSection.tsx
 #: src/pages/model-settings/connection-controls.tsx
 #: src/pages/onboarding/model-step.tsx
-#: src/pages/PaymentWalletSettingsPanel.tsx
 #: src/pages/PluginSubmissionsPanel.tsx
 #: src/pages/shell/create-bot-dialog.tsx
 #: src/pages/shell/dialogs.tsx
@@ -1909,11 +1853,8 @@ msgstr "पुष्टि करें कि यह URL इस ब्राउ
 #: src/components/integrations/IntegrationSetup.tsx
 #: src/components/integrations/plugin-marketplace.tsx
 #: src/pages/memory-providers/HonchoSettingsForm.tsx
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-#: src/pages/memory-providers/SupermemorySettingsForm.tsx
 #: src/pages/MessagingSettingsPanel.tsx
 #: src/pages/model-settings/role-model-picker.tsx
-#: src/pages/PaymentWalletSettingsPanel.tsx
 #: src/pages/shell/message-cards.tsx
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "Connect"
@@ -1992,8 +1933,6 @@ msgstr "{0} कनेक्ट किया गया।"
 #: src/components/integrations/plugin-marketplace.tsx
 #: src/pages/McpServersOverlay.tsx
 #: src/pages/memory-providers/HonchoSettingsForm.tsx
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-#: src/pages/memory-providers/SupermemorySettingsForm.tsx
 #: src/pages/shell/message-cards.tsx
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "Connecting…"
@@ -2072,6 +2011,7 @@ msgstr "बातचीत"
 #: src/components/vault/VaultItemDetail.tsx
 #: src/pages/model-settings/connection-controls.tsx
 #: src/pages/onboarding/model-step.tsx
+#: src/pages/routine-editor/trigger-cards.tsx
 #: src/pages/shell/agent-import.tsx
 #: src/pages/shell/message-hover-actions.tsx
 msgid "Copied"
@@ -2088,6 +2028,10 @@ msgstr "कॉपी करें"
 #: src/components/vault/BotEmailAddresses.tsx
 msgid "Copy {address}"
 msgstr "{address} कॉपी करें"
+
+#: src/pages/routine-editor/trigger-cards.tsx
+msgid "Copy {label}"
+msgstr ""
 
 #: src/components/markdown-copy.tsx
 msgid "Copy code"
@@ -2591,10 +2535,6 @@ msgstr "नियम सहेजा नहीं जा सका"
 msgid "Could not save skill"
 msgstr "स्किल सहेजी नहीं जा सकी"
 
-#: src/components/SpendingLimitSettings.tsx
-msgid "Could not save spending limit"
-msgstr "खर्च सीमा सहेजी नहीं जा सकी"
-
 #: src/pages/HostComputerPrompt.tsx
 msgid "Could not save that choice"
 msgstr "वह विकल्प सहेजा नहीं जा सका"
@@ -2631,6 +2571,10 @@ msgstr "वह भेजा नहीं जा सका"
 #: src/components/VaultSettings.tsx
 msgid "Could not show the credential"
 msgstr "क्रेडेंशियल नहीं दिखाया जा सका"
+
+#: src/pages/shell/use-routine-editor.ts
+msgid "Could not show the webhook key"
+msgstr ""
 
 #: src/components/integrations/plugin-marketplace.tsx
 msgid "Could not sign in"
@@ -2725,10 +2669,6 @@ msgstr "सबमिशन लोड नहीं हो सके"
 msgid "Couldn't load this page. Try again."
 msgstr "यह पेज लोड नहीं हो सका। फिर से कोशिश करें।"
 
-#: src/pages/PaymentWalletSettingsPanel.tsx
-msgid "Couldn't load your wallet"
-msgstr "आपका वॉलेट लोड नहीं हो सका"
-
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Couldn't update bot style"
 msgstr "बॉट शैली अपडेट नहीं हो सकी"
@@ -2740,10 +2680,6 @@ msgstr "मैसेजिंग सेटिंग्स अपडेट नह
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Couldn't update your timezone"
 msgstr "आपका टाइमज़ोन अपडेट नहीं हो सका"
-
-#: src/pages/PaymentWalletSettingsPanel.tsx
-msgid "Couldn't update your wallet"
-msgstr "आपका वॉलेट अपडेट नहीं हो सका"
 
 #: src/components/vault/VaultItemEditor.tsx
 msgid "Country"
@@ -2781,8 +2717,8 @@ msgid "Create organization"
 msgstr "संगठन बनाएँ"
 
 #: src/pages/RoutineList.tsx
-msgid "Create Routine"
-msgstr "रूटीन बनाएं"
+msgid "Create routine"
+msgstr ""
 
 #: src/components/AskCard.tsx
 #: src/pages/shell/dialogs.tsx
@@ -2836,10 +2772,6 @@ msgstr "Cron"
 msgid "Cron expression"
 msgstr "Cron एक्सप्रेशन"
 
-#: src/components/SpendingLimitSettings.tsx
-msgid "Currency"
-msgstr "मुद्रा"
-
 #: src/components/AccountAccess.tsx
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Current password"
@@ -2864,10 +2796,6 @@ msgstr "{label} अनुकूलित करें"
 #: src/pages/shell/avatar-studio-popover.tsx
 msgid "Customize bot avatar"
 msgstr "बॉट अवतार अनुकूलित करें"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "Daily"
-msgstr "रोज़"
 
 #: src/pages/shell/bot-settings-sections.tsx
 msgid "Daily check-ins on unfinished work"
@@ -3087,7 +3015,6 @@ msgstr "रिकॉर्डिंग हटाएँ"
 #: src/pages/MemorySettingsOverlay.tsx
 #: src/pages/MessagingSettingsPanel.tsx
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/PaymentWalletSettingsPanel.tsx
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "Disconnect"
 msgstr "डिस्कनेक्ट करें"
@@ -3095,10 +3022,6 @@ msgstr "डिस्कनेक्ट करें"
 #: src/pages/ModelSettingsOverlay.tsx
 msgid "Disconnect {disconnectName}?"
 msgstr "{disconnectName} डिस्कनेक्ट करें?"
-
-#: src/pages/PaymentWalletSettingsPanel.tsx
-msgid "Disconnect {name}?"
-msgstr "{name} डिस्कनेक्ट करें?"
 
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "Disconnect Self-hosted"
@@ -3215,7 +3138,6 @@ msgid "Each name can be used once."
 msgstr "हर नाम का उपयोग केवल एक बार किया जा सकता है।"
 
 #: src/components/AskCard.tsx
-#: src/components/SpendingLimitSettings.tsx
 #: src/components/vault/VaultItemDetail.tsx
 #: src/pages/AccountSettingsOverlay.tsx
 #: src/pages/McpServersOverlay.tsx
@@ -3353,14 +3275,10 @@ msgid "Every bot in this space reads these notes and keeps them up to date."
 msgstr "इस स्पेस के सभी बॉट ये नोट्स पढ़ते हैं और इन्हें अपडेट रखते हैं।"
 
 #: src/lib/cron.ts
-#: src/pages/routine-editor/add-trigger-menu.tsx
-#: src/pages/RoutineSchedule.tsx
 msgid "Every day"
 msgstr "हर दिन"
 
 #: src/lib/cron.ts
-#: src/pages/routine-editor/add-trigger-menu.tsx
-#: src/pages/RoutineSchedule.tsx
 msgid "Every hour"
 msgstr "हर घंटे"
 
@@ -3376,16 +3294,6 @@ msgstr "हर संदेश"
 #: src/lib/cron.ts
 msgid "Every Monday"
 msgstr "हर सोमवार"
-
-#: src/pages/routine-editor/add-trigger-menu.tsx
-#: src/pages/RoutineSchedule.tsx
-msgid "Every month"
-msgstr "हर महीने"
-
-#: src/pages/routine-editor/add-trigger-menu.tsx
-#: src/pages/RoutineSchedule.tsx
-msgid "Every week"
-msgstr "हर सप्ताह"
 
 #: src/components/SharedSpaceRules.tsx
 msgid "Everyone here sees its chats, bots and memory"
@@ -3704,8 +3612,8 @@ msgid "Hang up, then enter the code on screen."
 msgstr "कॉल समाप्त करें, फिर स्क्रीन पर कोड डालें।"
 
 #: src/pages/routine-editor/trigger-cards.tsx
-msgid "header"
-msgstr "हेडर"
+msgid "Header"
+msgstr ""
 
 #: src/components/vault/VaultItemDetail.tsx
 msgid "Header \"{header}\""
@@ -3742,6 +3650,10 @@ msgstr "छिपा हुआ"
 #: src/components/vault/VaultItemDetail.tsx
 msgid "Hide"
 msgstr "छिपाएँ"
+
+#: src/pages/routine-editor/trigger-cards.tsx
+msgid "Hide key"
+msgstr ""
 
 #: src/components/I18nBootstrap.tsx
 msgid "Hide password"
@@ -3901,10 +3813,6 @@ msgstr "अपडेट इंस्टॉल करें"
 msgid "Installing…"
 msgstr "इंस्टॉल हो रहा है…"
 
-#: src/pages/memory-providers/SupermemorySettingsForm.tsx
-msgid "Instance API key"
-msgstr "इंस्टेंस API कुंजी"
-
 #: src/pages/RoutineEditor.tsx
 msgid "Instruction"
 msgstr "निर्देश"
@@ -3945,8 +3853,7 @@ msgstr "इंटीग्रेशन डोमेन"
 msgid "Integrations"
 msgstr "इंटीग्रेशन"
 
-#: src/pages/routine-editor/add-trigger-menu.tsx
-#: src/pages/RoutineSchedule.tsx
+#: src/lib/cron.ts
 msgid "Interval"
 msgstr "अंतराल"
 
@@ -4037,8 +3944,8 @@ msgid "Keep tool results whole"
 msgstr "टूल परिणाम पूरे रखें"
 
 #: src/pages/routine-editor/trigger-cards.tsx
-msgid "key"
-msgstr "कुंजी"
+msgid "Key options"
+msgstr ""
 
 #: src/pages/shell/keyboard-shortcuts-dialog.tsx
 #: src/pages/shell/use-palette-actions.ts
@@ -4316,10 +4223,6 @@ msgstr "प्रति अनुरोध अधिकतम इमेज"
 msgid "Maximum output tokens"
 msgstr "अधिकतम आउटपुट टोकन"
 
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-msgid "MCP endpoint"
-msgstr "MCP एंडपॉइंट"
-
 #: src/pages/plugins/add-menu.tsx
 #: src/pages/plugins/source-form.tsx
 msgid "MCP server"
@@ -4535,7 +4438,6 @@ msgid "month"
 msgstr "महीना"
 
 #: src/components/ModelCredits.tsx
-#: src/components/SpendingLimitSettings.tsx
 #: src/lib/cron.ts
 msgid "Monthly"
 msgstr "मासिक"
@@ -4547,6 +4449,10 @@ msgstr "मासिक क्रेडिट"
 #: src/components/ModelCredits.tsx
 msgid "Monthly credits expire at renewal. Top-ups do not expire."
 msgstr "मासिक क्रेडिट नवीनीकरण पर समाप्त हो जाते हैं। टॉप-अप समाप्त नहीं होते।"
+
+#: src/lib/cron.ts
+msgid "Monthly on the 1st"
+msgstr ""
 
 #: src/components/SpaceMembersSettings.tsx
 #: src/pages/plugins/plugin-browse.tsx
@@ -4854,16 +4760,16 @@ msgstr "कोई रिमोट MCP सर्वर नहीं मिला"
 msgid "No reply"
 msgstr "कोई जवाब नहीं"
 
-#: src/components/SpendingLimitSettings.tsx
-msgid "No reset"
-msgstr "रीसेट नहीं"
-
 #: src/pages/model-settings/providers-section.tsx
 #: src/pages/plugins/domain-search.tsx
 #: src/pages/shell/command-palette.tsx
 #: src/pages/SpaceSearch.tsx
 msgid "No results"
 msgstr "कोई परिणाम नहीं"
+
+#: src/pages/RoutineList.tsx
+msgid "No routines yet"
+msgstr ""
 
 #: src/components/markdown-copy.tsx
 msgid "No rows"
@@ -4873,7 +4779,7 @@ msgstr "कोई पंक्ति नहीं"
 msgid "No runs match these filters."
 msgstr "इन फ़िल्टर से कोई रन मेल नहीं खाता।"
 
-#: src/pages/RoutineRunHistory.tsx
+#: src/pages/ActivityList.tsx
 msgid "No runs yet"
 msgstr "अभी तक कोई रन नहीं"
 
@@ -4893,7 +4799,6 @@ msgstr "अभी तक कोई टिकट नहीं"
 msgid "No trigger"
 msgstr "कोई ट्रिगर नहीं"
 
-#: src/components/SpendingLimitSettings.tsx
 #: src/components/vault/VaultItemEditor.tsx
 msgid "None"
 msgstr "कोई नहीं"
@@ -4983,6 +4888,7 @@ msgid "Offline"
 msgstr "ऑफ़लाइन"
 
 #: src/pages/routine-editor/add-trigger-menu.tsx
+#: src/pages/RoutineSchedule.tsx
 msgid "On a schedule"
 msgstr "शेड्यूल पर"
 
@@ -4994,10 +4900,6 @@ msgstr "{day} तारीख को {time} पर"
 #: src/lib/cron.ts
 msgid "on the 1st at {0}"
 msgstr "1 तारीख को {0} बजे"
-
-#: src/components/AskCard.tsx
-msgid "On the button"
-msgstr "बटन पर"
 
 #: src/lib/cron.ts
 msgid "One-time"
@@ -5016,6 +4918,10 @@ msgid "Only me"
 msgstr "सिर्फ़ मैं"
 
 #: src/pages/shell/use-routine-editor.ts
+msgid "Only the bot's creator can see its webhook key."
+msgstr ""
+
+#: src/pages/shell/use-routine-editor.ts
 msgid "Only the bot's creator can set its webhook key."
 msgstr "केवल बॉट बनाने वाला ही इसकी वेबहुक कुंजी सेट कर सकता है।"
 
@@ -5026,7 +4932,6 @@ msgstr "सिर्फ़ आप"
 #: src/components/bot-templates/bot-templates-dialog.tsx
 #: src/components/markdown-link-prompt.tsx
 #: src/components/pages/PagesList.tsx
-#: src/pages/PaymentWalletSettingsPanel.tsx
 #: src/pages/shell/computer-panel.tsx
 #: src/pages/shell/import-setup-card.tsx
 #: src/pages/shell/message-view.tsx
@@ -5128,10 +5033,6 @@ msgstr "या एक API कुंजी पेस्ट करें"
 #: src/pages/settings-nav.ts
 msgid "Organization"
 msgstr "संगठन"
-
-#: src/pages/memory-providers/SupermemorySettingsForm.tsx
-msgid "Organization API key"
-msgstr "संगठन API कुंजी"
 
 #: src/pages/AccountSettingsOverlay.tsx
 #: src/pages/shell/avatar-studio-popover.tsx
@@ -5374,10 +5275,6 @@ msgstr "प्लगइन"
 msgid "Post \"No changes\" in chat"
 msgstr "चैट में “कोई बदलाव नहीं” पोस्ट करें"
 
-#: src/pages/routine-editor/trigger-cards.tsx
-msgid "POST to"
-msgstr "POST करें"
-
 #: src/components/bot-templates/bot-template-copy.ts
 msgid "PR reviewer"
 msgstr "PR रिव्यूअर"
@@ -5479,10 +5376,6 @@ msgstr "प्रतिक्रिया दें"
 msgid "Reactions"
 msgstr "प्रतिक्रियाएँ"
 
-#: src/components/AskCard.tsx
-msgid "Read from the page, not checked"
-msgstr "पेज से पढ़ा गया, जाँचा नहीं गया"
-
 #: src/pages/shell/bot-settings-sections.tsx
 msgid "Read replies aloud"
 msgstr "उत्तर पढ़कर सुनाएं"
@@ -5500,17 +5393,9 @@ msgstr "कारण"
 msgid "Reasoning effort"
 msgstr "रीज़निंग प्रयास"
 
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-msgid "Recall and write"
-msgstr "याद करें और लिखें"
-
 #: src/pages/memory-providers/HonchoSettingsForm.tsx
 msgid "Recall from this peer; save to Rakazo’s own peers."
 msgstr "इस पीयर से याद करें; Rakazo के अपने पीयर में सहेजें।"
-
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-msgid "Recall only"
-msgstr "केवल याद करें"
 
 #: src/pages/AdminAccessPage.tsx
 msgid "Received"
@@ -5519,10 +5404,6 @@ msgstr "प्राप्त"
 #: src/pages/ActivityList.tsx
 msgid "Recent"
 msgstr "हाल के"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "Recent payments"
-msgstr "हाल के भुगतान"
 
 #: src/pages/plugins/plugin-browse.tsx
 msgid "Recommended"
@@ -5660,7 +5541,6 @@ msgstr "फिर से लोड करें"
 
 #: src/components/integrations/plugin-marketplace.tsx
 #: src/components/SpaceMembersSettings.tsx
-#: src/components/SpendingLimitSettings.tsx
 #: src/components/TrustedLinkSitesSettings.tsx
 #: src/components/vault/LoginFieldsInput.tsx
 #: src/components/vault/VaultItemDetail.tsx
@@ -5727,7 +5607,7 @@ msgstr "हेडर हटाएँ"
 msgid "Remove message trigger"
 msgstr "संदेश ट्रिगर हटाएँ"
 
-#: src/pages/RoutineEditor.tsx
+#: src/pages/RoutineSchedule.tsx
 msgid "Remove schedule"
 msgstr "शेड्यूल हटाएँ"
 
@@ -5854,10 +5734,6 @@ msgstr "पासवर्ड रीसेट करें"
 #: src/pages/Auth.tsx
 msgid "Reset your password"
 msgstr "अपना पासवर्ड रीसेट करें"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "Resets"
-msgstr "रीसेट"
 
 #: src/components/ComputerMaintenanceActions.tsx
 msgid "Resetting…"
@@ -5993,6 +5869,10 @@ msgstr "चलाने का समय"
 msgid "Run history"
 msgstr "रन इतिहास"
 
+#: src/pages/RoutineEditor.tsx
+msgid "Run now"
+msgstr ""
+
 #: src/pages/shell/use-routine-editor.ts
 msgid "Run time must be in the future."
 msgstr "चलाने का समय भविष्य में होना चाहिए।"
@@ -6042,7 +5922,6 @@ msgstr "शनिवार"
 #: src/components/ComputerProviderSettings.tsx
 #: src/components/PasskeySettings.tsx
 #: src/components/SecretAskCard.tsx
-#: src/components/SpendingLimitSettings.tsx
 #: src/components/teach/SkillDraftCard.tsx
 #: src/components/vault/VaultItemEditor.tsx
 #: src/pages/AccountSettingsOverlay.tsx
@@ -6082,10 +5961,6 @@ msgstr "सहेजा गया, लेकिन सूची रिफ़्�
 #: src/pages/model-settings/use-model-settings.ts
 msgid "Saved."
 msgstr "सहेजा गया।"
-
-#: src/pages/routine-editor/trigger-cards.tsx
-msgid "Saved. Rotate to reveal."
-msgstr "सहेजा गया। दिखाने के लिए बदलें।"
 
 #: src/components/ComputerUpdateProgress.tsx
 msgid "Saving your workspace"
@@ -6211,6 +6086,10 @@ msgstr "खोज: {0}"
 msgid "Searching…"
 msgstr "खोजा जा रहा है…"
 
+#: src/pages/routine-editor/trigger-cards.tsx
+msgid "Secret"
+msgstr ""
+
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Security"
 msgstr "सुरक्षा"
@@ -6283,10 +6162,6 @@ msgstr "भेजा जा रहा है…"
 msgid "Sent"
 msgstr "भेजा गया"
 
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-msgid "Serenity endpoint is required."
-msgstr "Serenity एंडपॉइंट आवश्यक है।"
-
 #: src/pages/McpServerForm.tsx
 msgid "Server name"
 msgstr "सर्वर का नाम"
@@ -6298,10 +6173,6 @@ msgstr "सर्वर का नाम"
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "Server URL"
 msgstr "सर्वर URL"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "Set"
-msgstr "सेट करें"
 
 #: src/components/call/CallCard.tsx
 #: src/components/SidebarFooter.tsx
@@ -6375,7 +6246,6 @@ msgstr "साझा मेमोरी"
 msgid "Show"
 msgstr "दिखाएँ"
 
-#: src/components/SpendingLimitSettings.tsx
 #: src/pages/GroupPanel.tsx
 msgid "Show all"
 msgstr "सभी दिखाएँ"
@@ -6383,6 +6253,10 @@ msgstr "सभी दिखाएँ"
 #: src/pages/shell/sidebar-header.tsx
 msgid "Show bots"
 msgstr "बॉट दिखाएँ"
+
+#: src/pages/routine-editor/trigger-cards.tsx
+msgid "Show key"
+msgstr ""
 
 #: src/pages/Artifacts.tsx
 msgid "Show list"
@@ -6606,10 +6480,6 @@ msgstr "बोल रहा है"
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "Speech model"
 msgstr "वाक् मॉडल"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "Spending limit"
-msgstr "खर्च सीमा"
 
 #: src/components/AccountAccess.tsx
 msgid "SSO"
@@ -6857,10 +6727,6 @@ msgstr "API कुंजी का परीक्षण करें"
 #: src/pages/McpServersOverlay.tsx
 msgid "Test connection"
 msgstr "कनेक्शन का परीक्षण करें"
-
-#: src/pages/RoutineEditor.tsx
-msgid "Test run"
-msgstr "टेस्ट रन"
 
 #: src/pages/PluginSubmissionsPanel.tsx
 msgid "Testing"
@@ -7219,10 +7085,6 @@ msgstr "टूल"
 msgid "Topic watch"
 msgstr "विषय निगरानी"
 
-#: src/components/AskCard.tsx
-msgid "Total"
-msgstr "कुल"
-
 #: src/components/composer/HoldToTalk.tsx
 msgid "Transcribing…"
 msgstr "लिप्यंतरण हो रहा है…"
@@ -7425,6 +7287,10 @@ msgstr "अपलोड"
 msgid "Urgent"
 msgstr "अत्यावश्यक"
 
+#: src/pages/routine-editor/trigger-cards.tsx
+msgid "URL"
+msgstr ""
+
 #: src/pages/settings-nav.ts
 msgid "Usage"
 msgstr "उपयोग"
@@ -7594,10 +7460,6 @@ msgstr "प्रतीक्षा…"
 msgid "Wake"
 msgstr "जगाएँ"
 
-#: src/pages/settings-nav.ts
-msgid "Wallet"
-msgstr "वॉलेट"
-
 #: src/components/ModelCredits.tsx
 msgid "Web, desktop and mobile"
 msgstr "वेब, डेस्कटॉप और मोबाइल"
@@ -7619,18 +7481,12 @@ msgid "week"
 msgstr "सप्ताह"
 
 #: src/lib/cron.ts
-#: src/pages/routine-editor/add-trigger-menu.tsx
-#: src/pages/RoutineSchedule.tsx
 msgid "Weekdays"
 msgstr "कार्यदिवस"
 
 #: src/lib/cron.ts
 msgid "Weekends"
 msgstr "सप्ताहांत"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "Weekly"
-msgstr "हर हफ़्ते"
 
 #: src/components/SignupSurvey.tsx
 msgid "Welcome to Rakazo"
@@ -7712,10 +7568,6 @@ msgstr "कब उपयोग करें"
 #: src/pages/HostComputerPrompt.tsx
 msgid "Where should bots run?"
 msgstr "बॉट कहां चलने चाहिए?"
-
-#: src/pages/settings-nav.ts
-msgid "Where your bots pay from."
-msgstr "आपके बॉट कहाँ से भुगतान करते हैं।"
 
 #: src/pages/settings-nav.ts
 msgid "Which LLMs your bots use."

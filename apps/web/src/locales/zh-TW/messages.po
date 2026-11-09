@@ -178,10 +178,6 @@ msgstr "{count} 天"
 msgid "{count} months"
 msgstr "{count} 個月"
 
-#: src/components/AskCard.tsx
-msgid "{count} more"
-msgstr "還有 {count} 項"
-
 #: src/lib/billing.ts
 msgid "{count} weeks"
 msgstr "{count} 週"
@@ -371,38 +367,6 @@ msgstr "剩餘 {remaining}"
 #: src/pages/BillingSettingsPanel.tsx
 msgid "{seats, plural, one {# seat} other {# seats}}"
 msgstr "{seats, plural, one {# 個席位} other {# 個席位}}"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} a day"
-msgstr "每天 {shown}"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} a month"
-msgstr "每月 {shown}"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} a week"
-msgstr "每週 {shown}"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} in total"
-msgstr "總計 {shown}"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} spent"
-msgstr "已花費 {shown}"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} spent this month"
-msgstr "本月已花費 {shown}"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} spent this week"
-msgstr "本週已花費 {shown}"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "{shown} spent today"
-msgstr "今天已花費 {shown}"
 
 #: src/components/ArtifactFileCard.tsx
 msgid "{size} B"
@@ -702,7 +666,6 @@ msgstr "請填寫伺服器名稱。"
 msgid "Add a stdio command."
 msgstr "請填寫 stdio 命令。"
 
-#: src/pages/RoutineEditor.tsx
 #: src/pages/shell/use-routine-editor.ts
 msgid "Add a trigger to run this routine."
 msgstr "新增觸發器以執行此例行任務。"
@@ -814,12 +777,12 @@ msgstr "地址第 2 行"
 msgid "Adds"
 msgstr "將新增"
 
+#: src/lib/cron.ts
 #: src/pages/McpServerForm.tsx
 #: src/pages/model-settings/compatible-model-fields.tsx
 #: src/pages/ModelSettingsOverlay.tsx
 #: src/pages/onboarding/model-step.tsx
 #: src/pages/routine-editor/model-settings.tsx
-#: src/pages/RoutineSchedule.tsx
 #: src/pages/shell/bot-panel.tsx
 msgid "Advanced"
 msgstr "進階"
@@ -883,10 +846,6 @@ msgstr "允許一次"
 msgid "Allow Rakazo to use Speech Recognition and the microphone in System Settings."
 msgstr "請在系統設定中允許 Rakazo 使用語音辨識和麥克風。"
 
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-msgid "Allow writing"
-msgstr "允許寫入"
-
 #: src/components/AskCard.tsx
 msgid "Allowed in this space"
 msgstr "已在此空間允許"
@@ -930,10 +889,6 @@ msgstr "一律詢問"
 #: src/components/markdown-link-prompt.tsx
 msgid "Always open {site}"
 msgstr "一律開啟 {site}"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "Amount"
-msgstr "金額"
 
 #: src/lib/model-connection-preflight.ts
 msgid "An API key is stored for this provider, not a subscription sign-in."
@@ -1109,8 +1064,8 @@ msgid "Asks before sending, spending or changing anything in your apps."
 msgstr "在你的應用程式中傳送、花費或變更任何內容前先詢問。"
 
 #: src/components/ApprovalRulesSettings.tsx
-msgid "Asks only before purchases and the first use of your computer. Only Block rules apply."
-msgstr "只在購物及首次使用你的電腦前詢問。僅套用封鎖規則。"
+msgid "Asks only before the first use of your computer. Only Block rules apply."
+msgstr ""
 
 #: src/pages/shell/computer-panel.tsx
 msgid "Asleep"
@@ -1176,8 +1131,8 @@ msgid "Automated senders"
 msgstr "自動化傳送者"
 
 #: src/pages/routine-editor/trigger-cards.tsx
-msgid "Available after the routine is saved"
-msgstr "儲存例行任務後可用"
+msgid "Available after saving"
+msgstr ""
 
 #: src/components/ModelCredits.tsx
 msgid "Available credits"
@@ -1240,7 +1195,6 @@ msgstr "基本驗證（{username}）"
 
 #: src/components/vault/VaultItemDetail.tsx
 #: src/components/vault/VaultItemEditor.tsx
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
 #: src/pages/plugins/source-form.tsx
 msgid "Bearer token"
 msgstr "Bearer 權杖"
@@ -1345,10 +1299,6 @@ msgstr "擁有專屬電腦與瀏覽器的機器人"
 msgid "Bots with their own model"
 msgstr "使用自己模型的機器人"
 
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-msgid "Brain label"
-msgstr "大腦標籤"
-
 #: src/components/integrations/skills-dialog.tsx
 msgid "Browse"
 msgstr "瀏覽"
@@ -1362,10 +1312,6 @@ msgstr "瀏覽 MCP 伺服器"
 #: src/pages/shell/agent-import-plan.tsx
 msgid "Built-in"
 msgstr "內建"
-
-#: src/components/AskCard.tsx
-msgid "Button “{button}” · read from the page, not checked"
-msgstr "按鈕「{button}」· 讀取自頁面，未核實"
 
 #: src/pages/shell/chat-header.tsx
 msgid "Call"
@@ -1415,14 +1361,12 @@ msgstr "無法讀取影像"
 #: src/components/markdown-link-prompt.tsx
 #: src/components/ModelCredits.tsx
 #: src/components/PasskeySettings.tsx
-#: src/components/SpendingLimitSettings.tsx
 #: src/components/teach/TeachComputerOverlay.tsx
 #: src/components/vault/VaultItemDetail.tsx
 #: src/pages/AccountSettingsOverlay.tsx
 #: src/pages/KnowledgeSection.tsx
 #: src/pages/model-settings/connection-controls.tsx
 #: src/pages/onboarding/model-step.tsx
-#: src/pages/PaymentWalletSettingsPanel.tsx
 #: src/pages/PluginSubmissionsPanel.tsx
 #: src/pages/shell/create-bot-dialog.tsx
 #: src/pages/shell/dialogs.tsx
@@ -1910,11 +1854,8 @@ msgstr "請確認此瀏覽器工作階段可以存取該 URL，然後重新測�
 #: src/components/integrations/IntegrationSetup.tsx
 #: src/components/integrations/plugin-marketplace.tsx
 #: src/pages/memory-providers/HonchoSettingsForm.tsx
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-#: src/pages/memory-providers/SupermemorySettingsForm.tsx
 #: src/pages/MessagingSettingsPanel.tsx
 #: src/pages/model-settings/role-model-picker.tsx
-#: src/pages/PaymentWalletSettingsPanel.tsx
 #: src/pages/shell/message-cards.tsx
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "Connect"
@@ -1993,8 +1934,6 @@ msgstr "已連線 {0}。"
 #: src/components/integrations/plugin-marketplace.tsx
 #: src/pages/McpServersOverlay.tsx
 #: src/pages/memory-providers/HonchoSettingsForm.tsx
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-#: src/pages/memory-providers/SupermemorySettingsForm.tsx
 #: src/pages/shell/message-cards.tsx
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "Connecting…"
@@ -2073,6 +2012,7 @@ msgstr "對話"
 #: src/components/vault/VaultItemDetail.tsx
 #: src/pages/model-settings/connection-controls.tsx
 #: src/pages/onboarding/model-step.tsx
+#: src/pages/routine-editor/trigger-cards.tsx
 #: src/pages/shell/agent-import.tsx
 #: src/pages/shell/message-hover-actions.tsx
 msgid "Copied"
@@ -2089,6 +2029,10 @@ msgstr "複製"
 #: src/components/vault/BotEmailAddresses.tsx
 msgid "Copy {address}"
 msgstr "複製 {address}"
+
+#: src/pages/routine-editor/trigger-cards.tsx
+msgid "Copy {label}"
+msgstr ""
 
 #: src/components/markdown-copy.tsx
 msgid "Copy code"
@@ -2592,10 +2536,6 @@ msgstr "無法儲存規則"
 msgid "Could not save skill"
 msgstr "無法儲存技能"
 
-#: src/components/SpendingLimitSettings.tsx
-msgid "Could not save spending limit"
-msgstr "無法儲存支出上限"
-
 #: src/pages/HostComputerPrompt.tsx
 msgid "Could not save that choice"
 msgstr "無法儲存該選擇"
@@ -2632,6 +2572,10 @@ msgstr "無法傳送"
 #: src/components/VaultSettings.tsx
 msgid "Could not show the credential"
 msgstr "無法顯示憑證"
+
+#: src/pages/shell/use-routine-editor.ts
+msgid "Could not show the webhook key"
+msgstr ""
 
 #: src/components/integrations/plugin-marketplace.tsx
 msgid "Could not sign in"
@@ -2726,10 +2670,6 @@ msgstr "無法載入提交記錄"
 msgid "Couldn't load this page. Try again."
 msgstr "無法載入此頁面。請再試一次。"
 
-#: src/pages/PaymentWalletSettingsPanel.tsx
-msgid "Couldn't load your wallet"
-msgstr "無法載入你的錢包"
-
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Couldn't update bot style"
 msgstr "無法更新機器人風格"
@@ -2741,10 +2681,6 @@ msgstr "無法更新訊息設定"
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Couldn't update your timezone"
 msgstr "無法更新你的時區"
-
-#: src/pages/PaymentWalletSettingsPanel.tsx
-msgid "Couldn't update your wallet"
-msgstr "無法更新你的錢包"
 
 #: src/components/vault/VaultItemEditor.tsx
 msgid "Country"
@@ -2782,8 +2718,8 @@ msgid "Create organization"
 msgstr "建立組織"
 
 #: src/pages/RoutineList.tsx
-msgid "Create Routine"
-msgstr "建立例行任務"
+msgid "Create routine"
+msgstr ""
 
 #: src/components/AskCard.tsx
 #: src/pages/shell/dialogs.tsx
@@ -2837,10 +2773,6 @@ msgstr "Cron"
 msgid "Cron expression"
 msgstr "Cron 表示式"
 
-#: src/components/SpendingLimitSettings.tsx
-msgid "Currency"
-msgstr "幣別"
-
 #: src/components/AccountAccess.tsx
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Current password"
@@ -2865,10 +2797,6 @@ msgstr "自訂{label}"
 #: src/pages/shell/avatar-studio-popover.tsx
 msgid "Customize bot avatar"
 msgstr "自訂機器人頭像"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "Daily"
-msgstr "每天"
 
 #: src/pages/shell/bot-settings-sections.tsx
 msgid "Daily check-ins on unfinished work"
@@ -3088,7 +3016,6 @@ msgstr "捨棄錄製內容"
 #: src/pages/MemorySettingsOverlay.tsx
 #: src/pages/MessagingSettingsPanel.tsx
 #: src/pages/ModelSettingsOverlay.tsx
-#: src/pages/PaymentWalletSettingsPanel.tsx
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "Disconnect"
 msgstr "中斷"
@@ -3096,10 +3023,6 @@ msgstr "中斷"
 #: src/pages/ModelSettingsOverlay.tsx
 msgid "Disconnect {disconnectName}?"
 msgstr "要中斷 {disconnectName} 的連線嗎？"
-
-#: src/pages/PaymentWalletSettingsPanel.tsx
-msgid "Disconnect {name}?"
-msgstr "中斷與 {name} 的連線？"
 
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "Disconnect Self-hosted"
@@ -3216,7 +3139,6 @@ msgid "Each name can be used once."
 msgstr "每個名稱只能使用一次。"
 
 #: src/components/AskCard.tsx
-#: src/components/SpendingLimitSettings.tsx
 #: src/components/vault/VaultItemDetail.tsx
 #: src/pages/AccountSettingsOverlay.tsx
 #: src/pages/McpServersOverlay.tsx
@@ -3354,14 +3276,10 @@ msgid "Every bot in this space reads these notes and keeps them up to date."
 msgstr "此空間中的每個機器人都會讀取並更新這些筆記。"
 
 #: src/lib/cron.ts
-#: src/pages/routine-editor/add-trigger-menu.tsx
-#: src/pages/RoutineSchedule.tsx
 msgid "Every day"
 msgstr "每天"
 
 #: src/lib/cron.ts
-#: src/pages/routine-editor/add-trigger-menu.tsx
-#: src/pages/RoutineSchedule.tsx
 msgid "Every hour"
 msgstr "每小時"
 
@@ -3377,16 +3295,6 @@ msgstr "所有訊息"
 #: src/lib/cron.ts
 msgid "Every Monday"
 msgstr "每週一"
-
-#: src/pages/routine-editor/add-trigger-menu.tsx
-#: src/pages/RoutineSchedule.tsx
-msgid "Every month"
-msgstr "每月"
-
-#: src/pages/routine-editor/add-trigger-menu.tsx
-#: src/pages/RoutineSchedule.tsx
-msgid "Every week"
-msgstr "每週"
 
 #: src/components/SharedSpaceRules.tsx
 msgid "Everyone here sees its chats, bots and memory"
@@ -3705,8 +3613,8 @@ msgid "Hang up, then enter the code on screen."
 msgstr "請結束通話，再輸入螢幕上的驗證碼。"
 
 #: src/pages/routine-editor/trigger-cards.tsx
-msgid "header"
-msgstr "標頭"
+msgid "Header"
+msgstr ""
 
 #: src/components/vault/VaultItemDetail.tsx
 msgid "Header \"{header}\""
@@ -3743,6 +3651,10 @@ msgstr "隱藏"
 #: src/components/vault/VaultItemDetail.tsx
 msgid "Hide"
 msgstr "隱藏"
+
+#: src/pages/routine-editor/trigger-cards.tsx
+msgid "Hide key"
+msgstr ""
 
 #: src/components/I18nBootstrap.tsx
 msgid "Hide password"
@@ -3902,10 +3814,6 @@ msgstr "安裝更新"
 msgid "Installing…"
 msgstr "正在安裝…"
 
-#: src/pages/memory-providers/SupermemorySettingsForm.tsx
-msgid "Instance API key"
-msgstr "執行個體 API 金鑰"
-
 #: src/pages/RoutineEditor.tsx
 msgid "Instruction"
 msgstr "指令"
@@ -3946,8 +3854,7 @@ msgstr "整合服務網域"
 msgid "Integrations"
 msgstr "整合"
 
-#: src/pages/routine-editor/add-trigger-menu.tsx
-#: src/pages/RoutineSchedule.tsx
+#: src/lib/cron.ts
 msgid "Interval"
 msgstr "間隔"
 
@@ -4038,8 +3945,8 @@ msgid "Keep tool results whole"
 msgstr "保留完整工具結果"
 
 #: src/pages/routine-editor/trigger-cards.tsx
-msgid "key"
-msgstr "金鑰"
+msgid "Key options"
+msgstr ""
 
 #: src/pages/shell/keyboard-shortcuts-dialog.tsx
 #: src/pages/shell/use-palette-actions.ts
@@ -4317,10 +4224,6 @@ msgstr "每次請求的最大影像數"
 msgid "Maximum output tokens"
 msgstr "最大輸出 token 數"
 
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-msgid "MCP endpoint"
-msgstr "MCP 端點"
-
 #: src/pages/plugins/add-menu.tsx
 #: src/pages/plugins/source-form.tsx
 msgid "MCP server"
@@ -4536,7 +4439,6 @@ msgid "month"
 msgstr "月"
 
 #: src/components/ModelCredits.tsx
-#: src/components/SpendingLimitSettings.tsx
 #: src/lib/cron.ts
 msgid "Monthly"
 msgstr "每月"
@@ -4548,6 +4450,10 @@ msgstr "每月額度"
 #: src/components/ModelCredits.tsx
 msgid "Monthly credits expire at renewal. Top-ups do not expire."
 msgstr "每月額度在續訂時到期。單次加值額度不會過期。"
+
+#: src/lib/cron.ts
+msgid "Monthly on the 1st"
+msgstr ""
 
 #: src/components/SpaceMembersSettings.tsx
 #: src/pages/plugins/plugin-browse.tsx
@@ -4855,16 +4761,16 @@ msgstr "找不到遠端 MCP 伺服器"
 msgid "No reply"
 msgstr "未回覆"
 
-#: src/components/SpendingLimitSettings.tsx
-msgid "No reset"
-msgstr "不重設"
-
 #: src/pages/model-settings/providers-section.tsx
 #: src/pages/plugins/domain-search.tsx
 #: src/pages/shell/command-palette.tsx
 #: src/pages/SpaceSearch.tsx
 msgid "No results"
 msgstr "無結果"
+
+#: src/pages/RoutineList.tsx
+msgid "No routines yet"
+msgstr ""
 
 #: src/components/markdown-copy.tsx
 msgid "No rows"
@@ -4874,7 +4780,7 @@ msgstr "沒有資料列"
 msgid "No runs match these filters."
 msgstr "沒有符合篩選條件的執行紀錄。"
 
-#: src/pages/RoutineRunHistory.tsx
+#: src/pages/ActivityList.tsx
 msgid "No runs yet"
 msgstr "還沒有執行紀錄"
 
@@ -4894,7 +4800,6 @@ msgstr "尚無工作項目"
 msgid "No trigger"
 msgstr "無觸發器"
 
-#: src/components/SpendingLimitSettings.tsx
 #: src/components/vault/VaultItemEditor.tsx
 msgid "None"
 msgstr "無"
@@ -4984,6 +4889,7 @@ msgid "Offline"
 msgstr "離線"
 
 #: src/pages/routine-editor/add-trigger-menu.tsx
+#: src/pages/RoutineSchedule.tsx
 msgid "On a schedule"
 msgstr "依排程"
 
@@ -4995,10 +4901,6 @@ msgstr "{day} 日 {time}"
 #: src/lib/cron.ts
 msgid "on the 1st at {0}"
 msgstr "每月 1 日 {0}"
-
-#: src/components/AskCard.tsx
-msgid "On the button"
-msgstr "按鈕上的金額"
 
 #: src/lib/cron.ts
 msgid "One-time"
@@ -5017,6 +4919,10 @@ msgid "Only me"
 msgstr "僅限我"
 
 #: src/pages/shell/use-routine-editor.ts
+msgid "Only the bot's creator can see its webhook key."
+msgstr ""
+
+#: src/pages/shell/use-routine-editor.ts
 msgid "Only the bot's creator can set its webhook key."
 msgstr "只有機器人的建立者才能設定它的 Webhook 金鑰。"
 
@@ -5027,7 +4933,6 @@ msgstr "僅限自己"
 #: src/components/bot-templates/bot-templates-dialog.tsx
 #: src/components/markdown-link-prompt.tsx
 #: src/components/pages/PagesList.tsx
-#: src/pages/PaymentWalletSettingsPanel.tsx
 #: src/pages/shell/computer-panel.tsx
 #: src/pages/shell/import-setup-card.tsx
 #: src/pages/shell/message-view.tsx
@@ -5129,10 +5034,6 @@ msgstr "或貼上 API 金鑰"
 #: src/pages/settings-nav.ts
 msgid "Organization"
 msgstr "組織"
-
-#: src/pages/memory-providers/SupermemorySettingsForm.tsx
-msgid "Organization API key"
-msgstr "組織 API 金鑰"
 
 #: src/pages/AccountSettingsOverlay.tsx
 #: src/pages/shell/avatar-studio-popover.tsx
@@ -5375,10 +5276,6 @@ msgstr "外掛"
 msgid "Post \"No changes\" in chat"
 msgstr "在聊天室中傳送「沒有變更」"
 
-#: src/pages/routine-editor/trigger-cards.tsx
-msgid "POST to"
-msgstr "POST 到"
-
 #: src/components/bot-templates/bot-template-copy.ts
 msgid "PR reviewer"
 msgstr "PR 審查員"
@@ -5480,10 +5377,6 @@ msgstr "回應"
 msgid "Reactions"
 msgstr "表情回應"
 
-#: src/components/AskCard.tsx
-msgid "Read from the page, not checked"
-msgstr "讀取自頁面，未核實"
-
 #: src/pages/shell/bot-settings-sections.tsx
 msgid "Read replies aloud"
 msgstr "朗讀回覆"
@@ -5501,17 +5394,9 @@ msgstr "原因"
 msgid "Reasoning effort"
 msgstr "推理強度"
 
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-msgid "Recall and write"
-msgstr "回想與寫入"
-
 #: src/pages/memory-providers/HonchoSettingsForm.tsx
 msgid "Recall from this peer; save to Rakazo’s own peers."
 msgstr "從此 peer 讀取；儲存至 Rakazo 自己的 peer。"
-
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-msgid "Recall only"
-msgstr "僅回想"
 
 #: src/pages/AdminAccessPage.tsx
 msgid "Received"
@@ -5520,10 +5405,6 @@ msgstr "已收到"
 #: src/pages/ActivityList.tsx
 msgid "Recent"
 msgstr "最近"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "Recent payments"
-msgstr "最近付款"
 
 #: src/pages/plugins/plugin-browse.tsx
 msgid "Recommended"
@@ -5661,7 +5542,6 @@ msgstr "重新載入"
 
 #: src/components/integrations/plugin-marketplace.tsx
 #: src/components/SpaceMembersSettings.tsx
-#: src/components/SpendingLimitSettings.tsx
 #: src/components/TrustedLinkSitesSettings.tsx
 #: src/components/vault/LoginFieldsInput.tsx
 #: src/components/vault/VaultItemDetail.tsx
@@ -5728,7 +5608,7 @@ msgstr "移除標頭"
 msgid "Remove message trigger"
 msgstr "移除訊息觸發條件"
 
-#: src/pages/RoutineEditor.tsx
+#: src/pages/RoutineSchedule.tsx
 msgid "Remove schedule"
 msgstr "移除排程"
 
@@ -5855,10 +5735,6 @@ msgstr "重設密碼"
 #: src/pages/Auth.tsx
 msgid "Reset your password"
 msgstr "重設你的密碼"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "Resets"
-msgstr "重設"
 
 #: src/components/ComputerMaintenanceActions.tsx
 msgid "Resetting…"
@@ -5994,6 +5870,10 @@ msgstr "執行時間"
 msgid "Run history"
 msgstr "執行紀錄"
 
+#: src/pages/RoutineEditor.tsx
+msgid "Run now"
+msgstr ""
+
 #: src/pages/shell/use-routine-editor.ts
 msgid "Run time must be in the future."
 msgstr "執行時間必須是將來的時間。"
@@ -6043,7 +5923,6 @@ msgstr "週六"
 #: src/components/ComputerProviderSettings.tsx
 #: src/components/PasskeySettings.tsx
 #: src/components/SecretAskCard.tsx
-#: src/components/SpendingLimitSettings.tsx
 #: src/components/teach/SkillDraftCard.tsx
 #: src/components/vault/VaultItemEditor.tsx
 #: src/pages/AccountSettingsOverlay.tsx
@@ -6083,10 +5962,6 @@ msgstr "已儲存，但清單重新整理失敗"
 #: src/pages/model-settings/use-model-settings.ts
 msgid "Saved."
 msgstr "已儲存。"
-
-#: src/pages/routine-editor/trigger-cards.tsx
-msgid "Saved. Rotate to reveal."
-msgstr "已儲存。輪換後可檢視。"
 
 #: src/components/ComputerUpdateProgress.tsx
 msgid "Saving your workspace"
@@ -6212,6 +6087,10 @@ msgstr "搜尋：{0}"
 msgid "Searching…"
 msgstr "正在搜尋…"
 
+#: src/pages/routine-editor/trigger-cards.tsx
+msgid "Secret"
+msgstr ""
+
 #: src/pages/AccountSettingsOverlay.tsx
 msgid "Security"
 msgstr "安全"
@@ -6284,10 +6163,6 @@ msgstr "正在傳送…"
 msgid "Sent"
 msgstr "已傳送"
 
-#: src/pages/memory-providers/SerenitySettingsForm.tsx
-msgid "Serenity endpoint is required."
-msgstr "請填寫 Serenity 端點。"
-
 #: src/pages/McpServerForm.tsx
 msgid "Server name"
 msgstr "伺服器名稱"
@@ -6299,10 +6174,6 @@ msgstr "伺服器名稱"
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "Server URL"
 msgstr "伺服器 URL"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "Set"
-msgstr "設定"
 
 #: src/components/call/CallCard.tsx
 #: src/components/SidebarFooter.tsx
@@ -6376,7 +6247,6 @@ msgstr "共用記憶"
 msgid "Show"
 msgstr "顯示"
 
-#: src/components/SpendingLimitSettings.tsx
 #: src/pages/GroupPanel.tsx
 msgid "Show all"
 msgstr "顯示全部"
@@ -6384,6 +6254,10 @@ msgstr "顯示全部"
 #: src/pages/shell/sidebar-header.tsx
 msgid "Show bots"
 msgstr "顯示機器人"
+
+#: src/pages/routine-editor/trigger-cards.tsx
+msgid "Show key"
+msgstr ""
 
 #: src/pages/Artifacts.tsx
 msgid "Show list"
@@ -6607,10 +6481,6 @@ msgstr "說話中"
 #: src/pages/VoiceSettingsOverlay.tsx
 msgid "Speech model"
 msgstr "語音模型"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "Spending limit"
-msgstr "支出上限"
 
 #: src/components/AccountAccess.tsx
 msgid "SSO"
@@ -6858,10 +6728,6 @@ msgstr "測試 API 金鑰"
 #: src/pages/McpServersOverlay.tsx
 msgid "Test connection"
 msgstr "測試連線"
-
-#: src/pages/RoutineEditor.tsx
-msgid "Test run"
-msgstr "測試執行"
 
 #: src/pages/PluginSubmissionsPanel.tsx
 msgid "Testing"
@@ -7220,10 +7086,6 @@ msgstr "工具"
 msgid "Topic watch"
 msgstr "主題追蹤"
 
-#: src/components/AskCard.tsx
-msgid "Total"
-msgstr "合計"
-
 #: src/components/composer/HoldToTalk.tsx
 msgid "Transcribing…"
 msgstr "轉錄中…"
@@ -7426,6 +7288,10 @@ msgstr "上傳"
 msgid "Urgent"
 msgstr "緊急"
 
+#: src/pages/routine-editor/trigger-cards.tsx
+msgid "URL"
+msgstr ""
+
 #: src/pages/settings-nav.ts
 msgid "Usage"
 msgstr "用量"
@@ -7595,10 +7461,6 @@ msgstr "等待中…"
 msgid "Wake"
 msgstr "喚醒"
 
-#: src/pages/settings-nav.ts
-msgid "Wallet"
-msgstr "錢包"
-
 #: src/components/ModelCredits.tsx
 msgid "Web, desktop and mobile"
 msgstr "網頁、桌面與手機"
@@ -7620,18 +7482,12 @@ msgid "week"
 msgstr "週"
 
 #: src/lib/cron.ts
-#: src/pages/routine-editor/add-trigger-menu.tsx
-#: src/pages/RoutineSchedule.tsx
 msgid "Weekdays"
 msgstr "工作日"
 
 #: src/lib/cron.ts
 msgid "Weekends"
 msgstr "週末"
-
-#: src/components/SpendingLimitSettings.tsx
-msgid "Weekly"
-msgstr "每週"
 
 #: src/components/SignupSurvey.tsx
 msgid "Welcome to Rakazo"
@@ -7713,10 +7569,6 @@ msgstr "何時使用"
 #: src/pages/HostComputerPrompt.tsx
 msgid "Where should bots run?"
 msgstr "機器人應在哪裡執行？"
-
-#: src/pages/settings-nav.ts
-msgid "Where your bots pay from."
-msgstr "你的機器人從哪裡付款。"
 
 #: src/pages/settings-nav.ts
 msgid "Which LLMs your bots use."
