@@ -61,16 +61,6 @@ function creditPlanHours(cents: number) {
 /** Display names for every sandbox a self-hosted deployment can use; typed so a new kind must be named. */
 const SANDBOX_NAMES: Record<Exclude<SandboxKind, "none" | "desktop" | "fake">, string> = {
   docker: "Docker",
-  kubernetes: "Kubernetes",
-  incus: "Incus",
-  boat: "Boat",
-  boxd: "Boxd",
-  createos: "CreateOS",
-  daytona: "Daytona",
-  e2b: "E2B",
-  novita: "Novita",
-  railway: "Railway",
-  wuying: "Wuying",
 };
 const SANDBOX_PROVIDERS = Object.values(SANDBOX_NAMES);
 
@@ -173,8 +163,8 @@ export const PRICING_COMPARISON = {
       feature: "Sandbox",
       cells: [
         {
-          label: `Your computer or any of ${SANDBOX_PROVIDERS.length}`,
-          detail: `Your own computer through the desktop app, or ${SANDBOX_PROVIDERS.join(", ")}`,
+          label: `Your computer or ${SANDBOX_PROVIDERS.join(", ")}`,
+          detail: `Your own computer through the desktop app, or ${SANDBOX_PROVIDERS.join(", ")} on your server`,
         },
         ...TIERS.map(() => "Included"),
         "Included",

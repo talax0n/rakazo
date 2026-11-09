@@ -210,7 +210,7 @@ describePostgres("computer stop (PostgreSQL)", () => {
     { from: "suspended", stopError: new SandboxRateLimitError(), status: 500, state: "suspended" },
     {
       from: "suspended",
-      stopError: new Error("Boat refused the stop"),
+      stopError: new Error("The provider refused the stop"),
       status: 500,
       state: "error",
     },
@@ -265,7 +265,7 @@ describePostgres("computer stop (PostgreSQL)", () => {
 
   it("still marks a computer errored when the provider fails its stop", async () => {
     const { computer, sandbox, stop } = await runningComputer();
-    sandbox.stopError = new Error("Boat refused the stop");
+    sandbox.stopError = new Error("The provider refused the stop");
 
     expect(await stop()).toBe(500);
 

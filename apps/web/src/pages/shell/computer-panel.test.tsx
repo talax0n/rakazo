@@ -36,7 +36,7 @@ function computer(state: ComputerStatus["state"]): ComputerStatus {
   return {
     botId: "bot-1",
     mode: "team",
-    kind: "boat",
+    kind: "fake",
     state,
     controlHolder: "none",
     controlBotId: null,

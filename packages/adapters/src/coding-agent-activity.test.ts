@@ -56,7 +56,7 @@ describe("activeCodingAgent", () => {
   });
 });
 
-const computer = { id: "computer", kind: "boat" } as ComputerRef;
+const computer = { id: "computer", kind: "fake" } as ComputerRef;
 const context = { signal: new AbortController().signal } as AdapterContext;
 
 function localShell(home: string): SandboxProvider {

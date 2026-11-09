@@ -34,7 +34,7 @@ openssl rand -hex 32   # BETTER_AUTH_SECRET, ENCRYPTION_KEY, SCREEN_PROXY_SECRET
 
 ## คีย์ทางเลือก
 
-เช่น `OPENROUTER_API_KEY`, `COMPOSIO_API_KEY`, `E2B_API_KEY` / `DAYTONA_API_KEY` / `BOAT_API_KEY` ตาม `SANDBOX_PROVIDER` ปล่อยว่างได้ถ้าไม่ใช้
+เช่น `OPENROUTER_API_KEY`, `COMPOSIO_API_KEY` ปล่อยว่างได้ถ้าไม่ใช้
 
 ## ขั้นตอนผู้ดูแล
 

@@ -1,5 +1,4 @@
 import {
-  computerScreenSize,
   computerSupportsTerminal,
   computerSupportsUpdate,
   DISK_WARNING_PERCENT,
@@ -7,7 +6,8 @@ import {
   holdsUserControl,
 } from "@rakazo/adapters";
 import type { ComputerStatus } from "@rakazo/contracts";
-import { ACTIVE_RUN_STATUSES } from "@rakazo/core";
+import { SandboxKind } from "@rakazo/contracts";
+import { ACTIVE_RUN_STATUSES, DEFAULT_COMPUTER_SCREEN } from "@rakazo/core";
 import type { PrismaClient } from "@rakazo/db";
 
 /** Mirrors computer.takeover: an execution lease blocks user control unless a takeover is pending. */
@@ -80,7 +80,10 @@ export function toComputerStatus(
   const controlledByOther = Boolean(
     viewerId && computer?.controlHolder === "user" && !holdsUserControl(computer, viewerId),
   );
-  const kind = (computer?.kind ?? "fake") as ComputerStatus["kind"];
+  // A kind no provider runs any more (a removed provider's) reads as stopped; its next start
+  // creates the computer on the configured provider.
+  const stored = SandboxKind.safeParse(computer?.kind ?? "fake");
+  const kind: ComputerStatus["kind"] = stored.success ? stored.data : "none";
   const state =
     kind === "none"
       ? "stopped"
@@ -97,7 +100,7 @@ export function toComputerStatus(
                 computer?.state === "error"
               ? computer.state
               : "stopped";
-  const screen = computerScreenSize(computer?.kind);
+  const screen = DEFAULT_COMPUTER_SCREEN;
   const diskPercent = computer ? diskUsedPercent(computer) : null;
   const diskFull =
     diskPercent !== null &&

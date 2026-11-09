@@ -53,13 +53,13 @@ describePostgres("computer allowance hours (PostgreSQL)", () => {
     await prisma.computerRun.createMany({
       data: [
         // Started last month: only the hour after the month began counts.
-        run("a", "boat", "2026-02-28T22:00:00.000Z", "2026-03-01T01:00:00.000Z"),
-        run("a", "boat", "2026-03-02T00:00:00.000Z", "2026-03-02T02:00:00.000Z"),
+        run("a", "fake", "2026-02-28T22:00:00.000Z", "2026-03-01T01:00:00.000Z"),
+        run("a", "fake", "2026-03-02T00:00:00.000Z", "2026-03-02T02:00:00.000Z"),
         // Still running: counts up to now.
-        run("b", "e2b", "2026-03-09T20:00:00.000Z", null),
+        run("b", "docker", "2026-03-09T20:00:00.000Z", null),
         // Ended before the month.
-        run("c", "boat", "2026-02-10T00:00:00.000Z", "2026-02-10T05:00:00.000Z"),
-        run("d", "boat", "2026-03-02T00:00:00.000Z", "2026-03-02T09:00:00.000Z", otherSpaceId),
+        run("c", "fake", "2026-02-10T00:00:00.000Z", "2026-02-10T05:00:00.000Z"),
+        run("d", "fake", "2026-03-02T00:00:00.000Z", "2026-03-02T09:00:00.000Z", otherSpaceId),
       ],
     });
   });
@@ -79,8 +79,8 @@ describePostgres("computer allowance hours (PostgreSQL)", () => {
       sandboxRunHours(db, organizationId, since, now),
     );
     expect(Object.fromEntries(hours.map((row) => [row.kind, row.hours]))).toEqual({
-      boat: 3,
-      e2b: 4,
+      fake: 3,
+      docker: 4,
     });
   });
 });

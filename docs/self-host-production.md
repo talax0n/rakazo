@@ -5,9 +5,10 @@ Run Rakazo on a public server with automatic HTTPS, hardened hosts and zero-down
 ## Public single-VM deployment
 
 `infra/compose/docker-compose.prod.yml` runs the hosted product with Postgres, the API, worker, web app,
-and automatic HTTPS through Caddy. It uses E2B for bot computers, so the VM never exposes a Docker
-supervisor or browser containers — `infra/compose/docker-compose.prod.docker.yml` is the opt-in
-overlay that runs local Docker computers on the same stack (see below). The root-equivalent updater
+and automatic HTTPS through Caddy. On its own it runs without bot computers (`SANDBOX_PROVIDER=none`),
+so the VM never exposes a Docker supervisor or browser containers —
+`infra/compose/docker-compose.prod.docker.yml` is the opt-in overlay that runs local Docker computers
+on the same stack (see below). The root-equivalent updater
 sidecar is an explicit opt-in profile.
 
 Before deploying to a new Ubuntu host, create and verify a key-only `deploy` account, then apply the
@@ -51,8 +52,8 @@ WEB_ORIGIN=https://app.example.com
 API_URL=https://app.example.com
 SIGNUPS_ENABLED=true
 SIGNUP_ALLOWLIST=owner@example.com,reviewer@example.com
-# e2b, novita, daytona, or boat
-SANDBOX_PROVIDER=e2b
+# none here; the Docker overlay below switches it to docker
+SANDBOX_PROVIDER=none
 AGENT_RUNTIME=pi
 WAKEUP_DRIVER=graphile
 DATA_DIR=/data

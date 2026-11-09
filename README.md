@@ -113,8 +113,7 @@ The installer downloads the Compose files, creates `.env` with random secrets, a
 It preserves an existing `.env` when rerun.
 
 Open [http://127.0.0.1:5173](http://127.0.0.1:5173), create an account, and connect a model.
-Local Docker computers are on by default. Optional remote providers: `e2b`, `novita`, `daytona`, `createos`, `boat`, `boxd`, or `railway`
-with the matching API key.
+Local Docker computers are on by default.
 
 Default image tag is `edge` (main builds, `linux/amd64` + `linux/arm64`). Details and tags:
 [self-hosting guide](./docs/self-host.md#published-images-no-checkout).
@@ -133,7 +132,7 @@ the desktop app, the mobile app, or a browser.
 
 ```bash
 bash install-images.sh --prepare-only
-# edit .env: SANDBOX_PROVIDER=boat (or e2b / daytona / createos) with its API key, RAKAZO_HOST=your.domain
+# edit .env: RAKAZO_HOST=your.domain
 bash install-images.sh
 ```
 
@@ -224,30 +223,6 @@ your first bot.
 For deployment, provider selection, backups, and upgrades, see the
 [self-hosting guide](./docs/self-host.md), [production deployment](./docs/self-host-production.md),
 [backup and restore](./docs/self-host-backups.md), and [upgrading](./docs/self-host-upgrading.md).
-
-To use CreateOS, set `SANDBOX_PROVIDER=createos` and `CREATEOS_SANDBOX_API_KEY`.
-Optional `CREATEOS_SANDBOX_BASE_URL`, `CREATEOS_SANDBOX_SHAPE`, and
-`CREATEOS_SANDBOX_ROOTFS` default to `https://api.sb.createos.sh`, `s-2vcpu-2gb`,
-and `desktop:1`.
-
-To use Railway computers, set `SANDBOX_PROVIDER=railway`, `RAILWAY_API_TOKEN`
-and `RAILWAY_ENVIRONMENT_ID` on the API and worker. Choose the sandbox environment
-explicitly; Railway's automatic environment ID identifies the hosted app's environment.
-Use the narrowest Railway API token that works: prefer a project token if sufficient
-for sandbox operations and supported by the client's authentication. This provider
-currently uses bearer authentication, so use a team/workspace token rather than a
-personal account token.
-The live screen and desktop require `PRIVATE` networking so Railway's public domain
-can serve the screen. Computers use this mode and can reach other services in the
-same Railway project/environment, as well as the public internet. We recommend a
-dedicated Railway project (or at least a separate environment) for sandboxes,
-separate from the app and database. Recreate existing `ISOLATED` computers before use.
-The desktop is installed on first start. Stopping a computer saves its portable
-home and destroys the sandbox; the next start restores that home in a new sandbox.
-Railway sandbox usage is metered.
-New computers start in Railway's default region. Set `RAILWAY_SANDBOX_REGION` (for example
-`asia-southeast1-eqsg3a`) to keep them near the API; a running computer moves on its next start.
-Workspace exports reject files above 64 MiB without truncating them. Set `RAILWAY_MAX_WORKSPACE_FILE_BYTES` to change this limit.
 
 ## Desktop and mobile
 
@@ -383,7 +358,7 @@ Chinese guides cover [self-hosting](./docs/zh-CN/self-host.md), [models](./docs/
 - Better Auth
 - Graphile Worker
 - Pi
-- Docker, E2B, Daytona, CreateOS, and Boat
+- Docker
 - Composio, Pipedream Connect, MCP, and OpenAPI integrations
 
 ## Contributing

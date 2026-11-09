@@ -2,7 +2,7 @@
 
 Run the API, worker, web app, database and bot computers on a machine you control.
 
-The signed-in product is a long-running API, a Graphile Worker, Postgres, and a computer provider (Docker supervisor, E2B, Daytona, CreateOS, or Boat). It is not a static site. The marketing site in `apps/www` can be hosted separately.
+The signed-in product is a long-running API, a Graphile Worker, Postgres, and a computer provider (the Docker supervisor). It is not a static site. The marketing site in `apps/www` can be hosted separately.
 
 English | [简体中文](./zh-CN/self-host.md)
 
@@ -36,8 +36,7 @@ from that release instead of `main`.
 
 `SANDBOX_PROVIDER` defaults to `docker`. The images Compose file runs a sandbox supervisor
 (from the app image, on the internal network only) and pulls `ghcr.io/elie222/rakazo/computer`.
-Signup and local Docker computers work without an E2B account. Optional remote providers: set
-`SANDBOX_PROVIDER` to `e2b`, `novita`, `daytona`, `createos`, or `boat` and add the matching API key. The published-images
+Set `SANDBOX_PROVIDER=none` to run without computers. The published-images
 Compose stack requires `SANDBOX_SUPERVISOR_TOKEN` for every provider; leave it empty and `compose up` fails closed.
 
 Optional: set `OPENROUTER_API_KEY` or connect a model in the UI after signup. Other providers,
@@ -66,7 +65,7 @@ app.example.com {
 ```
 
 Open **Agent computer** on a bot, or send a message that uses the desktop, to see
-the local Docker computer. For in-stack Caddy plus remote E2B computers, use the
+the local Docker computer. For in-stack Caddy, use the
 [production Compose](./self-host-production.md#public-single-vm-deployment) path and `infra/compose/Caddyfile.prod`
 instead of this host proxy.
 

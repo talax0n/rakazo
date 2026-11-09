@@ -16,8 +16,8 @@ if [[ "${1:-}" != serve ]]; then
   exec env -u DATABASE_MIGRATION_URL bash "$0" serve
 fi
 
-export RAILWAY_ENVIRONMENT_ID
-RAILWAY_ENVIRONMENT_ID=$(node infra/railway/sandbox-environment.mjs)
+# Railway has no Docker host for computers, so they stay off unless the operator configures one.
+export SANDBOX_PROVIDER="${SANDBOX_PROVIDER:-none}"
 pnpm --filter @rakazo/api exec node dist/cli/bootstrap-owner.js
 unset OWNER_PASSWORD
 # Personal template: registration is operator configuration, never an app-account permission.

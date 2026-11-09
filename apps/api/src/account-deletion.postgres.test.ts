@@ -183,7 +183,7 @@ describePostgres("account deletion on bot computers (PostgreSQL)", () => {
       scope: "team",
       scopeKey: computerScopeKey({ mode: "team", spaceId, userId }),
       homeKey: computerHomeKey({ mode: "team", spaceId, userId }),
-      kind: "e2b",
+      kind: "retired-provider",
       providerRef,
       state,
     });
@@ -203,7 +203,7 @@ describePostgres("account deletion on bot computers (PostgreSQL)", () => {
           scope: "dedicated",
           scopeKey: `bot:${ids.dedicatedBot}`,
           homeKey: ids.dedicatedBot,
-          kind: "e2b",
+          kind: "retired-provider",
           providerRef: `sb-dedicated-${suffix}`,
         },
       ],
@@ -365,7 +365,12 @@ describePostgres("account deletion on bot computers (PostgreSQL)", () => {
       checkpointAndRecordComputerWorkspace(
         { prisma, sandbox: stale as unknown as SandboxProvider, home },
         legacy,
-        { id: "sb", botId: legacy.homeKey, kind: "e2b", providerRef: "sb" },
+        {
+          id: "sb",
+          botId: legacy.homeKey,
+          kind: "retired-provider" as ComputerRef["kind"],
+          providerRef: "sb",
+        },
         context,
       ),
     );

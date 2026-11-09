@@ -1,6 +1,6 @@
 /** Computers whose commands run in the host's own shell rather than bash on Linux. */
 export function usesNativeShell(kind: string): boolean {
-  return kind === "desktop" || kind === "wuying";
+  return kind === "desktop";
 }
 
 /** Interpreter arguments for commands on a native host, independent of the backend's OS. */

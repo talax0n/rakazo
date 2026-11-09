@@ -18,7 +18,7 @@ bash install-images.sh
 
 ตัวติดตั้งจะสร้าง `.env` ดึง image แล้วสตาร์ท การรันซ้ำจะเก็บ `.env` เดิม ถ้าจะปรับก่อนสตาร์ท ให้ใช้ `bash install-images.sh --prepare-only` แก้ `.env` แล้วรันอีกครั้ง
 
-`SANDBOX_PROVIDER` ค่าเริ่มต้น `docker` เปลี่ยนเป็น `e2b`, `novita`, `daytona`, `createos`, หรือ `boat` ต้องใส่ API key ที่ตรงกัน ทุก provider ต้องมี `SANDBOX_SUPERVISOR_TOKEN` ไม่งั้น `compose up` จะ fail
+`SANDBOX_PROVIDER` ค่าเริ่มต้น `docker` ตั้งเป็น `none` ถ้าไม่ใช้คอมพิวเตอร์ของบอท ทุก provider ต้องมี `SANDBOX_SUPERVISOR_TOKEN` ไม่งั้น `compose up` จะ fail
 
 เปิด [http://127.0.0.1:5173](http://127.0.0.1:5173) สมัครแล้วไม่ได้สิทธิ์ admin เซิร์ฟเวอร์
 

@@ -14,13 +14,11 @@ model can demonstrate that it chooses a useful action for a natural request.
 | Computer replay | Pi, browser tool handlers, page state | Model endpoint, browser and sandbox | `pnpm test` |
 | Docker computer replay | Pi, supervisor, Chromium, page helper, downloads and files | Model endpoint, local fixture website | `pnpm test:computer-replay` |
 | Agent quality | Product API, Postgres, executor, Pi, real model | Sandbox and connected services | `pnpm test:evals --live ...` |
-| Vision acceptance | Product API, Pi, real vision model, Boat or E2B desktop | Fixture website | `pnpm test:computer` |
-| Live flows | Product API, Postgres, Pi, real model, Boat or E2B computer, demo website | The person (a simulated user model) | `pnpm test:flows` |
+| Live flows | Product API, Postgres, Pi, real model, Docker computer, demo website | The person (a simulated user model) | `pnpm test:flows` |
 
 Default and PR tests never require paid inference. Nightly runs only the web
 tests with emulated providers. Docker topology and browser replay have a manual
-workflow; hosted sandboxes and real-model quality runs require an explicit local
-command. Nightly verification never starts computer sandboxes or requests model
+workflow; real-model quality runs require an explicit local command. Nightly verification never starts computer sandboxes or requests model
 or sandbox credentials.
 Missing live credentials mean **not run**, not a passing model evaluation.
 
@@ -119,38 +117,13 @@ screenshots. A new fixture is written only after both live execution and an
 immediate offline replay produce the exact CSV and exactly one export. Failed
 attempts print only the sanitized decisions and do not publish a fixture.
 
-This records semantic browser actions, not coordinate or vision decisions.
-Boat currently lacks the page-browser capability used here, so this capture uses
-local Docker. Boat remains the default for the separate screenshot/coordinate
-acceptance journey. One successful captured run demonstrates replay coverage;
+This records semantic browser actions, not coordinate or vision decisions. One successful captured run demonstrates replay coverage;
 it does not measure the live model's reliability.
-
-## Live computer acceptance
-
-Run a vision-capable model through OpenRouter against a real Boat desktop:
-
-```bash
-COMPUTER_E2E_MODEL=openai/gpt-5.6-luna pnpm test:computer
-# Run the same checks against E2B when provider-specific verification is needed:
-COMPUTER_E2E_MODEL=openai/gpt-5.6-luna pnpm test:computer --sandbox e2b
-```
-
-Boat is the default regardless of the application's sandbox setting. This opt-in
-test requires `OPENROUTER_API_KEY` and the selected sandbox's credential
-(`BOAT_API_KEY` or `E2B_API_KEY`) and incurs inference and sandbox usage.
-It checks visual observation, a real browser click,
-terminal access and exact file contents. It then destroys the sandbox outside
-the app and calls `computer/recover`, requiring a new sandbox with the saved
-file restored. `computer/boot` returns the stored running state and does not
-request recovery from an externally deleted sandbox.
-
-Both providers run the same assertions. This journey does not cover multiple screens, or PTY sessions, which Boat does
-not support. Provider conformance tests remain separate. Live runs retain error logs to diagnose provider failures.
 
 ## Live flows
 
 A flow is a goal a simulated person pursues with a fresh bot through real
-work: a real model, a real hosted computer (Boat by default) and a demo website
+work: a real model, a local Docker computer and a demo website
 served inside that computer. Nothing scripts the bot. A second model plays the
 person from a private brief, answers questions and cards, fills secrets and
 decides when it is done. Routine wakes are forced instead of waiting for the
@@ -158,15 +131,14 @@ calendar; everything else runs as in production.
 
 ```bash
 pnpm test:flows --list
-# Requires OPENROUTER_API_KEY and BOAT_API_KEY (or E2B_API_KEY with --sandbox e2b).
+# Requires OPENROUTER_API_KEY and a built computer image.
 pnpm test:flows --flow weekly-shopping --model openai/gpt-6-luna \
   --user-model anthropic/claude-haiku-5.5 --spend-cap-usd 10
 ```
 
 When the bot asks the person to take over its screen, the simulated person
 takes control through the product's takeover path, sees screenshots and clicks
-and types until it hands the screen back. `--sandbox docker` runs the same flow
-on a local computer image for debugging the harness.
+and types until it hands the screen back.
 
 Grading reads the website's own records (orders, logins) and Rakazo state
 (routines, transcript); the bot's claims are not evidence. A versioned judge

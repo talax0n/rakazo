@@ -36,7 +36,6 @@ bash install-images.sh
 
 `SANDBOX_PROVIDER` 默认为 `docker`，无需远程计算机服务账号即可使用本地 Docker 计算机。
 镜像版 Compose 会在内部网络运行沙箱监督服务，并拉取计算机镜像。
-远程计算机的选择与密钥配置见[计算机提供商（英文）](../self-host-sandbox-providers.md)。
 无论选择哪种提供商，这套 Compose 都要求配置 `SANDBOX_SUPERVISOR_TOKEN`；留空会拒绝启动。
 
 默认镜像标签是 `edge`，随主分支更新；发布的镜像同时支持 `amd64` 和 `arm64`。

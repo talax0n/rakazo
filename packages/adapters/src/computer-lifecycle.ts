@@ -1001,21 +1001,12 @@ export async function releaseComputerExecutionLease(
 export type ComputerReplaceMode = "recover" | "reset" | "update";
 
 export function computerSupportsUpdate(kind: string): boolean {
-  return kind !== "desktop" && kind !== "wuying" && kind !== "none";
+  return kind !== "desktop" && kind !== "none";
 }
 
 /** Kinds whose provider opens a user terminal through the shared Linux screen gateway. */
 export function computerSupportsTerminal(kind: string): boolean {
-  return (
-    kind === "docker" ||
-    kind === "e2b" ||
-    kind === "novita" ||
-    kind === "daytona" ||
-    kind === "boat" ||
-    kind === "kubernetes" ||
-    kind === "incus" ||
-    kind === "fake"
-  );
+  return kind === "docker" || kind === "fake";
 }
 
 export async function replaceComputer(
