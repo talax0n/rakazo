@@ -7,7 +7,6 @@ import path from "node:path";
 import { parseArgs } from "node:util";
 import { serve } from "@hono/node-server";
 import { loadRootEnv } from "@rakazo/core/node/load-root-env";
-import { computerTestSandbox } from "../computer-test-config.js";
 import { FLOWS } from "../flows/index.js";
 import { validateFlowLimits } from "../flows/limits.js";
 import type { FlowResult } from "../flows/runner.js";
@@ -17,7 +16,7 @@ const { values } = parseArgs({
   options: {
     list: { type: "boolean", default: false },
     flow: { type: "string", default: "weekly-shopping" },
-    sandbox: { type: "string", default: "boat" },
+    sandbox: { type: "string", default: "docker" },
     model: { type: "string", default: "openai/gpt-6-luna" },
     "user-model": { type: "string", default: "anthropic/claude-haiku-5.5" },
     "judge-model": { type: "string", default: "anthropic/claude-haiku-5.5" },
@@ -35,13 +34,10 @@ async function main() {
   }
   const flow = FLOWS.find((candidate) => candidate.id === values.flow);
   if (!flow) throw new Error(`Unknown flow ${values.flow}; see --list`);
-  // Docker is for debugging the harness locally; hosted providers are the point of a flow.
-  const sandbox =
-    values.sandbox === "docker"
-      ? ({ provider: "docker", apiKeyEnv: undefined } as const)
-      : computerTestSandbox(values.sandbox);
+  if (values.sandbox !== "docker") throw new Error("Flows run on --sandbox docker");
+  const sandbox = { provider: "docker" } as const;
   loadRootEnv();
-  for (const key of [sandbox.apiKeyEnv, "OPENROUTER_API_KEY"].filter(Boolean) as string[]) {
+  for (const key of ["OPENROUTER_API_KEY"]) {
     if (!process.env[key]) throw new Error(`${key} is required for pnpm test:flows`);
   }
   // Checked before the database, computer and models start: a limit the CLI cannot parse must
@@ -144,11 +140,6 @@ async function main() {
       dataDir,
       sandboxProvider: sandbox.provider,
       agentRuntime: "pi",
-      e2bApiKey: process.env.E2B_API_KEY,
-      novitaApiKey: process.env.NOVITA_API_KEY,
-      sandboxTemplate: process.env.SANDBOX_TEMPLATE,
-      boatApiKey: process.env.BOAT_API_KEY,
-      boatApiUrl: process.env.BOAT_API_URL,
       wakeupDriver: "memory",
     });
     stop = handles.stop;

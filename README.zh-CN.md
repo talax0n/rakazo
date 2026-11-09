@@ -121,7 +121,7 @@ bash install-images.sh
 再次运行时会保留已有的 `.env`。
 
 打开 [http://127.0.0.1:5173](http://127.0.0.1:5173)，创建账号并连接模型。
-默认启用本地 Docker 计算机。远程计算机所需的凭据、模板和准备步骤见[计算机提供商（英文）](./docs/self-host-sandbox-providers.md)。
+默认启用本地 Docker 计算机。
 
 默认镜像标签为 `edge`，由主分支构建，支持 `linux/amd64` 和 `linux/arm64`。
 镜像详情与标签见[自托管指南](./docs/zh-CN/self-host.md#已发布镜像无需检出源码)。
@@ -139,7 +139,7 @@ bash install-images.sh
 
 ```bash
 bash install-images.sh --prepare-only
-# edit .env: SANDBOX_PROVIDER=boat (or e2b / daytona / createos) with its API key, RAKAZO_HOST=your.domain
+# edit .env: RAKAZO_HOST=your.domain
 bash install-images.sh
 ```
 
@@ -202,26 +202,6 @@ docker compose --env-file .env \
 打开终端打印的地址（默认是 [http://127.0.0.1:5173](http://127.0.0.1:5173)），创建账号、连接模型，并创建第一个机器人。
 
 部署、提供商选择、备份与升级说明见[自托管指南](./docs/zh-CN/self-host.md)。
-
-使用 CreateOS 时，设置 `SANDBOX_PROVIDER=createos` 和 `CREATEOS_SANDBOX_API_KEY`。
-可选配置 `CREATEOS_SANDBOX_BASE_URL`、`CREATEOS_SANDBOX_SHAPE` 和 `CREATEOS_SANDBOX_ROOTFS`
-的默认值分别为 `https://api.sb.createos.sh`、`s-2vcpu-2gb` 和 `desktop:1`。
-
-使用 Railway 计算机时，在 API 和 worker 上设置 `SANDBOX_PROVIDER=railway`、`RAILWAY_API_TOKEN`
-和 `RAILWAY_ENVIRONMENT_ID`。请显式选择沙箱环境；Railway 自动注入的环境 ID 对应的是托管应用所在的环境。
-使用能完成所需操作的最小权限 Railway API 令牌：若项目令牌满足沙箱操作要求且客户端认证支持，则优先使用项目令牌。
-当前提供商使用 Bearer 认证，因此应使用团队或工作区令牌，而非个人账号令牌。
-
-实时屏幕和桌面需要 `PRIVATE` 网络模式，才能通过 Railway 公共域名提供屏幕访问。
-计算机采用此模式，可以访问同一 Railway 项目和环境中的其他服务，也可以访问公网。
-建议为沙箱使用专用 Railway 项目，或至少使用独立环境，与应用和数据库分开。
-已有的 `ISOLATED` 计算机需要重建后再使用。
-
-桌面环境会在首次启动时安装。停止计算机会保存可迁移的主目录并销毁沙箱；下次启动时，在新沙箱中恢复该主目录。
-Railway 沙箱按用量计费。
-新建计算机使用 Railway 的默认区域。可设置 `RAILWAY_SANDBOX_REGION`（例如 `asia-southeast1-eqsg3a`），
-使其更靠近 API；已运行的计算机会在下次启动时迁移。
-工作区导出会拒绝超过 64 MiB 的文件，不会截断文件内容。可通过 `RAILWAY_MAX_WORKSPACE_FILE_BYTES` 修改此限制。
 
 ## 桌面端与移动端
 
@@ -342,7 +322,7 @@ Muse、Dots、Instinct、Claude Duet 和 Hark Pro 是托管式助手；OpenClaw 
 - Better Auth
 - Graphile Worker
 - Pi
-- Docker、E2B、Daytona、CreateOS 和 Boat
+- Docker
 - Composio、Pipedream Connect、MCP 和 OpenAPI 集成
 
 ## 参与贡献

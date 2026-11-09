@@ -119,7 +119,7 @@ Like Grok Bot, it is just chat once it is running. You create named bots and man
 
 The model is yours. You can sign in with Claude Pro or Max, ChatGPT Plus or Pro, or SuperGrok, or bring a key for OpenAI, Anthropic, Google, OpenRouter, or a local server such as Ollama. Each bot can use a different model. So if you already pay for Claude, Rakazo can use that subscription on a computer you run.
 
-The computer is yours too. Local Docker is the default. E2B, Daytona, CreateOS, and Boat are optional. Team computers are shared, and private computers are isolated. Connector credentials are encrypted on your server and are never returned by the API.
+The computer is yours too. Bot computers run on local Docker. Team computers are shared, and private computers are isolated. Connector credentials are encrypted on your server and are never returned by the API.
 
 ## Which to choose
 

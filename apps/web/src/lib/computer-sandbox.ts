@@ -23,10 +23,6 @@ export type SandboxAvailabilityPhase = "idle" | "loading" | "recovered" | "unava
 export function sandboxProviderLabel(provider: string): string {
   if (provider === "docker") return "Docker";
   if (provider === "desktop") return "Desktop";
-  if (provider === "e2b") return "E2B";
-  if (provider === "novita") return "Novita";
-  if (provider === "daytona") return "Daytona";
-  if (provider === "boat") return "Boat";
   if (provider === "fake") return "Fake";
   return provider;
 }

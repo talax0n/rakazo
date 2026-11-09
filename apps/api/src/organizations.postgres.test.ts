@@ -105,7 +105,7 @@ describePostgres("organizations (PostgreSQL)", () => {
         scope: "dedicated",
         scopeKey: `bot:${providerRef}`,
         homeKey: `home-${providerRef}`,
-        kind: "e2b",
+        kind: "fake",
         providerRef,
       },
     });

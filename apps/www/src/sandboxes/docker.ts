@@ -1,19 +1,14 @@
 import { GITHUB_URL } from "../site";
 import {
-  BOAT,
   DOCKER_MEMORY,
   PRICES_NOTE,
   PRICING,
   PROVIDERS_DOC,
-  RATES,
   RUNTIME_DOC,
   SERVERS,
-  WORKDAY_HOURS,
   dockerComputersFit,
   euro,
   homepage,
-  monthly,
-  usd,
 } from "./shared";
 import type { Sandbox } from "./types";
 
@@ -81,7 +76,7 @@ export const docker: Sandbox = {
         note: `${PRICES_NOTE} Hetzner prices exclude VAT, and its cloud plans have limited stock after two price rises in 2026. AWS price for us-east-1 on demand.`,
       },
       bullets: [
-        `For comparison, one 2 vCPU / 4 GB computer working 4 hours a workday costs ${usd(monthly(RATES.e2b, WORKDAY_HOURS))} on [E2B](/sandboxes/e2b/) or [Daytona](/sandboxes/daytona/), and [Boat](/sandboxes/boat/)'s minimum is $${BOAT.minimum}. A ${euro(SERVERS.hetznerCx43)} server runs Rakazo and several computers for less, but you look after it.`,
+        `A ${euro(SERVERS.hetznerCx43)} server runs Rakazo and several computers, and you look after it.`,
         "Computers share the server's CPU. If several bots run heavy pages at once, raise `RAKAZO_COMPUTER_CPUS` and `RAKAZO_COMPUTER_MEMORY` or pick a bigger server.",
         "Docker Engine on Linux is free for any use. On a Mac or Windows PC, Docker Desktop is free for personal use and companies under 250 employees and $10 million revenue, and costs $9 to $24 per user a month otherwise. OrbStack is $8 per user a month for commercial use.",
         "You still pay your model provider, unless you run models yourself.",
@@ -104,7 +99,7 @@ export const docker: Sandbox = {
       heading: "When to choose Docker",
       paragraphs: [
         "Choose Docker when you want everything on hardware you own, with no sandbox account and no bot computers in anyone else's cloud. It is the quickest way to try a self-hosted Rakazo, and it suits a person or a team on a machine they trust.",
-        "If you'd rather keep bots off your own server, a hosted sandbox puts their computers in someone else's cloud. [Boat](/sandboxes/boat/) is what Rakazo Cloud uses, and [E2B](/sandboxes/e2b/) pauses idle computers instead of deleting them. If you already run a cluster, [Kubernetes](/sandboxes/kubernetes/) gives you one pod per computer and lets you add gVisor or Kata for a stronger boundary. For a bot that needs your real apps and logins, see [your own computer](/sandboxes/your-computer/). The [sandbox comparison](/sandboxes/) puts every option side by side.",
+        "For a bot that needs your real apps and logins, see [your own computer](/sandboxes/your-computer/). The [sandbox comparison](/sandboxes/) puts every option side by side.",
       ],
     },
     {
@@ -113,7 +108,7 @@ export const docker: Sandbox = {
         "Every computer container starts with all Linux capabilities dropped and `no-new-privileges` set, so nothing inside can gain root powers. By default each one is capped at 2 GB of memory, 2 CPUs and 2048 processes, and each bot gets its own network that only the supervisor and screen proxy join.",
       ],
       bullets: [
-        "A container shares your server's kernel. It is not a virtual machine, so a kernel bug could let a process escape it. If that matters to you, use a hosted provider or Kubernetes with gVisor or Kata.",
+        "A container shares your server's kernel. It is not a virtual machine, so a kernel bug could let a process escape it. If that matters to you, keep bots you don't trust off the server.",
         "Restricted networking gives computers the public internet but blocks your LAN, the Docker host and cloud metadata addresses. It needs Linux Docker Engine with iptables and the host rules from `infra/compose/restrict-computer-egress.sh`. By default the stack checks for those rules and falls back to open networking without them, so a server without the rules lets bots reach your LAN. Set `SANDBOX_COMPUTER_EGRESS=restricted` to refuse to start computers instead. Docker Desktop for Mac or Windows, rootless Docker and nftables hosts can't use restricted networking. The [Docker computers guide](https://github.com/elie222/rakazo/blob/main/docs/self-host-docker-computers.md) has the details.",
         "There is no per-domain allowlist. A bot can reach any public website.",
         "Anyone who controls the supervisor controls Docker on that machine, which is why it stays on the internal network behind its own token.",
@@ -138,7 +133,7 @@ export const docker: Sandbox = {
     {
       question: "Is Docker safe enough for AI agents?",
       answer:
-        "For a personal or team server you control, a locked-down container is a reasonable boundary. Rakazo drops every capability, blocks privilege escalation and caps memory, CPU and processes. A container still shares the host kernel, so for strangers' bots or a public instance, prefer a provider with its own kernel per computer, such as [E2B](/sandboxes/e2b/) or [Boat](/sandboxes/boat/), or Kubernetes with gVisor or Kata.",
+        "For a personal or team server you control, a locked-down container is a reasonable boundary. Rakazo drops every capability, blocks privilege escalation and caps memory, CPU and processes. A container still shares the host kernel, so think twice before running strangers' bots or a public instance on it.",
     },
     {
       question: "Can I run AI agents in Docker on a Mac?",
@@ -171,8 +166,6 @@ export const docker: Sandbox = {
     { label: "OrbStack pricing", href: "https://orbstack.dev/pricing" },
     { label: "Docker Sandboxes", href: "https://docs.docker.com/ai/sandboxes/" },
     PRICING.dockerSandboxes,
-    PRICING.e2b,
-    PRICING.boat,
     PROVIDERS_DOC,
     RUNTIME_DOC,
   ],

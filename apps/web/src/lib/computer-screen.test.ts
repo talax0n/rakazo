@@ -7,7 +7,6 @@ import {
   loadComputerScreen,
   probeScreen,
   probeScreenStatus,
-  sameEmbeddedComputerScreen,
   screenFrameError,
   screenFrameMessage,
   screenFrameStarted,
@@ -93,33 +92,6 @@ describe("computer screen requests", () => {
   });
 });
 
-describe("sameEmbeddedComputerScreen", () => {
-  const screen = (code: string, viewOnly = "true", desktop = "ecd-1") =>
-    `embedded-screen://desktop?desktop_id=${desktop}&region_id=cn-hangzhou&auth_code=${code}&view_only=${viewOnly}`;
-
-  it("keeps a connected embedded screen when only its login code changes", () => {
-    expect(sameEmbeddedComputerScreen(screen("a"), screen("b"))).toBe(true);
-    expect(sameEmbeddedComputerScreen(screen("a"), screen("b", "false"))).toBe(false);
-    expect(sameEmbeddedComputerScreen(screen("a"), screen("b", "true", "ecd-2"))).toBe(false);
-    expect(sameEmbeddedComputerScreen(null, screen("b"))).toBe(false);
-    expect(
-      sameEmbeddedComputerScreen("http://127.0.0.1:5173/novnc/a", "http://127.0.0.1:5173/novnc/a"),
-    ).toBe(false);
-  });
-});
-
-describe("embedded frame isolation", () => {
-  it("sandboxes the vendor page without same-origin access and uses frame state probing", () => {
-    vi.stubGlobal("window", { location: { href: "https://app.example/chat" } });
-    const url = embeddableScreenUrl(
-      "embedded-screen://desktop?auth_code=fake-once&desktop_id=ecd-fake",
-    );
-    expect(screenIframeSandbox(url)).toBe("allow-scripts allow-pointer-lock");
-    expect(isProxiedScreenUrl(url)).toBe(true);
-    vi.unstubAllGlobals();
-  });
-});
-
 describe("embeddableScreenUrl", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -131,15 +103,9 @@ describe("embeddableScreenUrl", () => {
     expect(embeddableScreenUrl("http://localhost:6080/vnc.html")).toBeNull();
   });
 
-  it("draws an embedded desktop in the page that carries its Web SDK", () => {
+  it("refuses a screen that is not a web page", () => {
     vi.stubGlobal("window", { location: { href: "http://localhost:5173/chat" } });
-    expect(
-      embeddableScreenUrl(
-        "embedded-screen://desktop?desktop_id=ecd-1&auth_code=once&view_only=true",
-      ),
-    ).toBe(
-      "http://localhost:5173/computer-screen/screen.html#desktop_id=ecd-1&auth_code=once&view_only=true",
-    );
+    expect(embeddableScreenUrl("embedded-screen://desktop?auth_code=once")).toBeNull();
   });
 
   it("serves the screen proxy from the page origin", () => {
@@ -409,15 +375,6 @@ describe("probeScreen", () => {
     expect(otherScheme).toHaveBeenCalledWith(
       "crypto:screen",
       expect.objectContaining({ credentials: "omit" }),
-    );
-
-    const page = vi.fn(async () => response(200, "<html>"));
-    const screenPage =
-      "https://app.example/computer-screen/screen.html#desktop_id=ecd-1&auth_code=once";
-    await expect(probeScreen(screenPage, "fallback", page)).resolves.toBeNull();
-    expect(page).toHaveBeenCalledWith(
-      screenPage,
-      expect.objectContaining({ credentials: "same-origin" }),
     );
   });
 

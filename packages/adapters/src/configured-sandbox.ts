@@ -14,6 +14,7 @@ import type {
   WorkspaceDirectoryRequest,
   WorkspaceExportLimits,
 } from "@rakazo/adapter-kit";
+import { SandboxKind } from "@rakazo/contracts";
 import type { PrismaClient } from "@rakazo/db";
 import { runAsSystem } from "@rakazo/db";
 import { cancelComputerRunWork, probeBackgroundWork, providerKeepsHome } from "./computer-idle.js";
@@ -282,6 +283,10 @@ export class ConfiguredSandbox implements SandboxProvider {
   ): Promise<SandboxProvider> {
     // Kinds Settings never selects (Docker, a local host computer) can only belong to the primary.
     const descriptor = computerProviderRegistry.find((entry) => entry.id === computer.kind);
+    // A stored kind no provider runs any more, such as a removed provider's, is gone: Reset and
+    // deletion clear it, and its next start provisions on the configured provider.
+    if (!descriptor && !SandboxKind.safeParse(computer.kind).success)
+      throw sandboxNotFoundError("The computer's provider is no longer supported");
     if (!descriptor && (this.primary.ownsReference?.(computer) ?? true)) return this.primary;
     // Only a provider an account can choose for itself ever runs that account's computers.
     const perAccount = descriptor?.capabilities.perAccount;
@@ -359,10 +364,6 @@ export class ConfiguredSandbox implements SandboxProvider {
 
   async isStopped(computer: ComputerRef, context: AdapterContext) {
     return (await this.route(computer)).isStopped?.(computer, context) ?? false;
-  }
-
-  async hasMountedHome(computer: ComputerRef, context: AdapterContext) {
-    return (await this.route(computer)).hasMountedHome?.(computer, context) ?? false;
   }
 
   async environment(computer: ComputerRef, context: AdapterContext) {

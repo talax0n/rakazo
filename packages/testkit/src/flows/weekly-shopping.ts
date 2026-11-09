@@ -152,8 +152,8 @@ export const weeklyShopping: Flow<World> = {
         computer.context,
       );
     // Keep the store out of the bot's workspace; it is a website, not one of the person's files.
-    // Start and readiness are separate commands: Boat ends a command early while a
-    // background child is still attached to it.
+    // Start and readiness are separate commands: a command can end early while a background
+    // child is still attached to it.
     const launched = await runCommand(
       computer,
       [

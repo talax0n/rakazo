@@ -217,7 +217,7 @@ describe("createBackgroundJobHandlers", () => {
     const sink = createTestSink();
     installLogger(createLogger({ service: "rakazo-worker", sinks: [sink] }));
     vi.mocked(expireComputerControl).mockRejectedValueOnce(
-      new SandboxUnresponsiveError("Boat could not be reached"),
+      new SandboxUnresponsiveError("The provider could not be reached"),
     );
     const enqueue = vi.fn(async () => undefined);
     const handlers = createBackgroundJobHandlers({

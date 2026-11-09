@@ -1,18 +1,11 @@
 import { GITHUB_URL } from "../site";
 import {
-  BOAT_RAKAZO,
-  E2B_PRO_FEE,
   MAC_MINI,
   MONTH_HOURS,
   PRICES_NOTE,
-  PRICING,
-  RATES,
   WORKDAY_HOURS,
   aboutUsd,
-  boatMonthly,
   macMiniMonthly,
-  monthly,
-  usd,
 } from "./shared";
 import type { Sandbox } from "./types";
 
@@ -68,7 +61,7 @@ export const yourComputer: Sandbox = {
     {
       heading: "When to choose your own computer",
       paragraphs: [
-        "Choose it when the work really lives on your machine and you are there to approve it. For anything you'd leave running overnight or hand to a team, a separate computer is safer: [Docker](/sandboxes/docker/) runs bot computers on your own server, and hosted sandboxes such as [Boat](/sandboxes/boat/), which Rakazo Cloud uses, or [E2B](/sandboxes/e2b/) keep them in the cloud. With those, a mistake stays on the bot's computer and you can reset it. The [sandbox comparison](/sandboxes/) covers every option.",
+        "Choose it when the work really lives on your machine and you are there to approve it. For anything you'd leave running overnight or hand to a team, a separate computer is safer: [Docker](/sandboxes/docker/) runs bot computers on your own server. With that, a mistake stays on the bot's computer and you can reset it. The [sandbox comparison](/sandboxes/) covers every option.",
       ],
     },
     {
@@ -78,7 +71,7 @@ export const yourComputer: Sandbox = {
         "The hidden cost is that the machine has to stay on and the app open. An always-on Mac mini draws about 4 W idle and up to about 65 W under full load, according to Apple.",
       ],
       table: {
-        caption: "Your own computer next to a hosted sandbox, per month",
+        caption: "Your own computer next to a Docker computer, per month",
         columns: ["Option", "Isolation", "4 hours a workday", "Around the clock"],
         rows: [
           {
@@ -90,18 +83,6 @@ export const yourComputer: Sandbox = {
             ],
           },
           { topic: "[Docker](/sandboxes/docker/) on that same Mac", cells: ["Container", "Same electricity", "Same electricity"] },
-          {
-            topic: "[E2B](/sandboxes/e2b/), 2 vCPU / 4 GB",
-            cells: [
-              "microVM",
-              usd(monthly(RATES.e2b, WORKDAY_HOURS)),
-              `${usd(monthly(RATES.e2b, MONTH_HOURS))}, or ${usd(monthly(RATES.e2b, MONTH_HOURS) + E2B_PRO_FEE)} with Pro for 24-hour sessions`,
-            ],
-          },
-          {
-            topic: `[Boat](/sandboxes/boat/), ${BOAT_RAKAZO.vcpus} vCPU / ${BOAT_RAKAZO.gb} GB`,
-            cells: ["VM", `${usd(boatMonthly(BOAT_RAKAZO.hour, WORKDAY_HOURS))} minimum`, usd(boatMonthly(BOAT_RAKAZO.hour, MONTH_HOURS))],
-          },
         ],
         note: `${PRICES_NOTE} Electricity is an estimate; your rate and load will differ.`,
       },
@@ -150,7 +131,7 @@ export const yourComputer: Sandbox = {
     {
       question: "Is it safe to let an AI agent use my computer?",
       answer:
-        "It's as safe as the bot you allow. Commands run as you, with no sandbox, so a bot can read and change anything your account can. Keep it to bots you trust, and use a [Docker](/sandboxes/docker/) or hosted computer for everything else.",
+        "It's as safe as the bot you allow. Commands run as you, with no sandbox, so a bot can read and change anything your account can. Keep it to bots you trust, and use a [Docker](/sandboxes/docker/) computer for everything else.",
     },
     {
       question: "Does it work on Windows and Linux?",
@@ -176,7 +157,5 @@ export const yourComputer: Sandbox = {
     },
     { label: "Rakazo, approvals", href: `${GITHUB_URL}/blob/main/docs/approvals.md` },
     { label: "Apple, Mac mini power consumption", href: "https://support.apple.com/en-us/103253" },
-    PRICING.e2b,
-    PRICING.boat,
   ],
 };

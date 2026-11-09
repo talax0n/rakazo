@@ -936,7 +936,7 @@ describe("destroyBot", () => {
       const team = {
         id: "team-computer",
         homeKey: "team-workspace-1",
-        kind: "e2b",
+        kind: "retired-provider",
         providerRef: null,
         scope: "team",
       };
@@ -984,7 +984,7 @@ describe("destroyBot", () => {
       const team = {
         id: "team-computer",
         homeKey: "team-workspace-1",
-        kind: "e2b",
+        kind: "retired-provider",
         providerRef: null,
         scope: "team",
       };
@@ -1017,7 +1017,7 @@ describe("destroyBot", () => {
     }
   });
 
-  it.each(["e2b", "novita", "createos"])(
+  it.each(["retired-provider"])(
     "removes the deleted bot's profile from a %s sandbox after the browser stops",
     async (kind) => {
       const root = await mkdtemp(path.join(tmpdir(), "rakazo-team-remote-delete-"));
@@ -1121,8 +1121,8 @@ describe("destroyBot", () => {
       const team = {
         id: "team-computer",
         homeKey: "team-workspace-1",
-        kind: "boat",
-        providerRef: "boat-1",
+        kind: "retired-provider",
+        providerRef: "sandbox-1",
         scope: "team",
         state: "running",
       };
@@ -1171,7 +1171,7 @@ describe("destroyBot", () => {
       const team = {
         id: "team-computer",
         homeKey: "team-workspace-1",
-        kind: "e2b",
+        kind: "retired-provider",
         providerRef: "sandbox-1",
         scope: "team",
         state: "running",
@@ -1229,7 +1229,7 @@ describe("destroyBot", () => {
       const team = {
         id: "team-computer",
         homeKey: "team-workspace-1",
-        kind: "createos",
+        kind: "retired-provider",
         providerRef: "sandbox-1",
         scope: "team",
         state: "running",
@@ -1280,7 +1280,7 @@ describe("destroyBot", () => {
       const team = {
         id: "team-computer",
         homeKey: "team-workspace-1",
-        kind: "daytona",
+        kind: "retired-provider",
         providerRef: "sandbox-1",
         scope: "team",
         state: "stopped",
@@ -1325,13 +1325,13 @@ describe("destroyBot", () => {
       const home = new LocalAgentHomeStore(root);
       const teamHome = home.pathFor("team-workspace-1");
       await seedProfile(teamHome, "bot-1", "stored-gone");
-      const gone = Object.assign(new Error("Boat sandbox sandbox-1 is gone"), {
+      const gone = Object.assign(new Error("Sandbox sandbox-1 is gone"), {
         name: "SandboxNotFoundError",
       });
       const team = {
         id: "team-computer",
         homeKey: "team-workspace-1",
-        kind: "boat",
+        kind: "retired-provider",
         providerRef: "sandbox-1",
         scope: "team",
         state: "running",
@@ -1445,7 +1445,7 @@ describe("destroyBot", () => {
       const team = {
         id: "team-computer",
         homeKey: "team-workspace-1",
-        kind: "e2b",
+        kind: "retired-provider",
         providerRef: null,
         scope: "team",
         state: "stopped",
@@ -1660,7 +1660,7 @@ describe("destroyBot", () => {
       const team = {
         id: "team-computer",
         homeKey: "team-workspace-1",
-        kind: "e2b",
+        kind: "retired-provider",
         providerRef: "sandbox-1",
         scope: "team",
         state: "running",
@@ -1689,7 +1689,7 @@ describe("destroyBot", () => {
       );
 
       expect(execute).toHaveBeenCalledWith(
-        expect.objectContaining({ kind: "e2b", providerRef: "sandbox-1" }),
+        expect.objectContaining({ kind: "retired-provider", providerRef: "sandbox-1" }),
         {
           argv: ["bash", "-eu", "-c", expect.any(String), "bash", "bots", "bot-1"],
           cwd: ".",
@@ -1722,7 +1722,7 @@ describe("destroyBot", () => {
       const own = {
         id: "own-team",
         homeKey: "team-own",
-        kind: "e2b",
+        kind: "retired-provider",
         providerRef: null,
         scope: "team",
         state: "stopped",
@@ -1779,7 +1779,7 @@ describe("destroyBot", () => {
       const team = {
         id: "team-computer",
         homeKey: "team-workspace-1",
-        kind: "e2b",
+        kind: "retired-provider",
         providerRef: "sandbox-1",
         scope: "team",
         state: "stopped",
@@ -1832,8 +1832,8 @@ describe("destroyBot", () => {
       const team = {
         id: "team-computer",
         homeKey: "team-workspace-1",
-        kind: "boat",
-        providerRef: "boat-1",
+        kind: "retired-provider",
+        providerRef: "sandbox-1",
         scope: "team",
         state: "running",
       };
@@ -1884,7 +1884,7 @@ describe("destroyBot", () => {
       const team = {
         id: "team-computer",
         homeKey: "team-workspace-1",
-        kind: "e2b",
+        kind: "retired-provider",
         providerRef: null,
         scope: "team",
         state: "stopped",

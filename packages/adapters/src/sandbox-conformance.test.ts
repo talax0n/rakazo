@@ -2,24 +2,11 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSyn
 import { tmpdir } from "node:os";
 import path from "node:path";
 import type { ComputerRef, ProcessEvent, SandboxProvider } from "@rakazo/adapter-kit";
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import {
-  fakeBoatProvider as fakeBoat,
-  routeFakeBoatDownloads,
-} from "./boat-sandbox.test-support.js";
-import { fakeBoxdProvider } from "./boxd-sandbox.test-support.js";
+import { describe, expect, it, vi } from "vitest";
 import { toComputerRef } from "./computer-support.js";
 import { DesktopSandboxProvider } from "./desktop-sandbox.js";
 import { FakeSandboxProvider } from "./fake-sandbox.js";
-import { emulatedNovita } from "./novita-sandbox.test-support.js";
 import { assertSandboxWorkspaceContract, provisionPrepared } from "./sandbox-test-support.js";
-import { FakeWuyingDesktop } from "./wuying-sandbox.test-support.js";
-
-let restoreFetch: () => void;
-beforeAll(() => {
-  restoreFetch = routeFakeBoatDownloads();
-});
-afterAll(() => restoreFetch());
 
 const ctx = {
   operationId: "1",
@@ -39,39 +26,20 @@ async function drain(provider: SandboxProvider, computer: ComputerRef) {
 }
 
 describe("sandbox conformance", () => {
-  it("runs the same graphical command across fake, Boat, boxd, Novita, and desktop", async () => {
+  it("runs the same graphical command across fake and desktop", async () => {
     const fake = new FakeSandboxProvider();
-    const boat = fakeBoat();
-    const novita = emulatedNovita().provider();
     const desktop = new DesktopSandboxProvider();
-    const boxd = fakeBoxdProvider();
     const a = await provisionPrepared(fake, { botId: "bot-a", homePath: "/tmp/a" }, ctx);
-    const b = await provisionPrepared(boat, { botId: "bot-b", homePath: "/tmp/b" }, ctx);
     const c = await provisionPrepared(desktop, { botId: "bot-c", homePath: "/tmp/c" }, ctx);
-    const d = await provisionPrepared(novita, { botId: "bot-d", homePath: "/tmp/d" }, ctx);
-    const e = await provisionPrepared(boxd, { botId: "bot-e", homePath: "/tmp/e" }, ctx);
     expect(await drain(fake, a)).toContain("graphical-ok");
-    expect(await drain(boat, b)).toContain("graphical-ok");
     expect(await drain(desktop, c)).toContain("graphical-ok");
-    expect(await drain(novita, d)).toContain("graphical-ok");
-    expect(await drain(boxd, e)).toContain("graphical-ok");
-    expect(new Set([a.id, b.id, c.id, d.id, e.id]).size).toBe(5);
+    expect(a.id).not.toBe(c.id);
     await fake.destroy(a, ctx);
-    await boat.destroy(b, ctx);
     await desktop.destroy(c, ctx);
-    await novita.destroy(d, ctx);
-    await boxd.destroy(e, ctx);
   });
 
   it("offers the same observation, action, and workspace contract across providers", async () => {
-    const providers: SandboxProvider[] = [
-      new FakeSandboxProvider(),
-      fakeBoat(),
-      fakeBoxdProvider(),
-      emulatedNovita().provider(),
-      new DesktopSandboxProvider(),
-      new FakeWuyingDesktop().provider(),
-    ];
+    const providers: SandboxProvider[] = [new FakeSandboxProvider(), new DesktopSandboxProvider()];
     for (const [index, provider] of providers.entries()) {
       const computer = await provisionPrepared(
         provider,
@@ -87,9 +55,6 @@ describe("sandbox conformance", () => {
     const root = mkdtempSync(path.join(tmpdir(), "rakazo-unset-env-"));
     const providers: SandboxProvider[] = [
       new FakeSandboxProvider(),
-      fakeBoat(),
-      fakeBoxdProvider(),
-      emulatedNovita().provider(),
       new DesktopSandboxProvider({ root }),
     ];
     vi.stubEnv("RAKAZO_COMMAND_UNSET_TEST", "fake-host-value");
@@ -257,9 +222,6 @@ describe("sandbox conformance", () => {
     const root = mkdtempSync(path.join(tmpdir(), "rakazo-destroy-idempotent-"));
     const providers: SandboxProvider[] = [
       new FakeSandboxProvider(),
-      fakeBoat(),
-      fakeBoxdProvider(),
-      emulatedNovita().provider(),
       new DesktopSandboxProvider({ root }),
     ];
     for (const [index, provider] of providers.entries()) {

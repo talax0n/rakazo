@@ -1861,7 +1861,7 @@ describe("dockerComputerToolInstruction", () => {
       "`python3 -c`",
     );
     expect(dockerComputerToolInstruction("desktop")).toBeUndefined();
-    expect(dockerComputerToolInstruction("e2b")).toBeUndefined();
+    expect(dockerComputerToolInstruction("fake")).toBeUndefined();
   });
 
   it("documents gh CLI device-flow login without token injection", () => {

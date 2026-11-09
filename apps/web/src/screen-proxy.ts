@@ -151,7 +151,7 @@ export type ScreenTargetFailure =
 
 /**
  * Headers for the provider request. The provider's own credentials replace the browser's, and the
- * browser's Origin becomes the provider's: Boat refuses cross-origin WebSockets, and this proxy has
+ * browser's Origin becomes the provider's: a provider may refuse cross-origin WebSockets, and this proxy has
  * already authorized the request with the sealed capability.
  */
 export function safeProxyHeaders(

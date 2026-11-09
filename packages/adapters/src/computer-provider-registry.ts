@@ -1,24 +1,8 @@
 import type { ComputerProviderDescriptor } from "@rakazo/contracts";
-import { boatComputerSettings } from "./boat-settings.js";
-import { boxdComputerSettings } from "./boxd-settings.js";
 import type { SettingsComputerProvider } from "./computer-provider-descriptor.js";
-import { createosComputerSettings } from "./createos-settings.js";
-import { daytonaComputerSettings } from "./daytona-settings.js";
-import { e2bComputerSettings } from "./e2b-settings.js";
-import { novitaComputerSettings } from "./novita-settings.js";
-import { railwayComputerSettings } from "./railway-settings.js";
-import { wuyingComputerSettings } from "./wuying-settings.js";
 
-export const computerProviderRegistry: readonly SettingsComputerProvider[] = [
-  wuyingComputerSettings,
-  e2bComputerSettings,
-  novitaComputerSettings,
-  daytonaComputerSettings,
-  createosComputerSettings,
-  boatComputerSettings,
-  boxdComputerSettings,
-  railwayComputerSettings,
-];
+// ponytail: no built-in provider is configurable from Settings today; env-only kinds stay out.
+export const computerProviderRegistry: readonly SettingsComputerProvider[] = [];
 export function computerProviderDescriptor(id: string) {
   const descriptor = computerProviderRegistry.find((entry) => entry.id === id);
   if (!descriptor) throw new Error("Unknown computer provider");

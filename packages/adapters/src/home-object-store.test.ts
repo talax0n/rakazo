@@ -116,7 +116,7 @@ async function setup(homeKeys = ["bot-1"]) {
     homeStorageId: null,
     homeStorageKey: null,
     homeStorageRevision: null,
-    kind: "boat",
+    kind: "fake",
     updatedAt: new Date(0),
   }));
   const storage = new MemoryObjectStorage();
@@ -932,14 +932,13 @@ describe("ObjectAgentHomeStore", () => {
   });
 });
 
-describe("object-backed Kubernetes workspaces", () => {
+describe("object-backed remote workspaces", () => {
   it("restores a replacement from object storage when its local cache was lost", async () => {
     const { store, otherHost } = await setup();
     await store.commit("bot-1", await staged({ "saved.txt": "stored bytes" }), context);
     const restored: PortableFile[] = [];
     const sandbox = {
       describe: () => ({ capabilities: { persistentHome: true } }),
-      hasMountedHome: async () => true,
       importWorkspace: async (_computer: unknown, files: AsyncIterable<PortableFile>) => {
         for await (const file of files) restored.push(file);
       },
@@ -951,7 +950,7 @@ describe("object-backed Kubernetes workspaces", () => {
       id: "replacement",
       botId: "bot-1",
       providerRef: "replacement",
-      kind: "kubernetes" as const,
+      kind: "fake" as const,
     };
     const freshCache = await otherHost();
     await restoreComputerWorkspace(freshCache, sandbox, "bot-1", computer, context);
@@ -986,7 +985,7 @@ describe("the local cache of object-backed homes", () => {
     id: "computer-1",
     botId: "bot-1",
     providerRef: "sb-1",
-    kind: "boat" as const,
+    kind: "fake" as const,
   };
 
   /** A remote computer whose export yields `files`, read lazily. */

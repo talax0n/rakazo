@@ -8,7 +8,7 @@ import { EncryptedSecretStore } from "./secrets.js";
 const COMPUTER: ComputerRef = {
   id: "sandbox-1",
   botId: "home-1",
-  kind: "e2b",
+  kind: "desktop",
   providerRef: "sandbox-1",
 };
 
@@ -125,7 +125,7 @@ async function runAfterFill(
         computerId: "computer-1",
         computerSwitching: false,
         memoryScope: null,
-        computer: { id: "computer-1", scope: "dedicated", kind: "e2b", homeKey: "home-1" },
+        computer: { id: "computer-1", scope: "dedicated", kind: "desktop", homeKey: "home-1" },
       })),
       findMany: vi.fn(async () => []),
     },
@@ -177,7 +177,7 @@ async function runAfterFill(
     },
   };
   const sandbox = {
-    describe: () => ({ id: "e2b", capabilities: { graphical: true } }),
+    describe: () => ({ id: "desktop", capabilities: { graphical: true } }),
     execute: vi.fn(async function* () {
       yield { type: "stdout" as const, data: printed };
       yield { type: "exit" as const, code: 0 };

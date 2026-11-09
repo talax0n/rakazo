@@ -15,7 +15,7 @@ describe("computersAreUnavailable", () => {
 
   it("treats configured providers as available", () => {
     expect(computersAreUnavailable("docker")).toBe(false);
-    expect(computersAreUnavailable("e2b")).toBe(false);
+    expect(computersAreUnavailable("docker")).toBe(false);
   });
 });
 
@@ -32,7 +32,7 @@ describe("canChooseOwnComputer", () => {
 
 describe("sandboxProviderLabel", () => {
   it("names a provider", () => {
-    expect(sandboxProviderLabel("novita")).toBe("Novita");
+    expect(sandboxProviderLabel("docker")).toBe("Docker");
   });
 });
 
